@@ -5,6 +5,7 @@ import {
   content,
   tsuRates,
   paymentTransactions,
+  siteMetadata,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -17,6 +18,8 @@ import {
   type TsuRates,
   type InsertPaymentTransaction,
   type PaymentTransaction,
+  type InsertSiteMetadata,
+  type SiteMetadata,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -55,6 +58,10 @@ export interface IStorage {
   createPaymentTransaction(payment: InsertPaymentTransaction): Promise<PaymentTransaction>;
   getPaymentTransaction(id: string): Promise<PaymentTransaction | undefined>;
   updatePaymentStatus(id: string, status: string, providerRef?: string): Promise<void>;
+  
+  // Site metadata operations
+  getSiteMetadata(): Promise<SiteMetadata | undefined>;
+  upsertSiteMetadata(metadata: InsertSiteMetadata): Promise<SiteMetadata>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -229,6 +236,32 @@ export class DatabaseStorage implements IStorage {
       .update(paymentTransactions)
       .set(updateData)
       .where(eq(paymentTransactions.id, id));
+  }
+
+  // Site metadata operations
+  async getSiteMetadata(): Promise<SiteMetadata | undefined> {
+    const [metadata] = await db
+      .select()
+      .from(siteMetadata)
+      .where(eq(siteMetadata.isActive, true))
+      .orderBy(desc(siteMetadata.createdAt))
+      .limit(1);
+    return metadata;
+  }
+
+  async upsertSiteMetadata(metadataData: InsertSiteMetadata): Promise<SiteMetadata> {
+    // Deactivate existing metadata
+    await db
+      .update(siteMetadata)
+      .set({ isActive: false })
+      .where(eq(siteMetadata.isActive, true));
+
+    // Create new metadata
+    const [metadata] = await db
+      .insert(siteMetadata)
+      .values(metadataData)
+      .returning();
+    return metadata;
   }
 }
 

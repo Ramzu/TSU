@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, insertPaymentTransactionSchema } from "@shared/schema";
 import { z } from "zod";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
+import bcrypt from "bcryptjs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -13,21 +14,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Simple login endpoint
   app.post('/api/auth/simple-login', async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, password } = req.body;
       
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
       }
       
-      // Find or create user
+      // Find user
       let user = await storage.getUserByEmail(email);
-      if (!user) {
-        // Create new user
+      
+      // Create admin user if it doesn't exist
+      if (!user && email === 'admin@tsu-wallet.com') {
+        const hashedPassword = await bcrypt.hash('admin123', 10);
         user = await storage.createUser({
           email,
-          firstName: email.split('@')[0],
-          role: email === 'admin@tsu-wallet.com' ? 'super_admin' : 'user',
+          password: hashedPassword,
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'super_admin',
         });
+      }
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      // Verify password
+      if (!user.password) {
+        return res.status(401).json({ message: "Password required for this account" });
+      }
+      
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid email or password" });
       }
       
       // Set session
@@ -317,6 +336,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating TSU rates:", error);
       res.status(500).json({ message: "Failed to update rates" });
+    }
+  });
+
+  // Site metadata admin routes
+  app.get('/api/admin/metadata', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const metadata = await storage.getSiteMetadata();
+      res.json(metadata);
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+      res.status(500).json({ message: "Failed to fetch metadata" });
+    }
+  });
+
+  app.post('/api/admin/metadata', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { title, description, keywords, ogImage, twitterCard, siteName } = req.body;
+      
+      const metadata = await storage.upsertSiteMetadata({
+        title,
+        description,
+        keywords,
+        ogImage,
+        twitterCard,
+        siteName,
+        createdBy: req.currentUser.id,
+      });
+      
+      res.json(metadata);
+    } catch (error) {
+      console.error("Error updating metadata:", error);
+      res.status(500).json({ message: "Failed to update metadata" });
     }
   });
 

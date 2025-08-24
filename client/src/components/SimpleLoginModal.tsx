@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -30,6 +31,7 @@ export default function SimpleLoginModal({ isOpen, onClose }: SimpleLoginModalPr
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
+      password: "",
     },
   });
 
@@ -103,12 +105,34 @@ export default function SimpleLoginModal({ isOpen, onClose }: SimpleLoginModalPr
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Enter your password"
+                      data-testid="input-password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Card className="bg-blue-50" data-testid="admin-info">
               <CardContent className="pt-4">
                 <div className="text-center">
                   <h4 className="font-medium text-blue-900 mb-2">Admin Access</h4>
                   <p className="text-sm text-blue-700 mb-2">
-                    Use: <code className="bg-blue-100 px-2 py-1 rounded">admin@tsu-wallet.com</code>
+                    <strong>Email:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin@tsu-wallet.com</code>
+                  </p>
+                  <p className="text-sm text-blue-700 mb-2">
+                    <strong>Password:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin123</code>
                   </p>
                   <p className="text-xs text-blue-600">
                     This gives you super admin privileges to manage the platform.

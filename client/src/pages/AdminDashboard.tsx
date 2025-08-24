@@ -7,11 +7,12 @@ import Navigation from "@/components/Navigation";
 import CreateCoinModal from "@/components/CreateCoinModal";
 import AddAdminModal from "@/components/AddAdminModal";
 import ContentEditor from "@/components/ContentEditor";
+import MetadataEditor from "@/pages/MetadataEditor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe } from "lucide-react";
 
 interface AdminStats {
   totalUsers: number;
@@ -48,6 +49,7 @@ export default function AdminDashboard() {
   const [showCreateCoinModal, setShowCreateCoinModal] = useState(false);
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [showContentEditor, setShowContentEditor] = useState(false);
+  const [showMetadataEditor, setShowMetadataEditor] = useState(false);
 
   const { data: stats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
@@ -201,11 +203,15 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="users" data-testid="tab-users">User Management</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
                   <TabsTrigger value="reserves" data-testid="tab-reserves">Reserves</TabsTrigger>
                   <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
+                  <TabsTrigger value="metadata" data-testid="tab-metadata">
+                    <Globe className="h-4 w-4 mr-2" />
+                    Social Media
+                  </TabsTrigger>
                   <TabsTrigger value="admins" data-testid="tab-admins">Admin Management</TabsTrigger>
                 </TabsList>
               </div>
@@ -542,6 +548,7 @@ export default function AdminDashboard() {
       <CreateCoinModal isOpen={showCreateCoinModal} onClose={() => setShowCreateCoinModal(false)} />
       <AddAdminModal isOpen={showAddAdminModal} onClose={() => setShowAddAdminModal(false)} />
       {showContentEditor && <ContentEditor onClose={() => setShowContentEditor(false)} />}
+      {showMetadataEditor && <MetadataEditor />}
     </div>
   );
 }

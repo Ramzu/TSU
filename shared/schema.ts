@@ -33,6 +33,7 @@ export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'super_admin']
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
+  password: varchar("password"), // Hashed password
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -198,6 +199,27 @@ export const insertPaymentTransactionSchema = createInsertSchema(paymentTransact
   createdAt: true,
 });
 
+// Site metadata for social media sharing
+export const siteMetadata = pgTable("site_metadata", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  keywords: text("keywords"),
+  ogImage: varchar("og_image"), // URL to social media image
+  twitterCard: varchar("twitter_card").default('summary_large_image'),
+  siteName: varchar("site_name").default('TSU Wallet'),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: varchar("created_by").references(() => users.id),
+});
+
+export const insertSiteMetadataSchema = createInsertSchema(siteMetadata).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
@@ -210,3 +232,5 @@ export type InsertTsuRates = z.infer<typeof insertTsuRatesSchema>;
 export type TsuRates = typeof tsuRates.$inferSelect;
 export type InsertPaymentTransaction = z.infer<typeof insertPaymentTransactionSchema>;
 export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
+export type InsertSiteMetadata = z.infer<typeof insertSiteMetadataSchema>;
+export type SiteMetadata = typeof siteMetadata.$inferSelect;
