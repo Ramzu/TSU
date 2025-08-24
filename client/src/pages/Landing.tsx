@@ -1,4 +1,6 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
+import SimpleLoginModal from "@/components/SimpleLoginModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Globe, Zap, Users, BarChart3, Clock } from "lucide-react";
@@ -12,6 +14,8 @@ interface ContentItem {
 }
 
 export default function Landing() {
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
   const { data: content = [] } = useQuery<ContentItem[]>({
     queryKey: ["/api/content"],
   });
@@ -80,7 +84,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 className="bg-tsu-gold text-tsu-green hover:bg-yellow-400 px-8 py-3 text-lg font-semibold"
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => setShowLoginModal(true)}
                 data-testid="button-get-started"
               >
                 Get Started
@@ -250,6 +254,9 @@ export default function Landing() {
           </Button>
         </div>
       </section>
+      
+      {/* Login Modal */}
+      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </div>
   );
 }

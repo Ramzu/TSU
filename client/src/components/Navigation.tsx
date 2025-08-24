@@ -1,15 +1,48 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import SimpleLoginModal from "@/components/SimpleLoginModal";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, Settings, LogOut } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Navigation() {
   const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleNavigation = (path: string) => {
     window.location.href = path;
+  };
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/auth/simple-logout", {});
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      window.location.reload();
+    },
+    onError: () => {
+      toast({
+        title: "Logout Failed",
+        description: "Could not log out. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
   return (
@@ -53,14 +86,14 @@ export default function Navigation() {
               <div className="flex space-x-2" data-testid="auth-buttons">
                 <Button
                   variant="ghost"
-                  onClick={() => handleNavigation('/api/login')}
+                  onClick={() => setShowLoginModal(true)}
                   className="text-gray-300 hover:text-tsu-gold"
                   data-testid="button-login"
                 >
                   Login
                 </Button>
                 <Button
-                  onClick={() => handleNavigation('/api/login')}
+                  onClick={() => setShowLoginModal(true)}
                   className="bg-tsu-gold text-tsu-green hover:bg-yellow-400"
                   data-testid="button-register"
                 >
@@ -104,11 +137,12 @@ export default function Navigation() {
                       Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => handleNavigation('/api/logout')}
+                      onClick={handleLogout}
+                      disabled={logoutMutation.isPending}
                       data-testid="dropdown-logout"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      Logout
+                      {logoutMutation.isPending ? "Logging out..." : "Logout"}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -117,6 +151,9 @@ export default function Navigation() {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </nav>
   );
 }

@@ -24,6 +24,8 @@ import { eq, desc, and } from "drizzle-orm";
 export interface IStorage {
   // User operations - mandatory for Replit Auth
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(userData: Omit<UpsertUser, 'id'>): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserBalance(userId: string, newBalance: string): Promise<void>;
   getUsersByRole(role: 'user' | 'admin' | 'super_admin'): Promise<User[]>;
@@ -82,6 +84,19 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ tsuBalance: newBalance, updatedAt: new Date() })
       .where(eq(users.id, userId));
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: Omit<UpsertUser, 'id'>): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .returning();
+    return user;
   }
 
   async getUsersByRole(role: 'user' | 'admin' | 'super_admin'): Promise<User[]> {
