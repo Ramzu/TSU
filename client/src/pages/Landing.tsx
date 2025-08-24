@@ -15,6 +15,7 @@ interface ContentItem {
 
 export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
   
   const { data: content = [] } = useQuery<ContentItem[]>({
     queryKey: ["/api/content"],
@@ -84,10 +85,10 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 className="bg-tsu-gold text-tsu-green hover:bg-yellow-400 px-8 py-3 text-lg font-semibold"
-                onClick={() => setShowLoginModal(true)}
+                onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
                 data-testid="button-get-started"
               >
-                Get Started
+                Create Your Wallet Today
               </Button>
               <Button 
                 variant="outline" 
@@ -256,7 +257,7 @@ export default function Landing() {
       </section>
       
       {/* Login Modal */}
-      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} mode={loginModalMode} />
     </div>
   );
 }

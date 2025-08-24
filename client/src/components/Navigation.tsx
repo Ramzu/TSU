@@ -12,6 +12,7 @@ export default function Navigation() {
   const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -86,14 +87,14 @@ export default function Navigation() {
               <div className="flex space-x-2" data-testid="auth-buttons">
                 <Button
                   variant="ghost"
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() => { setLoginModalMode('login'); setShowLoginModal(true); }}
                   className="text-gray-300 hover:text-tsu-gold"
                   data-testid="button-login"
                 >
                   Login
                 </Button>
                 <Button
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
                   className="bg-tsu-gold text-tsu-green hover:bg-yellow-400"
                   data-testid="button-register"
                 >
@@ -153,7 +154,7 @@ export default function Navigation() {
       </div>
       
       {/* Login Modal */}
-      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} mode={loginModalMode} />
     </nav>
   );
 }

@@ -59,6 +59,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Simple registration endpoint
+  app.post('/api/auth/simple-register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+      
+      // Hash password and create user
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        role: 'user',
+        tsuBalance: 0.0,
+      });
+      
+      // Set session
+      (req as any).session.userId = user.id;
+      
+      res.json({ user, message: "Registration successful" });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
   // Simple logout endpoint
   app.post('/api/auth/simple-logout', (req, res) => {
     (req as any).session.destroy((err: any) => {

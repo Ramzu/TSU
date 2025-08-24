@@ -16,24 +16,46 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const registerSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+});
+
 type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface SimpleLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mode?: 'login' | 'register';
 }
 
-export default function SimpleLoginModal({ isOpen, onClose }: SimpleLoginModalProps) {
+export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: SimpleLoginModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
 
-  const form = useForm<LoginFormData>({
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
+
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+    },
+  });
+
+  const form = currentMode === 'login' ? loginForm : registerForm;
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
@@ -64,15 +86,55 @@ export default function SimpleLoginModal({ isOpen, onClose }: SimpleLoginModalPr
     },
   });
 
-  const handleSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data);
+  const registerMutation = useMutation({
+    mutationFn: async (data: RegisterFormData) => {
+      const response = await apiRequest("POST", "/api/auth/simple-register", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Registration Successful",
+        description: `Welcome to TSU Wallet, ${data.user.firstName}! Your account has been created.`,
+      });
+      
+      // Invalidate and refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      form.reset();
+      onClose();
+      
+      // Refresh the page to update the UI
+      window.location.reload();
+    },
+    onError: (error) => {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Failed to create account. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (data: LoginFormData | RegisterFormData) => {
+    if (currentMode === 'login') {
+      loginMutation.mutate(data as LoginFormData);
+    } else {
+      registerMutation.mutate(data as RegisterFormData);
+    }
   };
 
   const handleClose = () => {
-    if (!loginMutation.isPending) {
-      form.reset();
+    if (!loginMutation.isPending && !registerMutation.isPending) {
+      loginForm.reset();
+      registerForm.reset();
       onClose();
     }
+  };
+
+  const switchMode = () => {
+    setCurrentMode(currentMode === 'login' ? 'register' : 'login');
+    loginForm.reset();
+    registerForm.reset();
   };
 
   return (
@@ -80,89 +142,217 @@ export default function SimpleLoginModal({ isOpen, onClose }: SimpleLoginModalPr
       <DialogContent className="sm:max-w-md" data-testid="login-modal">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
-            Login to TSU Wallet
+            {currentMode === 'login' ? 'Login to TSU Wallet' : 'Create Your TSU Wallet'}
           </DialogTitle>
         </DialogHeader>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="your@email.com"
-                      data-testid="input-email"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {currentMode === 'login' ? (
+          <Form {...loginForm}>
+            <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
+              <FormField
+                control={loginForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="your@email.com"
+                        data-testid="input-email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Enter your password"
-                      data-testid="input-password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={loginForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Enter your password"
+                        data-testid="input-password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Card className="bg-blue-50" data-testid="admin-info">
+                <CardContent className="pt-4">
+                  <div className="text-center">
+                    <h4 className="font-medium text-blue-900 mb-2">Admin Access</h4>
+                    <p className="text-sm text-blue-700 mb-2">
+                      <strong>Email:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin@tsu-wallet.com</code>
+                    </p>
+                    <p className="text-sm text-blue-700 mb-2">
+                      <strong>Password:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin123</code>
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      This gives you super admin privileges to manage the platform.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-blue-50" data-testid="admin-info">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <h4 className="font-medium text-blue-900 mb-2">Admin Access</h4>
-                  <p className="text-sm text-blue-700 mb-2">
-                    <strong>Email:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin@tsu-wallet.com</code>
-                  </p>
-                  <p className="text-sm text-blue-700 mb-2">
-                    <strong>Password:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin123</code>
-                  </p>
-                  <p className="text-xs text-blue-600">
-                    This gives you super admin privileges to manage the platform.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="flex space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={loginMutation.isPending}
+                  className="flex-1"
+                  data-testid="button-cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loginMutation.isPending}
+                  className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
+                  data-testid="button-login"
+                >
+                  {loginMutation.isPending ? "Logging in..." : "Login"}
+                </Button>
+              </div>
 
-            <div className="flex space-x-4 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={loginMutation.isPending}
-                className="flex-1"
-                data-testid="button-cancel"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={loginMutation.isPending}
-                className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
-                data-testid="button-login"
-              >
-                {loginMutation.isPending ? "Logging in..." : "Login"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              <div className="text-center pt-2">
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={switchMode}
+                  className="text-tsu-green hover:text-tsu-light-green"
+                  data-testid="button-switch-mode"
+                >
+                  Don't have an account? Register here
+                </Button>
+              </div>
+            </form>
+          </Form>
+        ) : (
+          <Form {...registerForm}>
+            <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+              <FormField
+                control={registerForm.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Your first name"
+                        data-testid="input-firstName"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={registerForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Your last name"
+                        data-testid="input-lastName"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={registerForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="your@email.com"
+                        data-testid="input-email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={registerForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Create a password (min 6 characters)"
+                        data-testid="input-password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={registerMutation.isPending}
+                  className="flex-1"
+                  data-testid="button-cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={registerMutation.isPending}
+                  className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
+                  data-testid="button-register"
+                >
+                  {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+                </Button>
+              </div>
+
+              <div className="text-center pt-2">
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={switchMode}
+                  className="text-tsu-green hover:text-tsu-light-green"
+                  data-testid="button-switch-mode"
+                >
+                  Already have an account? Login here
+                </Button>
+              </div>
+            </form>
+          </Form>
+        )}
+
       </DialogContent>
     </Dialog>
   );
