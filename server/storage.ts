@@ -3,6 +3,8 @@ import {
   transactions,
   coinSupply,
   content,
+  tsuRates,
+  paymentTransactions,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -11,6 +13,10 @@ import {
   type CoinSupply,
   type InsertContent,
   type Content,
+  type InsertTsuRates,
+  type TsuRates,
+  type InsertPaymentTransaction,
+  type PaymentTransaction,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -38,6 +44,15 @@ export interface IStorage {
   
   // Admin operations
   promoteUserToAdmin(userId: string, role: 'admin' | 'super_admin'): Promise<void>;
+  
+  // TSU rates operations
+  getTsuRates(): Promise<TsuRates | undefined>;
+  upsertTsuRates(rates: InsertTsuRates): Promise<TsuRates>;
+  
+  // Payment operations
+  createPaymentTransaction(payment: InsertPaymentTransaction): Promise<PaymentTransaction>;
+  getPaymentTransaction(id: string): Promise<PaymentTransaction | undefined>;
+  updatePaymentStatus(id: string, status: string, providerRef?: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -155,6 +170,50 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ role, updatedAt: new Date() })
       .where(eq(users.id, userId));
+  }
+  
+  // TSU rates operations
+  async getTsuRates(): Promise<TsuRates | undefined> {
+    const [rates] = await db.select().from(tsuRates).where(eq(tsuRates.isActive, true)).orderBy(desc(tsuRates.updatedAt));
+    return rates;
+  }
+
+  async upsertTsuRates(ratesData: InsertTsuRates): Promise<TsuRates> {
+    // Deactivate old rates
+    await db.update(tsuRates).set({ isActive: false });
+    
+    // Insert new rates
+    const [rates] = await db
+      .insert(tsuRates)
+      .values({ ...ratesData, isActive: true })
+      .returning();
+    return rates;
+  }
+  
+  // Payment operations
+  async createPaymentTransaction(paymentData: InsertPaymentTransaction): Promise<PaymentTransaction> {
+    const [payment] = await db
+      .insert(paymentTransactions)
+      .values(paymentData)
+      .returning();
+    return payment;
+  }
+
+  async getPaymentTransaction(id: string): Promise<PaymentTransaction | undefined> {
+    const [payment] = await db.select().from(paymentTransactions).where(eq(paymentTransactions.id, id));
+    return payment;
+  }
+
+  async updatePaymentStatus(id: string, status: string, providerRef?: string): Promise<void> {
+    const updateData: any = { paymentStatus: status };
+    if (providerRef) {
+      updateData.paymentProviderRef = providerRef;
+    }
+    
+    await db
+      .update(paymentTransactions)
+      .set(updateData)
+      .where(eq(paymentTransactions.id, id));
   }
 }
 

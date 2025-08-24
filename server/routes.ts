@@ -2,8 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema } from "@shared/schema";
+import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, insertPaymentTransactionSchema } from "@shared/schema";
 import { z } from "zod";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -44,15 +45,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid amount" });
       }
 
-      // Get current user
+      // Get current user and TSU rates
       const user = await storage.getUser(userId);
+      const rates = await storage.getTsuRates();
+      
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Calculate TSU amount (1:1 ratio with processing fee)
+      // Calculate TSU amount based on current rates
       const processingFee = parseFloat(amount) * 0.025; // 2.5% fee
-      const tsuAmount = (parseFloat(amount) - processingFee).toString();
+      const netAmount = parseFloat(amount) - processingFee;
+      const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.25; // Default $1.25 per TSU
+      const tsuAmount = (netAmount / tsuPrice).toString();
       
       // Update user balance
       const newBalance = (parseFloat(user.tsuBalance || '0') + parseFloat(tsuAmount)).toString();
@@ -65,10 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: tsuAmount,
         currency: 'TSU',
         description: `Purchased ${tsuAmount} TSU with ${amount} ${currency}`,
-        metadata: { paymentMethod, processingFee: processingFee.toString() },
+        metadata: { paymentMethod, processingFee: processingFee.toString(), tsuPrice: tsuPrice.toString() },
       });
 
-      res.json({ transaction, newBalance });
+      res.json({ transaction, newBalance, tsuAmount });
     } catch (error) {
       console.error("Error processing TSU purchase:", error);
       res.status(500).json({ message: "Failed to process purchase" });
@@ -189,6 +194,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PayPal routes
+  app.get("/api/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/api/paypal/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/api/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // TSU rates endpoint
+  app.get('/api/tsu/rates', async (req, res) => {
+    try {
+      const rates = await storage.getTsuRates();
+      res.json(rates);
+    } catch (error) {
+      console.error("Error fetching TSU rates:", error);
+      res.status(500).json({ message: "Failed to fetch rates" });
+    }
+  });
+
   // Content management routes
   app.get('/api/content', async (req, res) => {
     try {
@@ -216,6 +245,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving content:", error);
       res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
+  // Update TSU rates (admin only)
+  app.put('/api/admin/tsu-rates', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const ratesData = req.body;
+      ratesData.updatedBy = req.user.claims.sub;
+      
+      const updatedRates = await storage.upsertTsuRates(ratesData);
+      res.json(updatedRates);
+    } catch (error) {
+      console.error("Error updating TSU rates:", error);
+      res.status(500).json({ message: "Failed to update rates" });
     }
   });
 

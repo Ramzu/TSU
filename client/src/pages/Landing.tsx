@@ -50,9 +50,32 @@ export default function Landing() {
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6" data-testid="hero-title">
               {getContent('hero-title', 'Trade Settlement Unit')}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto" data-testid="hero-subtitle">
+            <p className="text-xl md:text-2xl text-gray-200 mb-6 max-w-3xl mx-auto" data-testid="hero-subtitle">
               {getContent('hero-subtitle', 'The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.')}
             </p>
+            
+            {/* TSU Value Display */}
+            <div className="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-tsu-gold mb-2">Current TSU Value</h3>
+                <div className="flex justify-center items-center space-x-8 text-white">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-tsu-gold">1 TSU</p>
+                    <p className="text-sm opacity-80">Trade Settlement Unit</p>
+                  </div>
+                  <div className="text-3xl text-tsu-gold">=</div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-white">1 Liter</p>
+                    <p className="text-sm opacity-80">Gasoline/Petrol</p>
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-lg font-semibold text-tsu-gold">$1.25 USD</p>
+                  <p className="text-sm text-gray-200">Current exchange rate</p>
+                </div>
+              </div>
+            </div>
+            
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 

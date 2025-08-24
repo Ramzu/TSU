@@ -201,10 +201,11 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="users" data-testid="tab-users">User Management</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
                   <TabsTrigger value="reserves" data-testid="tab-reserves">Reserves</TabsTrigger>
+                  <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
                   <TabsTrigger value="admins" data-testid="tab-admins">Admin Management</TabsTrigger>
                 </TabsList>
               </div>
@@ -350,6 +351,140 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="p-6" data-testid="pricing-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">TSU Pricing Management</h3>
+                  <div className="text-sm text-gray-500">
+                    Control TSU exchange rates and fees
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Current Pricing */}
+                  <Card className="border-tsu-gold border-2" data-testid="current-pricing-card">
+                    <CardHeader>
+                      <CardTitle className="text-tsu-green">Current TSU Value</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="text-center p-6 bg-gradient-to-br from-tsu-green to-tsu-light-green rounded-lg text-white">
+                        <h4 className="text-2xl font-bold mb-2">1 TSU = 1 Liter Gasoline</h4>
+                        <p className="text-lg">Current Rate: <span className="font-semibold text-tsu-gold">$1.25 USD</span></p>
+                        <p className="text-sm opacity-80">Last updated: Today</p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                          <span className="font-medium">Processing Fee:</span>
+                          <span className="text-tsu-green font-semibold">2.5%</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                          <span className="font-medium">Minimum Purchase:</span>
+                          <span className="text-tsu-green font-semibold">$10.00</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                          <span className="font-medium">Payment Methods:</span>
+                          <span className="text-tsu-green font-semibold">PayPal, Crypto (Soon)</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Price Update Form */}
+                  <Card data-testid="price-update-card">
+                    <CardHeader>
+                      <CardTitle className="text-tsu-green">Update TSU Pricing</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <h5 className="font-medium text-amber-800 mb-2">⚠️ Price Update Notice</h5>
+                        <p className="text-sm text-amber-700">
+                          TSU is pegged to gasoline prices for stability. Price updates should reflect real market conditions.
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            New USD Rate per TSU
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            defaultValue="1.25"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
+                            data-testid="input-new-price"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Processing Fee (%)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="10"
+                            defaultValue="2.5"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
+                            data-testid="input-processing-fee"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Reason for Update
+                          </label>
+                          <textarea
+                            rows={3}
+                            placeholder="e.g., Updated to reflect current gasoline prices"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
+                            data-testid="textarea-update-reason"
+                          />
+                        </div>
+                        
+                        <Button 
+                          className="w-full bg-tsu-green hover:bg-tsu-light-green"
+                          disabled
+                          data-testid="button-update-pricing"
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Update Pricing (Coming Soon)
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                {/* Pricing History */}
+                <Card className="mt-6" data-testid="pricing-history-card">
+                  <CardHeader>
+                    <CardTitle className="text-tsu-green">Pricing History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">Initial Launch Rate</div>
+                          <div className="text-sm text-gray-500">January 24, 2025</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-tsu-green">$1.25 USD</div>
+                          <div className="text-sm text-gray-500">System Launch</div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center py-8 text-gray-500">
+                        <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>No pricing updates yet</p>
+                        <p className="text-sm">Price history will appear here after updates</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="admins" className="p-6" data-testid="admins-tab-content">

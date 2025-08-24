@@ -44,9 +44,11 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
   });
 
   const watchAmount = form.watch("amount");
+  const watchPaymentMethod = form.watch("paymentMethod");
   const amount = parseFloat(watchAmount) || 0;
   const processingFee = amount * 0.025; // 2.5% fee
-  const tsuAmount = amount - processingFee;
+  const tsuPrice = 1.25; // $1.25 per TSU
+  const tsuAmount = (amount - processingFee) / tsuPrice;
 
   const buyTSUMutation = useMutation({
     mutationFn: async (data: BuyTSUFormData) => {
@@ -140,7 +142,7 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span>Exchange Rate:</span>
-                      <span>1 USD = 1 TSU</span>
+                      <span>1 TSU = $1.25 USD</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Processing Fee (2.5%):</span>
@@ -168,15 +170,55 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="paypal" data-testid="payment-paypal">PayPal</SelectItem>
+                      <SelectItem value="bitcoin" data-testid="payment-bitcoin">Bitcoin (BTC)</SelectItem>
+                      <SelectItem value="ethereum" data-testid="payment-ethereum">Ethereum (ETH)</SelectItem>
                       <SelectItem value="credit-card" data-testid="payment-credit-card">Credit Card</SelectItem>
                       <SelectItem value="bank-transfer" data-testid="payment-bank-transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="mobile-money" data-testid="payment-mobile-money">Mobile Money</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Payment Method Specific Instructions */}
+            {watchPaymentMethod === 'paypal' && (
+              <Card className="bg-blue-50 border-blue-200" data-testid="paypal-instructions">
+                <CardContent className="pt-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">PP</span>
+                    </div>
+                    <span className="font-medium text-blue-900">PayPal Payment</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Secure payment through PayPal. You'll be redirected to PayPal to complete your purchase.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {(watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && (
+              <Card className="bg-orange-50 border-orange-200" data-testid="crypto-instructions">
+                <CardContent className="pt-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">₿</span>
+                    </div>
+                    <span className="font-medium text-orange-900">
+                      {watchPaymentMethod === 'bitcoin' ? 'Bitcoin' : 'Ethereum'} Payment
+                    </span>
+                  </div>
+                  <p className="text-sm text-orange-700 mb-2">
+                    Current rate: 1 TSU = {watchPaymentMethod === 'bitcoin' ? '0.000025 BTC' : '0.0008 ETH'}
+                  </p>
+                  <p className="text-sm text-orange-600">
+                    Cryptocurrency payments coming soon. Please use PayPal for now.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="flex space-x-4 pt-4">
               <Button
@@ -191,11 +233,12 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
               </Button>
               <Button
                 type="submit"
-                disabled={buyTSUMutation.isPending}
-                className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
+                disabled={buyTSUMutation.isPending || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum'}
+                className="flex-1 bg-tsu-green hover:bg-tsu-light-green disabled:opacity-50"
                 data-testid="button-buy-tsu"
               >
-                {buyTSUMutation.isPending ? "Processing..." : "Buy TSU"}
+                {buyTSUMutation.isPending ? "Processing..." : 
+                 (watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') ? "Coming Soon" : "Buy TSU"}
               </Button>
             </div>
           </form>
