@@ -86,6 +86,40 @@ export const content = pgTable("content", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// TSU pricing and rates table
+export const tsuRates = pgTable("tsu_rates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  baseCurrency: varchar("base_currency").notNull(), // USD, EUR, etc.
+  tsuPrice: decimal("tsu_price", { precision: 18, scale: 8 }).notNull(), // Price of 1 TSU
+  gasolineEquivalent: decimal("gasoline_equivalent", { precision: 10, scale: 4 }).default('1.0000'), // TSU to gasoline liter ratio
+  cryptoRates: jsonb("crypto_rates"), // BTC, ETH rates to TSU
+  isActive: boolean("is_active").default(true),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Payment methods enum
+export const paymentMethodEnum = pgEnum('payment_method', ['paypal', 'bitcoin', 'ethereum', 'bank_transfer', 'card']);
+
+// Payment transactions table
+export const paymentTransactions = pgTable("payment_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  transactionId: varchar("transaction_id").references(() => transactions.id),
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  amountFiat: decimal("amount_fiat", { precision: 18, scale: 2 }),
+  currencyFiat: varchar("currency_fiat"),
+  amountCrypto: decimal("amount_crypto", { precision: 18, scale: 8 }),
+  currencyCrypto: varchar("currency_crypto"),
+  tsuAmount: decimal("tsu_amount", { precision: 18, scale: 8 }).notNull(),
+  exchangeRate: decimal("exchange_rate", { precision: 18, scale: 8 }),
+  fees: decimal("fees", { precision: 18, scale: 8 }),
+  paymentStatus: varchar("payment_status").default('pending'),
+  paymentProviderRef: varchar("payment_provider_ref"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   transactions: many(transactions),
@@ -114,6 +148,24 @@ export const contentRelations = relations(content, ({ one }) => ({
   }),
 }));
 
+export const tsuRatesRelations = relations(tsuRates, ({ one }) => ({
+  updatedBy: one(users, {
+    fields: [tsuRates.updatedBy],
+    references: [users.id],
+  }),
+}));
+
+export const paymentTransactionsRelations = relations(paymentTransactions, ({ one }) => ({
+  user: one(users, {
+    fields: [paymentTransactions.userId],
+    references: [users.id],
+  }),
+  transaction: one(transactions, {
+    fields: [paymentTransactions.transactionId],
+    references: [transactions.id],
+  }),
+}));
+
 // Schema types and validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -136,6 +188,16 @@ export const insertContentSchema = createInsertSchema(content).omit({
   updatedAt: true,
 });
 
+export const insertTsuRatesSchema = createInsertSchema(tsuRates).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertPaymentTransactionSchema = createInsertSchema(paymentTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
@@ -144,3 +206,7 @@ export type InsertCoinSupply = z.infer<typeof insertCoinSupplySchema>;
 export type CoinSupply = typeof coinSupply.$inferSelect;
 export type InsertContent = z.infer<typeof insertContentSchema>;
 export type Content = typeof content.$inferSelect;
+export type InsertTsuRates = z.infer<typeof insertTsuRatesSchema>;
+export type TsuRates = typeof tsuRates.$inferSelect;
+export type InsertPaymentTransaction = z.infer<typeof insertPaymentTransactionSchema>;
+export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
