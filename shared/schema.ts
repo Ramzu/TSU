@@ -167,6 +167,7 @@ export const paymentTransactionsRelations = relations(paymentTransactions, ({ on
   }),
 }));
 
+
 // Schema types and validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -199,6 +200,32 @@ export const insertPaymentTransactionSchema = createInsertSchema(paymentTransact
   createdAt: true,
 });
 
+// Password reset tokens table
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  token: varchar("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// SMTP configuration table for admin
+export const smtpConfig = pgTable("smtp_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  host: varchar("host").notNull(),
+  port: integer("port").notNull(),
+  secure: boolean("secure").default(true), // true for 465, false for other ports
+  username: varchar("username").notNull(),
+  password: varchar("password").notNull(), // Encrypted
+  fromEmail: varchar("from_email").notNull(),
+  fromName: varchar("from_name").default('TSU Wallet'),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Site metadata for social media sharing
 export const siteMetadata = pgTable("site_metadata", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -212,6 +239,31 @@ export const siteMetadata = pgTable("site_metadata", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by").references(() => users.id),
+});
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResetTokens.userId],
+    references: [users.id],
+  }),
+}));
+
+export const smtpConfigRelations = relations(smtpConfig, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [smtpConfig.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSmtpConfigSchema = createInsertSchema(smtpConfig).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertSiteMetadataSchema = createInsertSchema(siteMetadata).omit({
@@ -232,5 +284,9 @@ export type InsertTsuRates = z.infer<typeof insertTsuRatesSchema>;
 export type TsuRates = typeof tsuRates.$inferSelect;
 export type InsertPaymentTransaction = z.infer<typeof insertPaymentTransactionSchema>;
 export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
+export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertSmtpConfig = z.infer<typeof insertSmtpConfigSchema>;
+export type SmtpConfig = typeof smtpConfig.$inferSelect;
 export type InsertSiteMetadata = z.infer<typeof insertSiteMetadataSchema>;
 export type SiteMetadata = typeof siteMetadata.$inferSelect;

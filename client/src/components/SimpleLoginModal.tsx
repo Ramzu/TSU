@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -38,6 +39,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -143,13 +145,14 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md" data-testid="login-modal">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
-            {currentMode === 'login' ? t('auth.login.title') : t('auth.register.title')}
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md" data-testid="login-modal">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
+              {currentMode === 'login' ? t('auth.login.title') : t('auth.register.title')}
+            </DialogTitle>
+          </DialogHeader>
         
         {currentMode === 'login' ? (
           <Form {...loginForm}>
@@ -214,7 +217,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                 </Button>
               </div>
 
-              <div className="text-center pt-2">
+              <div className="text-center pt-2 space-y-1">
                 <Button
                   type="button"
                   variant="link"
@@ -224,6 +227,17 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                 >
                   Don't have an account? Register here
                 </Button>
+                <div>
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-gray-600 hover:text-tsu-green"
+                    data-testid="button-forgot-password"
+                  >
+                    Forgot Password?
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>
@@ -342,7 +356,14 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
           </Form>
         )}
 
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
+    </>
   );
 }

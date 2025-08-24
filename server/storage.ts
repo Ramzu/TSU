@@ -6,6 +6,8 @@ import {
   tsuRates,
   paymentTransactions,
   siteMetadata,
+  passwordResetTokens,
+  smtpConfig,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -20,6 +22,10 @@ import {
   type PaymentTransaction,
   type InsertSiteMetadata,
   type SiteMetadata,
+  type InsertPasswordResetToken,
+  type PasswordResetToken,
+  type InsertSmtpConfig,
+  type SmtpConfig,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -62,6 +68,17 @@ export interface IStorage {
   // Site metadata operations
   getSiteMetadata(): Promise<SiteMetadata | undefined>;
   upsertSiteMetadata(metadata: InsertSiteMetadata): Promise<SiteMetadata>;
+  
+  // Password reset operations
+  createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markTokenAsUsed(tokenId: string): Promise<void>;
+  cleanupExpiredTokens(): Promise<void>;
+  updateUserPassword(userId: string, newPasswordHash: string): Promise<void>;
+  
+  // SMTP configuration operations
+  getSmtpConfig(): Promise<SmtpConfig | undefined>;
+  upsertSmtpConfig(config: InsertSmtpConfig): Promise<SmtpConfig>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -262,6 +279,82 @@ export class DatabaseStorage implements IStorage {
       .values(metadataData)
       .returning();
     return metadata;
+  }
+
+  // Password reset operations
+  async createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db
+      .insert(passwordResetTokens)
+      .values(tokenData)
+      .returning();
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [tokenData] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(and(
+        eq(passwordResetTokens.token, token),
+        eq(passwordResetTokens.used, false)
+      ));
+    return tokenData;
+  }
+
+  async markTokenAsUsed(tokenId: string): Promise<void> {
+    await db
+      .update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.id, tokenId));
+  }
+
+  async cleanupExpiredTokens(): Promise<void> {
+    const now = new Date();
+    await db
+      .delete(passwordResetTokens)
+      .where(and(
+        eq(passwordResetTokens.used, false),
+        // Delete expired tokens
+        eq(passwordResetTokens.expiresAt, now)
+      ));
+  }
+
+  async updateUserPassword(userId: string, newPasswordHash: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        password: newPasswordHash,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, userId));
+  }
+
+  // SMTP configuration operations
+  async getSmtpConfig(): Promise<SmtpConfig | undefined> {
+    const [config] = await db
+      .select()
+      .from(smtpConfig)
+      .where(eq(smtpConfig.isActive, true))
+      .orderBy(desc(smtpConfig.createdAt))
+      .limit(1);
+    return config;
+  }
+
+  async upsertSmtpConfig(configData: InsertSmtpConfig): Promise<SmtpConfig> {
+    // First, deactivate all existing configs
+    await db
+      .update(smtpConfig)
+      .set({ isActive: false, updatedAt: new Date() });
+
+    // Then insert the new config
+    const [config] = await db
+      .insert(smtpConfig)
+      .values({
+        ...configData,
+        isActive: true,
+      })
+      .returning();
+    return config;
   }
 }
 

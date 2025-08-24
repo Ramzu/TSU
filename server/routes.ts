@@ -5,7 +5,9 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, insertPaymentTransactionSchema } from "@shared/schema";
 import { z } from "zod";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
+import { emailService } from "./emailService";
 import bcrypt from "bcryptjs";
+import { nanoid } from "nanoid";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -107,6 +109,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logout successful" });
     });
+  });
+
+  // Password reset request endpoint
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Return success even if user doesn't exist (security)
+        return res.json({ message: "If the email exists, a password reset link has been sent." });
+      }
+
+      // Generate reset token
+      const resetToken = nanoid(32);
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+      // Store token in database
+      await storage.createPasswordResetToken({
+        userId: user.id,
+        token: resetToken,
+        expiresAt,
+      });
+
+      // Send email
+      try {
+        await emailService.sendPasswordResetEmail(
+          user.email!,
+          resetToken,
+          user.firstName || undefined
+        );
+        res.json({ message: "If the email exists, a password reset link has been sent." });
+      } catch (emailError) {
+        console.error("Error sending password reset email:", emailError);
+        res.status(500).json({ message: "Failed to send password reset email. Please contact support." });
+      }
+    } catch (error) {
+      console.error("Error in forgot password:", error);
+      res.status(500).json({ message: "Password reset failed" });
+    }
+  });
+
+  // Password reset confirmation endpoint
+  app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      // Find and validate token
+      const resetToken = await storage.getPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      // Check if token is expired
+      if (new Date() > resetToken.expiresAt) {
+        return res.status(400).json({ message: "Reset token has expired" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update user password
+      await storage.updateUserPassword(resetToken.userId, hashedPassword);
+
+      // Mark token as used
+      await storage.markTokenAsUsed(resetToken.id);
+
+      res.json({ message: "Password reset successful" });
+    } catch (error) {
+      console.error("Error in reset password:", error);
+      res.status(500).json({ message: "Password reset failed" });
+    }
   });
 
   // Auth routes - support both OIDC and simple auth
@@ -308,6 +394,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error promoting user:", error);
       res.status(500).json({ message: "Failed to promote user" });
+    }
+  });
+
+  // SMTP configuration (admin only)
+  app.get('/api/admin/smtp-config', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const config = await storage.getSmtpConfig();
+      if (config) {
+        // Don't send password in response
+        const { password, ...safeConfig } = config;
+        res.json(safeConfig);
+      } else {
+        res.json(null);
+      }
+    } catch (error) {
+      console.error("Error fetching SMTP config:", error);
+      res.status(500).json({ message: "Failed to fetch SMTP configuration" });
+    }
+  });
+
+  app.post('/api/admin/smtp-config', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const { host, port, secure, username, password, fromEmail, fromName } = req.body;
+      
+      if (!host || !port || !username || !password || !fromEmail) {
+        return res.status(400).json({ message: "Missing required SMTP configuration fields" });
+      }
+
+      const config = await storage.upsertSmtpConfig({
+        host,
+        port: parseInt(port),
+        secure: secure === true || secure === 'true',
+        username,
+        password, // TODO: Encrypt this in production
+        fromEmail,
+        fromName: fromName || 'TSU Wallet',
+        createdBy: req.currentUser.id,
+      });
+      
+      // Don't send password in response
+      const { password: _, ...safeConfig } = config;
+      res.json(safeConfig);
+    } catch (error) {
+      console.error("Error updating SMTP config:", error);
+      res.status(500).json({ message: "Failed to update SMTP configuration" });
+    }
+  });
+
+  // Test SMTP configuration (admin only)
+  app.post('/api/admin/smtp-test', isAuthenticated, requireAdmin, async (req: any, res) => {
+    try {
+      const result = await emailService.testConnection();
+      res.json(result);
+    } catch (error) {
+      console.error("Error testing SMTP connection:", error);
+      res.status(500).json({ message: "Failed to test SMTP connection" });
     }
   });
 

@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
+import ResetPassword from "@/pages/ResetPassword";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -29,6 +30,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/reset-password" component={ResetPassword} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

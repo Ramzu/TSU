@@ -8,11 +8,12 @@ import CreateCoinModal from "@/components/CreateCoinModal";
 import AddAdminModal from "@/components/AddAdminModal";
 import ContentEditor from "@/components/ContentEditor";
 import MetadataEditor from "@/pages/MetadataEditor";
+import SmtpConfigSection from "@/components/SmtpConfigSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail } from "lucide-react";
 
 interface AdminStats {
   totalUsers: number;
@@ -203,7 +204,7 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                   <TabsTrigger value="users" data-testid="tab-users">User Management</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
                   <TabsTrigger value="reserves" data-testid="tab-reserves">Reserves</TabsTrigger>
@@ -211,6 +212,10 @@ export default function AdminDashboard() {
                   <TabsTrigger value="metadata" data-testid="tab-metadata">
                     <Globe className="h-4 w-4 mr-2" />
                     Social Media
+                  </TabsTrigger>
+                  <TabsTrigger value="email" data-testid="tab-email">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email Settings
                   </TabsTrigger>
                   <TabsTrigger value="admins" data-testid="tab-admins">Admin Management</TabsTrigger>
                 </TabsList>
@@ -491,6 +496,10 @@ export default function AdminDashboard() {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="email" className="p-6" data-testid="email-tab-content">
+                <SmtpConfigSection />
               </TabsContent>
 
               <TabsContent value="admins" className="p-6" data-testid="admins-tab-content">
