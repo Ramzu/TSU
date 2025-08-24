@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const buyTSUSchema = z.object({
   amount: z.string().min(1, "Amount is required").refine(
@@ -34,6 +35,7 @@ interface BuyTSUModalProps {
 export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const form = useForm<BuyTSUFormData>({
     resolver: zodResolver(buyTSUSchema),

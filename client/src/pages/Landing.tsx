@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Globe, Zap, Users, BarChart3, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 interface ContentItem {
   key: string;
@@ -16,6 +17,7 @@ interface ContentItem {
 export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
+  const { t } = useTranslation();
   
   const { data: content = [] } = useQuery<ContentItem[]>({
     queryKey: ["/api/content"],
@@ -53,30 +55,30 @@ export default function Landing() {
               />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6" data-testid="hero-title">
-              {getContent('hero-title', 'Trade Settlement Unit')}
+              {getContent('hero-title', t('hero.title'))}
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-6 max-w-3xl mx-auto" data-testid="hero-subtitle">
-              {getContent('hero-subtitle', 'The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.')}
+              {getContent('hero-subtitle', t('hero.subtitle'))}
             </p>
             
             {/* TSU Value Display */}
             <div className="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-tsu-gold mb-2">Current TSU Value</h3>
+                <h3 className="text-lg font-semibold text-tsu-gold mb-2">{t('hero.currentValue')}</h3>
                 <div className="flex justify-center items-center space-x-8 text-white">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-tsu-gold">1 TSU</p>
-                    <p className="text-sm opacity-80">Trade Settlement Unit</p>
+                    <p className="text-sm opacity-80">{t('hero.tradeUnit')}</p>
                   </div>
                   <div className="text-3xl text-tsu-gold">=</div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-white">1 Liter</p>
-                    <p className="text-sm opacity-80">Gasoline/Petrol</p>
+                    <p className="text-sm opacity-80">{t('hero.gasoline')}</p>
                   </div>
                 </div>
                 <div className="mt-4 text-center">
                   <p className="text-lg font-semibold text-tsu-gold">$1.25 USD</p>
-                  <p className="text-sm text-gray-200">Current exchange rate</p>
+                  <p className="text-sm text-gray-200">{t('hero.exchangeRate')}</p>
                 </div>
               </div>
             </div>
@@ -88,7 +90,7 @@ export default function Landing() {
                 onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
                 data-testid="button-get-started"
               >
-                Create Your Wallet Today
+                {t('hero.getStarted')}
               </Button>
               <Button 
                 variant="outline" 
@@ -97,7 +99,7 @@ export default function Landing() {
                 onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-learn-more"
               >
-                Learn More
+                {t('hero.learnMore')}
               </Button>
             </div>
           </div>
@@ -109,10 +111,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-tsu-green mb-4" data-testid="features-title">
-              {getContent('features-title', 'Why Choose TSU?')}
+              {getContent('features-title', t('features.title'))}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="features-subtitle">
-              {getContent('features-subtitle', 'Built for the future of African trade, backed by real reserves and designed for stability.')}
+              {getContent('features-subtitle', t('features.subtitle'))}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -121,10 +123,10 @@ export default function Landing() {
                 <Shield className="h-8 w-8 text-tsu-green" />
               </div>
               <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-1-title">
-                {getContent('feature-1-title', 'Reserve-Backed Stability')}
+                {getContent('feature-1-title', t('features.reserve.title'))}
               </h3>
               <p className="text-gray-600" data-testid="feature-1-desc">
-                {getContent('feature-1-desc', 'Backed by 40% gold, 30% BRICS currencies, 20% African commodities, and 10% African currencies for maximum stability.')}
+                {getContent('feature-1-desc', t('features.reserve.desc'))}
               </p>
             </Card>
             <Card className="text-center p-6 hover:shadow-lg transition-shadow" data-testid="feature-card-2">
@@ -132,10 +134,10 @@ export default function Landing() {
                 <Globe className="h-8 w-8 text-tsu-green" />
               </div>
               <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-2-title">
-                {getContent('feature-2-title', 'Africa-BRICS Focus')}
+                {getContent('feature-2-title', t('features.trade.title'))}
               </h3>
               <p className="text-gray-600" data-testid="feature-2-desc">
-                {getContent('feature-2-desc', 'Specifically designed to facilitate trade between African nations and BRICS partners, reducing USD dependence.')}
+                {getContent('feature-2-desc', t('features.trade.desc'))}
               </p>
             </Card>
             <Card className="text-center p-6 hover:shadow-lg transition-shadow" data-testid="feature-card-3">
@@ -143,10 +145,10 @@ export default function Landing() {
                 <Zap className="h-8 w-8 text-tsu-green" />
               </div>
               <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-3-title">
-                {getContent('feature-3-title', 'Instant Settlement')}
+                {getContent('feature-3-title', t('features.stable.title'))}
               </h3>
               <p className="text-gray-600" data-testid="feature-3-desc">
-                {getContent('feature-3-desc', 'Fast, secure transactions with immediate settlement for petroleum, gold, and currency exchanges.')}
+                {getContent('feature-3-desc', t('features.stable.desc'))}
               </p>
             </Card>
           </div>
@@ -251,7 +253,7 @@ export default function Landing() {
             onClick={() => window.location.href = '/api/login'}
             data-testid="button-create-wallet"
           >
-            Create Your Wallet Today
+            {t('hero.getStarted')}
           </Button>
         </div>
       </section>

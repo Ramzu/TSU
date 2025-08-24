@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import SimpleLoginModal from "@/components/SimpleLoginModal";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, Settings, LogOut } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export default function Navigation() {
   const { user, isAuthenticated } = useAuth();
@@ -15,6 +17,7 @@ export default function Navigation() {
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const handleNavigation = (path: string) => {
     window.location.href = path;
@@ -27,15 +30,15 @@ export default function Navigation() {
     },
     onSuccess: () => {
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: t("toast.logoutSuccess"),
+        description: t("toast.logoutMessage"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       window.location.reload();
     },
     onError: () => {
       toast({
-        title: "Logout Failed",
+        title: t("toast.logoutFailed"),
         description: "Could not log out. Please try again.",
         variant: "destructive",
       });
@@ -68,14 +71,14 @@ export default function Navigation() {
                     className="text-gray-300 hover:text-tsu-gold px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     data-testid="nav-home"
                   >
-                    Home
+                    {t("nav.home")}
                   </button>
                   <button 
                     onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
                     className="text-gray-300 hover:text-tsu-gold px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     data-testid="nav-about"
                   >
-                    About TSU
+                    {t("nav.about")}
                   </button>
                 </div>
               </div>
@@ -83,6 +86,7 @@ export default function Navigation() {
           </div>
           
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             {!isAuthenticated ? (
               <div className="flex space-x-2" data-testid="auth-buttons">
                 <Button
@@ -91,20 +95,20 @@ export default function Navigation() {
                   className="text-gray-300 hover:text-tsu-gold"
                   data-testid="button-login"
                 >
-                  Login
+                  {t("nav.login")}
                 </Button>
                 <Button
                   onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
                   className="bg-tsu-gold text-tsu-green hover:bg-yellow-400"
                   data-testid="button-register"
                 >
-                  Register
+                  {t("nav.register")}
                 </Button>
               </div>
             ) : (
               <div className="flex items-center space-x-4" data-testid="user-menu">
                 <span className="text-gray-300 hidden sm:inline" data-testid="welcome-message">
-                  Welcome, {user?.firstName || user?.email?.split('@')[0]}
+                  {t("nav.welcome", { name: user?.firstName || user?.email?.split('@')[0] })}
                 </span>
                 
                 {(user?.role === 'admin' || user?.role === 'super_admin') && (
@@ -115,7 +119,7 @@ export default function Navigation() {
                     data-testid="button-admin"
                   >
                     <Settings className="h-4 w-4 mr-1" />
-                    Admin
+                    {t("nav.admin")}
                   </Button>
                 )}
                 
@@ -135,7 +139,7 @@ export default function Navigation() {
                       data-testid="dropdown-dashboard"
                     >
                       <User className="mr-2 h-4 w-4" />
-                      Dashboard
+                      {t("nav.dashboard")}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={handleLogout}
@@ -143,7 +147,7 @@ export default function Navigation() {
                       data-testid="dropdown-logout"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                      {logoutMutation.isPending ? "Logging out..." : t("nav.logout")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

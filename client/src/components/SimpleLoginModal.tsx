@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -35,6 +36,7 @@ interface SimpleLoginModalProps {
 export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: SimpleLoginModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
 
   const loginForm = useForm<LoginFormData>({
@@ -67,8 +69,8 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
     },
     onSuccess: (data) => {
       toast({
-        title: "Login Successful",
-        description: `Welcome ${data.user.firstName || data.user.email}!`,
+        title: t("toast.loginSuccess"),
+        description: t("toast.loginWelcome", { name: data.user.firstName || data.user.email }),
       });
       
       // Invalidate and refetch user data
@@ -82,7 +84,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
     },
     onError: (error) => {
       toast({
-        title: "Login Failed",
+        title: t("toast.loginFailed"),
         description: error.message || "Failed to log in. Please try again.",
         variant: "destructive",
       });
@@ -96,8 +98,8 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
     },
     onSuccess: (data) => {
       toast({
-        title: "Registration Successful",
-        description: `Welcome to TSU Wallet, ${data.user.firstName}! Your account has been created.`,
+        title: t("toast.registrationSuccess"),
+        description: t("toast.registrationWelcome", { name: data.user.firstName }),
       });
       
       // Invalidate and refetch user data
@@ -111,7 +113,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
     },
     onError: (error) => {
       toast({
-        title: "Registration Failed",
+        title: t("toast.registrationFailed"),
         description: error.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
@@ -145,7 +147,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
       <DialogContent className="sm:max-w-md" data-testid="login-modal">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
-            {currentMode === 'login' ? 'Login to TSU Wallet' : 'Create Your TSU Wallet'}
+            {currentMode === 'login' ? t('auth.login.title') : t('auth.register.title')}
           </DialogTitle>
         </DialogHeader>
         
