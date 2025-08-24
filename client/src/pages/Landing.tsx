@@ -250,7 +250,7 @@ export default function Landing() {
           <Button 
             size="lg" 
             className="bg-tsu-green text-white hover:bg-tsu-dark-green px-8 py-3 text-lg font-semibold"
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
             data-testid="button-create-wallet"
           >
             {t('hero.getStarted')}
