@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: firstName || '',
         lastName: lastName || '',
         role: 'user',
-        tsuBalance: 0.0,
+        tsuBalance: "0.0",
       });
       
       // Set session

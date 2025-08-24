@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,7 +55,10 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
     },
   });
 
-  const form = currentMode === 'login' ? loginForm : registerForm;
+  // Reset mode when modal opens or mode prop changes
+  useEffect(() => {
+    setCurrentMode(mode);
+  }, [mode, isOpen]);
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
@@ -71,7 +74,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
-      form.reset();
+      loginForm.reset();
       onClose();
       
       // Refresh the page to update the UI
@@ -100,7 +103,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
       // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
-      form.reset();
+      registerForm.reset();
       onClose();
       
       // Refresh the page to update the UI
@@ -187,22 +190,6 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                 )}
               />
               
-              <Card className="bg-blue-50" data-testid="admin-info">
-                <CardContent className="pt-4">
-                  <div className="text-center">
-                    <h4 className="font-medium text-blue-900 mb-2">Admin Access</h4>
-                    <p className="text-sm text-blue-700 mb-2">
-                      <strong>Email:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin@tsu-wallet.com</code>
-                    </p>
-                    <p className="text-sm text-blue-700 mb-2">
-                      <strong>Password:</strong> <code className="bg-blue-100 px-2 py-1 rounded">admin123</code>
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      This gives you super admin privileges to manage the platform.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
 
               <div className="flex space-x-4 pt-4">
                 <Button
