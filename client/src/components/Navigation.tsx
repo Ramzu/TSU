@@ -61,7 +61,7 @@ export default function Navigation() {
                 className="w-10 h-10 mr-3 rounded-full object-cover"
                 data-testid="logo"
               />
-              <span className="text-white font-semibold text-xl" data-testid="brand-name">TSU Wallet</span>
+              <span className="text-white font-semibold text-xl" data-testid="brand-name">TSU</span>
             </div>
             {!isAuthenticated && (
               <div className="hidden md:block ml-10">
