@@ -286,7 +286,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes - require admin role
   const requireAdmin = async (req: any, res: any, next: any) => {
     try {
-      const userId = req.user.claims.sub;
+      let userId;
+      
+      // Try session-based auth first (simple auth)
+      if (req.session && req.session.userId) {
+        userId = req.session.userId;
+      }
+      // Fall back to OIDC auth
+      else if (req.user && req.user.claims && req.user.claims.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const user = await storage.getUser(userId);
       
       if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
@@ -301,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Admin dashboard stats
-  app.get('/api/admin/stats', isAuthenticated, requireAdmin, async (req, res) => {
+  app.get('/api/admin/stats', requireAdmin, async (req, res) => {
     try {
       const users = await storage.getUsersByRole('user');
       const admins = await storage.getUsersByRole('admin');
@@ -325,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all users (admin only)
-  app.get('/api/admin/users', isAuthenticated, requireAdmin, async (req, res) => {
+  app.get('/api/admin/users', requireAdmin, async (req, res) => {
     try {
       const allUsers = await storage.getUsersByRole('user');
       res.json(allUsers);
@@ -336,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all transactions (admin only)
-  app.get('/api/admin/transactions', isAuthenticated, requireAdmin, async (req, res) => {
+  app.get('/api/admin/transactions', requireAdmin, async (req, res) => {
     try {
       const transactions = await storage.getAllTransactions();
       res.json(transactions);
@@ -347,7 +361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create TSU coins (admin only)
-  app.post('/api/admin/coins/create', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/admin/coins/create', requireAdmin, async (req: any, res) => {
     try {
       const validation = insertCoinSupplySchema.safeParse({
         ...req.body,
@@ -377,7 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add admin (super admin only)
-  app.post('/api/admin/users/promote', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/admin/users/promote', requireAdmin, async (req: any, res) => {
     try {
       if (req.currentUser.role !== 'super_admin') {
         return res.status(403).json({ message: "Super admin access required" });
@@ -398,7 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SMTP configuration (admin only)
-  app.get('/api/admin/smtp-config', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.get('/api/admin/smtp-config', requireAdmin, async (req: any, res) => {
     try {
       const config = await storage.getSmtpConfig();
       if (config) {
@@ -414,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/smtp-config', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/admin/smtp-config', requireAdmin, async (req: any, res) => {
     try {
       const { host, port, secure, username, password, fromEmail, fromName } = req.body;
       
@@ -443,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Test SMTP configuration (admin only)
-  app.post('/api/admin/smtp-test', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/admin/smtp-test', requireAdmin, async (req: any, res) => {
     try {
       const result = await emailService.testConnection();
       res.json(result);
@@ -488,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/content', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/content', requireAdmin, async (req: any, res) => {
     try {
       const validation = insertContentSchema.safeParse({
         ...req.body,
@@ -508,10 +522,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update TSU rates (admin only)
-  app.put('/api/admin/tsu-rates', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.put('/api/admin/tsu-rates', requireAdmin, async (req: any, res) => {
     try {
       const ratesData = req.body;
-      ratesData.updatedBy = req.user.claims.sub;
+      ratesData.updatedBy = req.currentUser.id;
       
       const updatedRates = await storage.upsertTsuRates(ratesData);
       res.json(updatedRates);
@@ -522,7 +536,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Site metadata admin routes
-  app.get('/api/admin/metadata', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.get('/api/admin/metadata', requireAdmin, async (req: any, res) => {
     try {
       const metadata = await storage.getSiteMetadata();
       res.json(metadata);
@@ -532,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/metadata', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/admin/metadata', requireAdmin, async (req: any, res) => {
     try {
       const { title, description, keywords, ogImage, twitterCard, siteName } = req.body;
       
@@ -550,6 +564,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating metadata:", error);
       res.status(500).json({ message: "Failed to update metadata" });
+    }
+  });
+
+  // Admin registration endpoint (super admin only)
+  app.post('/api/admin/register', requireAdmin, async (req: any, res) => {
+    try {
+      // Only super admins can create other admins
+      if (req.currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
+      const { email, password, firstName, lastName, role } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      if (!['admin', 'super_admin'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role. Must be 'admin' or 'super_admin'" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+      
+      // Hash password and create admin user
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newAdmin = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        role,
+        tsuBalance: "0.0",
+      });
+      
+      // Don't return password in response
+      const { password: _, ...safeAdmin } = newAdmin;
+      res.json({ admin: safeAdmin, message: "Admin created successfully" });
+    } catch (error) {
+      console.error("Error creating admin:", error);
+      res.status(500).json({ message: "Failed to create admin" });
     }
   });
 

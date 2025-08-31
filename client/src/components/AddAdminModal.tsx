@@ -14,6 +14,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const addAdminSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   role: z.enum(["admin", "super_admin"], {
     required_error: "Please select an admin role",
   }),
@@ -34,26 +37,28 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
     resolver: zodResolver(addAdminSchema),
     defaultValues: {
       email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
       role: "admin",
     },
   });
 
   const addAdminMutation = useMutation({
     mutationFn: async (data: AddAdminFormData) => {
-      // For now, we'll create a placeholder user ID based on email
-      // In a real implementation, you'd first create the user account or search for existing user
-      const userId = `temp_${data.email.replace(/[^a-zA-Z0-9]/g, '_')}`;
-      
-      const response = await apiRequest("POST", "/api/admin/users/promote", {
-        userId: userId,
+      const response = await apiRequest("POST", "/api/admin/register", {
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
         role: data.role,
       });
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Administrator Added",
-        description: "The user has been successfully promoted to administrator.",
+        title: "Administrator Created",
+        description: "The new administrator account has been successfully created.",
       });
       
       // Invalidate admin queries to refresh data
@@ -77,8 +82,8 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
       }
       
       toast({
-        title: "Failed to Add Administrator",
-        description: "User must have an existing account before being promoted to admin. Please ask them to register first.",
+        title: "Failed to Create Administrator",
+        description: "Please check the email address and try again. The email may already be in use.",
         variant: "destructive",
       });
     },
@@ -100,7 +105,7 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
       <DialogContent className="sm:max-w-md" data-testid="add-admin-modal">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
-            Add Administrator
+            Create New Administrator
           </DialogTitle>
         </DialogHeader>
         
@@ -124,6 +129,63 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Enter secure password"
+                      data-testid="input-password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="John"
+                        data-testid="input-first-name"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Doe"
+                        data-testid="input-last-name"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -186,7 +248,7 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
                 className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
                 data-testid="button-add-admin"
               >
-                {addAdminMutation.isPending ? "Adding..." : "Add Admin"}
+                {addAdminMutation.isPending ? "Creating..." : "Create Admin"}
               </Button>
             </div>
           </form>
