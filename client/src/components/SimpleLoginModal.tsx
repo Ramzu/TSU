@@ -160,7 +160,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
         
         {currentMode === 'login' ? (
           <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
+            <form onSubmit={loginForm.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
                 control={loginForm.control}
                 name="email"
@@ -172,6 +172,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="email"
                         placeholder="your@email.com"
+                        disabled={loginMutation.isPending}
                         data-testid="input-email"
                       />
                     </FormControl>
@@ -191,6 +192,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="password"
                         placeholder="Enter your password"
+                        disabled={loginMutation.isPending}
                         data-testid="input-password"
                       />
                     </FormControl>
@@ -247,7 +249,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
           </Form>
         ) : (
           <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+            <form onSubmit={registerForm.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
                 control={registerForm.control}
                 name="firstName"
@@ -259,6 +261,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="text"
                         placeholder="Your first name"
+                        disabled={registerMutation.isPending}
                         data-testid="input-firstName"
                       />
                     </FormControl>
@@ -278,6 +281,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="text"
                         placeholder="Your last name"
+                        disabled={registerMutation.isPending}
                         data-testid="input-lastName"
                       />
                     </FormControl>
@@ -297,7 +301,8 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="email"
                         placeholder="your@email.com"
-                        data-testid="input-email"
+                        disabled={registerMutation.isPending}
+                        data-testid="input-register-email"
                       />
                     </FormControl>
                     <FormMessage />
@@ -316,7 +321,8 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         {...field}
                         type="password"
                         placeholder="Create a password (min 6 characters)"
-                        data-testid="input-password"
+                        disabled={registerMutation.isPending}
+                        data-testid="input-register-password"
                       />
                     </FormControl>
                     <FormMessage />
@@ -330,7 +336,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={registerMutation.isPending}>
                       <FormControl>
                         <SelectTrigger data-testid="select-country">
                           <SelectValue placeholder="Select your country" />
