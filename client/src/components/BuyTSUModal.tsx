@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
+import PayPalButton from "./PayPalButton";
 
 const buyTSUSchema = z.object({
   amount: z.string().min(1, "Amount is required").refine(
@@ -96,6 +97,11 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
   });
 
   const handleSubmit = (data: BuyTSUFormData) => {
+    if (data.paymentMethod === 'paypal') {
+      // For PayPal, don't call purchase API immediately
+      // PayPal button will handle the payment flow
+      return;
+    }
     buyTSUMutation.mutate(data);
   };
 
@@ -185,7 +191,7 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
             />
 
             {/* Payment Method Specific Instructions */}
-            {watchPaymentMethod === 'paypal' && (
+            {watchPaymentMethod === 'paypal' && amount >= 10 && (
               <Card className="bg-blue-50 border-blue-200" data-testid="paypal-instructions">
                 <CardContent className="pt-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -194,9 +200,14 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                     </div>
                     <span className="font-medium text-blue-900">PayPal Payment</span>
                   </div>
-                  <p className="text-sm text-blue-700">
-                    Secure payment through PayPal. You'll be redirected to PayPal to complete your purchase.
+                  <p className="text-sm text-blue-700 mb-3">
+                    Secure payment through PayPal. Click the PayPal button below to complete your purchase.
                   </p>
+                  <PayPalButton 
+                    amount={amount.toFixed(2)}
+                    currency="USD"
+                    intent="capture"
+                  />
                 </CardContent>
               </Card>
             )}
@@ -222,27 +233,45 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
               </Card>
             )}
 
-            <div className="flex space-x-4 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={buyTSUMutation.isPending}
-                className="flex-1"
-                data-testid="button-cancel"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={buyTSUMutation.isPending || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum'}
-                className="flex-1 bg-tsu-green hover:bg-tsu-light-green disabled:opacity-50"
-                data-testid="button-buy-tsu"
-              >
-                {buyTSUMutation.isPending ? "Processing..." : 
-                 (watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') ? "Coming Soon" : "Buy TSU"}
-              </Button>
-            </div>
+            {/* Only show submit button for non-PayPal payments */}
+            {watchPaymentMethod !== 'paypal' && (
+              <div className="flex space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={buyTSUMutation.isPending}
+                  className="flex-1"
+                  data-testid="button-cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={buyTSUMutation.isPending || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum'}
+                  className="flex-1 bg-tsu-green hover:bg-tsu-light-green disabled:opacity-50"
+                  data-testid="button-buy-tsu"
+                >
+                  {buyTSUMutation.isPending ? "Processing..." : 
+                   (watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') ? "Coming Soon" : "Buy TSU"}
+                </Button>
+              </div>
+            )}
+            
+            {/* For PayPal, just show cancel button */}
+            {watchPaymentMethod === 'paypal' && (
+              <div className="flex pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  className="w-full"
+                  data-testid="button-cancel-paypal"
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </DialogContent>

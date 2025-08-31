@@ -227,9 +227,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User routes
-  app.get('/api/users/transactions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/users/transactions', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      let userId;
+      
+      // Check both simple login session and Replit auth
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const transactions = await storage.getUserTransactions(userId);
       res.json(transactions);
     } catch (error) {
@@ -239,10 +249,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // TSU purchase endpoint
-  app.post('/api/tsu/purchase', isAuthenticated, async (req: any, res) => {
+  app.post('/api/tsu/purchase', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { amount, currency, paymentMethod } = req.body;
+      // For simple login, check session-based auth
+      let userId;
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { amount, currency, paymentMethod, paymentReference } = req.body;
       
       // Validate input
       if (!amount || amount <= 0) {
@@ -263,6 +282,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.25; // Default $1.25 per TSU
       const tsuAmount = (netAmount / tsuPrice).toString();
       
+      // For PayPal, only update balance if payment reference is provided (payment confirmed)
+      if (paymentMethod === 'paypal' && !paymentReference) {
+        return res.status(400).json({ message: "Payment confirmation required for PayPal transactions" });
+      }
+      
       // Update user balance
       const newBalance = (parseFloat(user.tsuBalance || '0') + parseFloat(tsuAmount)).toString();
       await storage.updateUserBalance(userId, newBalance);
@@ -274,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: tsuAmount,
         currency: 'TSU',
         description: `Purchased ${tsuAmount} TSU with ${amount} ${currency}`,
-        metadata: { paymentMethod, processingFee: processingFee.toString(), tsuPrice: tsuPrice.toString() },
+        metadata: { paymentMethod, processingFee: processingFee.toString(), tsuPrice: tsuPrice.toString(), paymentReference },
       });
 
       res.json({ transaction, newBalance, tsuAmount });

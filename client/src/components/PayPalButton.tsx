@@ -36,7 +36,7 @@ export default function PayPalButton({
       currency: currency,
       intent: intent,
     };
-    const response = await fetch("/paypal/order", {
+    const response = await fetch("/api/paypal/order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(orderPayload),
@@ -46,7 +46,7 @@ export default function PayPalButton({
   };
 
   const captureOrder = async (orderId: string) => {
-    const response = await fetch(`/paypal/order/${orderId}/capture`, {
+    const response = await fetch(`/api/paypal/order/${orderId}/capture`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,6 +61,34 @@ export default function PayPalButton({
     console.log("onApprove", data);
     const orderData = await captureOrder(data.orderId);
     console.log("Capture result", orderData);
+    
+    // Process TSU purchase after successful PayPal payment
+    if (orderData && orderData.status === 'COMPLETED') {
+      try {
+        const purchaseResponse = await fetch("/api/tsu/purchase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: amount,
+            currency: currency,
+            paymentMethod: "paypal",
+            paymentReference: data.orderId,
+          }),
+        });
+        
+        if (purchaseResponse.ok) {
+          const purchaseData = await purchaseResponse.json();
+          console.log("TSU purchase completed:", purchaseData);
+          
+          // Reload page to show updated balance
+          window.location.reload();
+        } else {
+          console.error("Failed to complete TSU purchase");
+        }
+      } catch (error) {
+        console.error("Error completing TSU purchase:", error);
+      }
+    }
   };
 
   const onCancel = async (data: any) => {
@@ -94,7 +122,7 @@ export default function PayPalButton({
   }, []);
   const initPayPal = async () => {
     try {
-      const clientToken: string = await fetch("/paypal/setup")
+      const clientToken: string = await fetch("/api/paypal/setup")
         .then((res) => res.json())
         .then((data) => {
           return data.clientToken;
