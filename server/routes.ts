@@ -64,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Simple registration endpoint
   app.post('/api/auth/simple-register', async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const { email, password, firstName, lastName, country } = req.body;
       
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
@@ -87,6 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
         firstName: firstName || '',
         lastName: lastName || '',
+        country,
         role: 'user',
         tsuBalance: "0.0",
       });
@@ -575,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Super admin access required" });
       }
 
-      const { email, password, firstName, lastName, role } = req.body;
+      const { email, password, firstName, lastName, country, role } = req.body;
       
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
@@ -602,6 +603,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
         firstName: firstName || '',
         lastName: lastName || '',
+        country,
         role,
         tsuBalance: "0.0",
       });
@@ -612,6 +614,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating admin:", error);
       res.status(500).json({ message: "Failed to create admin" });
+    }
+  });
+
+  // Balance management endpoints (super admin only)
+  app.post('/api/admin/balance/adjust', requireAdmin, async (req: any, res) => {
+    try {
+      if (req.currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
+      const { amount, operation } = req.body; // operation: 'increase' or 'decrease'
+      
+      if (!amount || !operation || !['increase', 'decrease'].includes(operation)) {
+        return res.status(400).json({ message: "Valid amount and operation required" });
+      }
+
+      const adjustmentAmount = parseFloat(amount);
+      if (isNaN(adjustmentAmount) || adjustmentAmount <= 0) {
+        return res.status(400).json({ message: "Amount must be a positive number" });
+      }
+
+      // Get current supply
+      const currentSupply = await storage.getLatestCoinSupply();
+      const currentTotal = parseFloat(currentSupply?.totalSupply || '0');
+      const currentCirculating = parseFloat(currentSupply?.circulatingSupply || '0');
+
+      // Calculate new totals
+      const newTotal = operation === 'increase' 
+        ? currentTotal + adjustmentAmount 
+        : currentTotal - adjustmentAmount;
+      const newCirculating = operation === 'increase' 
+        ? currentCirculating + adjustmentAmount 
+        : currentCirculating - adjustmentAmount;
+
+      if (newTotal < 0 || newCirculating < 0) {
+        return res.status(400).json({ message: "Cannot reduce supply below zero" });
+      }
+
+      // Create new supply record
+      const newSupply = await storage.createCoinSupply({
+        totalSupply: newTotal.toString(),
+        circulatingSupply: newCirculating.toString(),
+        reserveGold: currentSupply?.reserveGold || '0',
+        reserveBrics: currentSupply?.reserveBrics || '0',
+        reserveCommodities: currentSupply?.reserveCommodities || '0',
+        reserveAfrican: currentSupply?.reserveAfrican || '0',
+        createdBy: req.currentUser.id,
+      });
+
+      // Create transaction record
+      await storage.createTransaction({
+        userId: req.currentUser.id,
+        type: operation === 'increase' ? 'creation' : 'sale',
+        amount: adjustmentAmount.toString(),
+        currency: 'TSU',
+        description: `${operation === 'increase' ? 'Created' : 'Destroyed'} ${adjustmentAmount} TSU coins`,
+      });
+
+      res.json({ newSupply, message: "Balance adjusted successfully" });
+    } catch (error) {
+      console.error("Error adjusting balance:", error);
+      res.status(500).json({ message: "Failed to adjust balance" });
+    }
+  });
+
+  // Distribute coins by country (super admin only)
+  app.post('/api/admin/distribute-coins', requireAdmin, async (req: any, res) => {
+    try {
+      if (req.currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
+      const { country, amount, reason } = req.body;
+      
+      if (!country || !amount || !reason) {
+        return res.status(400).json({ message: "Country, amount, and reason are required" });
+      }
+
+      const distributionAmount = parseFloat(amount);
+      if (isNaN(distributionAmount) || distributionAmount <= 0) {
+        return res.status(400).json({ message: "Amount must be a positive number" });
+      }
+
+      // Get all users from the specified country
+      const usersInCountry = await storage.getUsersByCountry(country);
+      
+      if (usersInCountry.length === 0) {
+        return res.status(400).json({ message: `No users found in ${country}` });
+      }
+
+      // Calculate amount per user
+      const amountPerUser = distributionAmount / usersInCountry.length;
+      
+      // Update each user's balance
+      const updatedUsers = [];
+      for (const user of usersInCountry) {
+        const newBalance = (parseFloat(user.tsuBalance || '0') + amountPerUser).toString();
+        await storage.updateUserBalance(user.id, newBalance);
+        
+        // Create transaction record for each user
+        await storage.createTransaction({
+          userId: user.id,
+          type: 'transfer',
+          amount: amountPerUser.toString(),
+          currency: 'TSU',
+          description: `${reason} - Country distribution to ${country}`,
+        });
+        
+        updatedUsers.push({ ...user, tsuBalance: newBalance });
+      }
+
+      res.json({ 
+        distributedTo: usersInCountry.length, 
+        amountPerUser: amountPerUser.toString(),
+        totalDistributed: distributionAmount.toString(),
+        message: "Coins distributed successfully" 
+      });
+    } catch (error) {
+      console.error("Error distributing coins:", error);
+      res.status(500).json({ message: "Failed to distribute coins" });
+    }
+  });
+
+  // Get country statistics (admin only)
+  app.get('/api/admin/country-stats', requireAdmin, async (req: any, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      
+      // Group users by country and calculate statistics
+      const countryStats = allUsers.reduce((acc: any, user) => {
+        if (!user.country) return acc;
+        
+        if (!acc[user.country]) {
+          acc[user.country] = {
+            country: user.country,
+            userCount: 0,
+            totalBalance: 0,
+          };
+        }
+        
+        acc[user.country].userCount++;
+        acc[user.country].totalBalance += parseFloat(user.tsuBalance || '0');
+        
+        return acc;
+      }, {});
+
+      // Convert to array and format
+      const statsArray = Object.values(countryStats).map((stat: any) => ({
+        ...stat,
+        totalBalance: stat.totalBalance.toFixed(8),
+      }));
+
+      res.json(statsArray);
+    } catch (error) {
+      console.error("Error getting country stats:", error);
+      res.status(500).json({ message: "Failed to get country statistics" });
     }
   });
 

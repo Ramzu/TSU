@@ -9,6 +9,7 @@ import AddAdminModal from "@/components/AddAdminModal";
 import ContentEditor from "@/components/ContentEditor";
 import MetadataEditor from "@/pages/MetadataEditor";
 import SmtpConfigSection from "@/components/SmtpConfigSection";
+import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -204,9 +205,10 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="grid w-full grid-cols-8">
                   <TabsTrigger value="users" data-testid="tab-users">User Management</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
+                  <TabsTrigger value="balance" data-testid="tab-balance">Balance</TabsTrigger>
                   <TabsTrigger value="reserves" data-testid="tab-reserves">Reserves</TabsTrigger>
                   <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
                   <TabsTrigger value="metadata" data-testid="tab-metadata">
@@ -316,6 +318,23 @@ export default function AdminDashboard() {
                     ))
                   )}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="balance" className="p-6" data-testid="balance-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">Balance Management</h3>
+                  <div className="text-sm text-gray-500">
+                    Super admin controls for TSU supply
+                  </div>
+                </div>
+                {user?.role === 'super_admin' ? (
+                  <BalanceManagement />
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Super admin access required for balance management</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="reserves" className="p-6" data-testid="reserves-tab-content">

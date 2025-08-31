@@ -29,6 +29,13 @@ export const sessions = pgTable(
 // User roles enum
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'super_admin']);
 
+// Country enum for African and BRICS nations
+export const countryEnum = pgEnum('country', [
+  'south_africa', 'nigeria', 'kenya', 'ghana', 'egypt', 'morocco', 'ethiopia', 'tanzania', 'uganda', 'rwanda',
+  'botswana', 'namibia', 'zambia', 'zimbabwe', 'angola', 'mozambique', 'madagascar', 'mauritius', 'senegal', 'ivory_coast',
+  'brazil', 'russia', 'india', 'china', 'iran', 'egypt_brics', 'ethiopia_brics', 'uae', 'saudi_arabia'
+]);
+
 // Users table - mandatory for Replit Auth
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -37,6 +44,7 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  country: countryEnum("country"),
   role: userRoleEnum("role").default('user'),
   tsuBalance: decimal("tsu_balance", { precision: 18, scale: 8 }).default('0'),
   isActive: boolean("is_active").default(true),
@@ -290,3 +298,34 @@ export type InsertSmtpConfig = z.infer<typeof insertSmtpConfigSchema>;
 export type SmtpConfig = typeof smtpConfig.$inferSelect;
 export type InsertSiteMetadata = z.infer<typeof insertSiteMetadataSchema>;
 export type SiteMetadata = typeof siteMetadata.$inferSelect;
+
+// Country options for forms
+export const COUNTRY_OPTIONS = [
+  { value: 'south_africa', label: 'South Africa', region: 'Africa' },
+  { value: 'nigeria', label: 'Nigeria', region: 'Africa' },
+  { value: 'kenya', label: 'Kenya', region: 'Africa' },
+  { value: 'ghana', label: 'Ghana', region: 'Africa' },
+  { value: 'egypt', label: 'Egypt', region: 'Africa' },
+  { value: 'morocco', label: 'Morocco', region: 'Africa' },
+  { value: 'ethiopia', label: 'Ethiopia', region: 'Africa' },
+  { value: 'tanzania', label: 'Tanzania', region: 'Africa' },
+  { value: 'uganda', label: 'Uganda', region: 'Africa' },
+  { value: 'rwanda', label: 'Rwanda', region: 'Africa' },
+  { value: 'botswana', label: 'Botswana', region: 'Africa' },
+  { value: 'namibia', label: 'Namibia', region: 'Africa' },
+  { value: 'zambia', label: 'Zambia', region: 'Africa' },
+  { value: 'zimbabwe', label: 'Zimbabwe', region: 'Africa' },
+  { value: 'angola', label: 'Angola', region: 'Africa' },
+  { value: 'mozambique', label: 'Mozambique', region: 'Africa' },
+  { value: 'madagascar', label: 'Madagascar', region: 'Africa' },
+  { value: 'mauritius', label: 'Mauritius', region: 'Africa' },
+  { value: 'senegal', label: 'Senegal', region: 'Africa' },
+  { value: 'ivory_coast', label: 'Ivory Coast', region: 'Africa' },
+  { value: 'brazil', label: 'Brazil', region: 'BRICS' },
+  { value: 'russia', label: 'Russia', region: 'BRICS' },
+  { value: 'india', label: 'India', region: 'BRICS' },
+  { value: 'china', label: 'China', region: 'BRICS' },
+  { value: 'iran', label: 'Iran', region: 'BRICS' },
+  { value: 'uae', label: 'United Arab Emirates', region: 'BRICS' },
+  { value: 'saudi_arabia', label: 'Saudi Arabia', region: 'BRICS' },
+] as const;

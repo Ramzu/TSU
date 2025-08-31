@@ -28,7 +28,7 @@ import {
   type SmtpConfig,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations - mandatory for Replit Auth
@@ -38,6 +38,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserBalance(userId: string, newBalance: string): Promise<void>;
   getUsersByRole(role: 'user' | 'admin' | 'super_admin'): Promise<User[]>;
+  getUsersByCountry(country: string): Promise<User[]>;
   
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
@@ -125,6 +126,10 @@ export class DatabaseStorage implements IStorage {
 
   async getUsersByRole(role: 'user' | 'admin' | 'super_admin'): Promise<User[]> {
     return await db.select().from(users).where(eq(users.role, role));
+  }
+
+  async getUsersByCountry(country: string): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.country, country as any));
   }
 
   // Transaction operations

@@ -11,12 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
+import { COUNTRY_OPTIONS } from "@shared/schema";
 
 const addAdminSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  country: z.string().min(1, "Please select a country"),
   role: z.enum(["admin", "super_admin"], {
     required_error: "Please select an admin role",
   }),
@@ -40,6 +42,7 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
       password: "",
       firstName: "",
       lastName: "",
+      country: "",
       role: "admin",
     },
   });
@@ -51,6 +54,7 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
+        country: data.country,
         role: data.role,
       });
       return response.json();
@@ -186,6 +190,38 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-country">
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <div className="text-xs font-medium text-gray-500 px-2 py-1">African Nations</div>
+                      {COUNTRY_OPTIONS.filter(country => country.region === 'Africa').map((country) => (
+                        <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                          {country.label}
+                        </SelectItem>
+                      ))}
+                      <div className="text-xs font-medium text-gray-500 px-2 py-1 mt-2">BRICS Partners</div>
+                      {COUNTRY_OPTIONS.filter(country => country.region === 'BRICS').map((country) => (
+                        <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                          {country.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

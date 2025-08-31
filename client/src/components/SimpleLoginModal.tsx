@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import ForgotPasswordModal from "./ForgotPasswordModal";
+import { COUNTRY_OPTIONS } from "@shared/schema";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -23,6 +25,7 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  country: z.string().min(1, "Please select your country"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -56,6 +59,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
       password: "",
       firstName: "",
       lastName: "",
+      country: "",
     },
   });
 
@@ -315,6 +319,38 @@ export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: Si
                         data-testid="input-password"
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={registerForm.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-country">
+                          <SelectValue placeholder="Select your country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <div className="text-xs font-medium text-gray-500 px-2 py-1">African Nations</div>
+                        {COUNTRY_OPTIONS.filter(country => country.region === 'Africa').map((country) => (
+                          <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                            {country.label}
+                          </SelectItem>
+                        ))}
+                        <div className="text-xs font-medium text-gray-500 px-2 py-1 mt-2">BRICS Partners</div>
+                        {COUNTRY_OPTIONS.filter(country => country.region === 'BRICS').map((country) => (
+                          <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                            {country.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
