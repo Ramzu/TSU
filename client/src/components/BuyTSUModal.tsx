@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import PayPalButton from "./PayPalButton";
+import CryptoWallet from "./CryptoWallet";
 
 const buyTSUSchema = z.object({
   amount: z.string().min(1, "Amount is required").refine(
@@ -212,29 +213,30 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
               </Card>
             )}
 
-            {(watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && (
-              <Card className="bg-orange-50 border-orange-200" data-testid="crypto-instructions">
-                <CardContent className="pt-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="w-6 h-6 bg-orange-600 rounded flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">₿</span>
-                    </div>
-                    <span className="font-medium text-orange-900">
-                      {watchPaymentMethod === 'bitcoin' ? 'Bitcoin' : 'Ethereum'} Payment
-                    </span>
-                  </div>
-                  <p className="text-sm text-orange-700 mb-2">
-                    Current rate: 1 TSU = {watchPaymentMethod === 'bitcoin' ? '0.000025 BTC' : '0.0008 ETH'}
-                  </p>
-                  <p className="text-sm text-orange-600">
-                    Cryptocurrency payments coming soon. Please use PayPal for now.
-                  </p>
-                </CardContent>
-              </Card>
+            {(watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && amount >= 10 && (
+              <CryptoWallet
+                amount={amount.toFixed(2)}
+                currency={watchPaymentMethod === 'bitcoin' ? 'BTC' : 'ETH'}
+                onPaymentComplete={() => {
+                  toast({
+                    title: "Purchase Successful",
+                    description: `Successfully purchased ${amount} TSU tokens!`,
+                  });
+                  queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                  handleClose();
+                }}
+                onPaymentError={(error) => {
+                  toast({
+                    title: "Payment Failed",
+                    description: error,
+                    variant: "destructive",
+                  });
+                }}
+              />
             )}
 
-            {/* Only show submit button for non-PayPal payments */}
-            {watchPaymentMethod !== 'paypal' && (
+            {/* Only show submit button for non-crypto and non-PayPal payments */}
+            {watchPaymentMethod !== 'paypal' && watchPaymentMethod !== 'bitcoin' && watchPaymentMethod !== 'ethereum' && (
               <div className="flex space-x-4 pt-4">
                 <Button
                   type="button"
@@ -248,25 +250,24 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={buyTSUMutation.isPending || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum'}
+                  disabled={buyTSUMutation.isPending}
                   className="flex-1 bg-tsu-green hover:bg-tsu-light-green disabled:opacity-50"
                   data-testid="button-buy-tsu"
                 >
-                  {buyTSUMutation.isPending ? "Processing..." : 
-                   (watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') ? "Coming Soon" : "Buy TSU"}
+                  {buyTSUMutation.isPending ? "Processing..." : "Buy TSU"}
                 </Button>
               </div>
             )}
             
-            {/* For PayPal, just show cancel button */}
-            {watchPaymentMethod === 'paypal' && (
+            {/* For PayPal and crypto, just show cancel button */}
+            {(watchPaymentMethod === 'paypal' || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && (
               <div className="flex pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleClose}
                   className="w-full"
-                  data-testid="button-cancel-paypal"
+                  data-testid="button-cancel-crypto"
                 >
                   Cancel
                 </Button>

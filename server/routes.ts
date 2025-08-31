@@ -492,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PayPal routes
+  // PayPal routes (API paths)
   app.get("/api/paypal/setup", async (req, res) => {
     await loadPaypalDefault(req, res);
   });
@@ -502,6 +502,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // PayPal routes (legacy paths expected by PayPal component)
+  app.get("/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/order/:orderID/capture", async (req, res) => {
     await capturePaypalOrder(req, res);
   });
 
