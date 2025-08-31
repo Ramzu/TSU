@@ -1,411 +1,488 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent } from "@/components/ui/card";
-import { useTranslation } from "react-i18next";
-import ForgotPasswordModal from "./ForgotPasswordModal";
-import { COUNTRY_OPTIONS } from "@shared/schema";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const registerSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  country: z.string().min(1, "Please select your country"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+const COUNTRY_OPTIONS = [
+  // African Nations
+  { value: "south-africa", label: "South Africa", region: "Africa" },
+  { value: "nigeria", label: "Nigeria", region: "Africa" },
+  { value: "egypt", label: "Egypt", region: "Africa" },
+  { value: "kenya", label: "Kenya", region: "Africa" },
+  { value: "ghana", label: "Ghana", region: "Africa" },
+  { value: "morocco", label: "Morocco", region: "Africa" },
+  { value: "ethiopia", label: "Ethiopia", region: "Africa" },
+  { value: "tanzania", label: "Tanzania", region: "Africa" },
+  { value: "uganda", label: "Uganda", region: "Africa" },
+  { value: "rwanda", label: "Rwanda", region: "Africa" },
+  { value: "senegal", label: "Senegal", region: "Africa" },
+  { value: "ivory-coast", label: "Ivory Coast", region: "Africa" },
+  { value: "cameroon", label: "Cameroon", region: "Africa" },
+  { value: "tunisia", label: "Tunisia", region: "Africa" },
+  { value: "algeria", label: "Algeria", region: "Africa" },
+  { value: "zimbabwe", label: "Zimbabwe", region: "Africa" },
+  { value: "zambia", label: "Zambia", region: "Africa" },
+  { value: "botswana", label: "Botswana", region: "Africa" },
+  { value: "namibia", label: "Namibia", region: "Africa" },
+  { value: "mauritius", label: "Mauritius", region: "Africa" },
+  
+  // BRICS+ Nations
+  { value: "brazil", label: "Brazil", region: "BRICS+" },
+  { value: "russia", label: "Russia", region: "BRICS+" },
+  { value: "india", label: "India", region: "BRICS+" },
+  { value: "china", label: "China", region: "BRICS+" },
+  { value: "iran", label: "Iran", region: "BRICS+" },
+  { value: "uae", label: "UAE", region: "BRICS+" },
+  { value: "ethiopia-brics", label: "Ethiopia", region: "BRICS+" },
+  { value: "egypt-brics", label: "Egypt", region: "BRICS+" },
+  { value: "saudi-arabia", label: "Saudi Arabia", region: "BRICS+" },
+];
 
 interface SimpleLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode?: 'login' | 'register';
+  mode: 'login' | 'register';
 }
 
-export default function SimpleLoginModal({ isOpen, onClose, mode = 'login' }: SimpleLoginModalProps) {
+export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginModalProps) {
+  const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const loginForm = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+  // Login form state
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: ""
   });
 
-  const registerForm = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-      country: "",
-    },
+  // Registration form state
+  const [registerData, setRegisterData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    country: ""
   });
 
-  // Reset mode when modal opens or mode prop changes
+  // Form validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Reset forms when modal opens or mode changes
   useEffect(() => {
     setCurrentMode(mode);
+    setLoginData({ email: "", password: "" });
+    setRegisterData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "", country: "" });
+    setErrors({});
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }, [mode, isOpen]);
 
   const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormData) => {
-      const response = await apiRequest("POST", "/api/auth/simple-login", data);
-      return response.json();
+    mutationFn: async (data: { email: string; password: string }) => {
+      return apiRequest("POST", "/api/auth/simple-login", data);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
-        title: t("toast.loginSuccess"),
-        description: t("toast.loginWelcome", { name: data.user.firstName || data.user.email }),
+        title: "Welcome back!",
+        description: "You have been logged in successfully.",
       });
-      
-      // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      
-      loginForm.reset();
       onClose();
-      
-      // Refresh the page to update the UI
-      window.location.reload();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: t("toast.loginFailed"),
-        description: error.message || "Failed to log in. Please try again.",
+        title: "Login Failed",
+        description: error.message || "Invalid email or password",
         variant: "destructive",
       });
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (data: RegisterFormData) => {
-      const response = await apiRequest("POST", "/api/auth/simple-register", data);
-      return response.json();
+    mutationFn: async (data: any) => {
+      const { confirmPassword, ...registerData } = data;
+      return apiRequest("POST", "/api/auth/simple-register", registerData);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
-        title: t("toast.registrationSuccess"),
-        description: t("toast.registrationWelcome", { name: data.user.firstName }),
+        title: "Account Created!",
+        description: "Your account has been created successfully. You can now log in.",
       });
-      
-      // Invalidate and refetch user data
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      
-      registerForm.reset();
-      onClose();
-      
-      // Refresh the page to update the UI
-      window.location.reload();
+      setCurrentMode('login');
+      setRegisterData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "", country: "" });
+      setErrors({});
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: t("toast.registrationFailed"),
-        description: error.message || "Failed to create account. Please try again.",
+        title: "Registration Failed",
+        description: error.message || "Failed to create account",
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmit = (data: LoginFormData | RegisterFormData) => {
-    if (currentMode === 'login') {
-      loginMutation.mutate(data as LoginFormData);
-    } else {
-      registerMutation.mutate(data as RegisterFormData);
+  const validateLogin = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!loginData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    if (!loginData.password) {
+      newErrors.password = "Password is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateRegister = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!registerData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+    
+    if (!registerData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+    
+    if (!registerData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    if (!registerData.password) {
+      newErrors.password = "Password is required";
+    } else if (registerData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    if (!registerData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (registerData.password !== registerData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords don't match";
+    }
+    
+    if (!registerData.country) {
+      newErrors.country = "Please select your country";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateLogin()) {
+      loginMutation.mutate(loginData);
     }
   };
 
-  const handleClose = () => {
-    if (!loginMutation.isPending && !registerMutation.isPending) {
-      loginForm.reset();
-      registerForm.reset();
-      onClose();
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateRegister()) {
+      registerMutation.mutate(registerData);
     }
-  };
-
-  const switchMode = () => {
-    setCurrentMode(currentMode === 'login' ? 'register' : 'login');
-    loginForm.reset();
-    registerForm.reset();
   };
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md" data-testid="login-modal">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-tsu-green" data-testid="modal-title">
-              {currentMode === 'login' ? t('auth.login.title') : t('auth.register.title')}
-            </DialogTitle>
-          </DialogHeader>
-        
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {currentMode === 'login' ? 'Welcome Back' : 'Join TSU Wallet'}
+          </DialogTitle>
+          <DialogDescription>
+            {currentMode === 'login' 
+              ? 'Sign in to access your TSU digital wallet'
+              : 'Create your account to start trading with TSU'
+            }
+          </DialogDescription>
+        </DialogHeader>
+
         {currentMode === 'login' ? (
-          <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={loginForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="your@email.com"
-                        disabled={loginMutation.isPending}
-                        data-testid="input-email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="login-email">Email Address</Label>
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="your@email.com"
+                value={loginData.email}
+                onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                disabled={loginMutation.isPending}
+                data-testid="input-email"
+                className={errors.email ? "border-red-500" : ""}
               />
+              {errors.email && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
-              <FormField
-                control={loginForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder="Enter your password"
-                        disabled={loginMutation.isPending}
-                        data-testid="input-password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-
-              <div className="flex space-x-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="login-password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                  disabled={loginMutation.isPending}
+                  data-testid="input-password"
+                  className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                />
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={handleClose}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
                   disabled={loginMutation.isPending}
-                  className="flex-1"
-                  data-testid="button-cancel"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loginMutation.isPending}
-                  className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
-                  data-testid="button-login"
-                >
-                  {loginMutation.isPending ? "Logging in..." : "Login"}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
+              {errors.password && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.password}
+                </p>
+              )}
+            </div>
 
-              <div className="text-center pt-2 space-y-1">
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={switchMode}
-                  className="text-tsu-green hover:text-tsu-light-green"
-                  data-testid="button-switch-mode"
-                >
-                  Don't have an account? Register here
-                </Button>
-                <div>
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-gray-600 hover:text-tsu-green"
-                    data-testid="button-forgot-password"
-                  >
-                    Forgot Password?
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </Form>
+            <div className="flex space-x-4 pt-4">
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={loginMutation.isPending}
+                data-testid="button-login"
+              >
+                {loginMutation.isPending ? "Signing In..." : "Sign In"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCurrentMode('register')}
+                disabled={loginMutation.isPending}
+                data-testid="button-switch-register"
+              >
+                Register
+              </Button>
+            </div>
+          </form>
         ) : (
-          <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={registerForm.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Your first name"
-                        disabled={registerMutation.isPending}
-                        data-testid="input-firstName"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+          <form onSubmit={handleRegisterSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="register-firstName">First Name</Label>
+                <Input
+                  id="register-firstName"
+                  type="text"
+                  placeholder="Your first name"
+                  value={registerData.firstName}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+                  disabled={registerMutation.isPending}
+                  data-testid="input-firstName"
+                  className={errors.firstName ? "border-red-500" : ""}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.firstName}
+                  </p>
                 )}
-              />
+              </div>
               
-              <FormField
-                control={registerForm.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Your last name"
-                        disabled={registerMutation.isPending}
-                        data-testid="input-lastName"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div className="space-y-2">
+                <Label htmlFor="register-lastName">Last Name</Label>
+                <Input
+                  id="register-lastName"
+                  type="text"
+                  placeholder="Your last name"
+                  value={registerData.lastName}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                  disabled={registerMutation.isPending}
+                  data-testid="input-lastName"
+                  className={errors.lastName ? "border-red-500" : ""}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.lastName}
+                  </p>
                 )}
-              />
-              
-              <FormField
-                control={registerForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="your@email.com"
-                        disabled={registerMutation.isPending}
-                        data-testid="input-register-email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              </div>
+            </div>
 
-              <FormField
-                control={registerForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder="Create a password (min 6 characters)"
-                        disabled={registerMutation.isPending}
-                        data-testid="input-register-password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div className="space-y-2">
+              <Label htmlFor="register-email">Email Address</Label>
+              <Input
+                id="register-email"
+                type="email"
+                placeholder="your@email.com"
+                value={registerData.email}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                disabled={registerMutation.isPending}
+                data-testid="input-register-email"
+                className={errors.email ? "border-red-500" : ""}
               />
+              {errors.email && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
-              <FormField
-                control={registerForm.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={registerMutation.isPending}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-country">
-                          <SelectValue placeholder="Select your country" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <div className="text-xs font-medium text-gray-500 px-2 py-1">African Nations</div>
-                        {COUNTRY_OPTIONS.filter(country => country.region === 'Africa').map((country) => (
-                          <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
-                            {country.label}
-                          </SelectItem>
-                        ))}
-                        <div className="text-xs font-medium text-gray-500 px-2 py-1 mt-2">BRICS Partners</div>
-                        {COUNTRY_OPTIONS.filter(country => country.region === 'BRICS').map((country) => (
-                          <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
-                            {country.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex space-x-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="register-password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="register-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password (min 6 characters)"
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                  disabled={registerMutation.isPending}
+                  data-testid="input-register-password"
+                  className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                />
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={handleClose}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
                   disabled={registerMutation.isPending}
-                  className="flex-1"
-                  data-testid="button-cancel"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={registerMutation.isPending}
-                  className="flex-1 bg-tsu-green hover:bg-tsu-light-green"
-                  data-testid="button-register"
-                >
-                  {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
+              {errors.password && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.password}
+                </p>
+              )}
+            </div>
 
-              <div className="text-center pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="register-confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="register-confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  value={registerData.confirmPassword}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  disabled={registerMutation.isPending}
+                  data-testid="input-confirm-password"
+                  className={errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"}
+                />
                 <Button
                   type="button"
-                  variant="link"
-                  onClick={switchMode}
-                  className="text-tsu-green hover:text-tsu-light-green"
-                  data-testid="button-switch-mode"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={registerMutation.isPending}
                 >
-                  Already have an account? Login here
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
-            </form>
-          </Form>
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Country</Label>
+              <Select 
+                value={registerData.country} 
+                onValueChange={(value) => setRegisterData(prev => ({ ...prev, country: value }))}
+                disabled={registerMutation.isPending}
+              >
+                <SelectTrigger data-testid="select-country" className={errors.country ? "border-red-500" : ""}>
+                  <SelectValue placeholder="Select your country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <div className="text-xs font-medium text-gray-500 px-2 py-1">African Nations</div>
+                  {COUNTRY_OPTIONS.filter(country => country.region === 'Africa').map((country) => (
+                    <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                      {country.label}
+                    </SelectItem>
+                  ))}
+                  <div className="text-xs font-medium text-gray-500 px-2 py-1 mt-2">BRICS+ Partners</div>
+                  {COUNTRY_OPTIONS.filter(country => country.region === 'BRICS+').map((country) => (
+                    <SelectItem key={country.value} value={country.value} data-testid={`country-${country.value}`}>
+                      {country.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.country && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.country}
+                </p>
+              )}
+            </div>
+
+            <div className="flex space-x-4 pt-4">
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={registerMutation.isPending}
+                data-testid="button-register"
+              >
+                {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCurrentMode('login')}
+                disabled={registerMutation.isPending}
+                data-testid="button-switch-login"
+              >
+                Login
+              </Button>
+            </div>
+          </form>
         )}
-
-        </DialogContent>
-      </Dialog>
-      
-      {/* Forgot Password Modal */}
-      <ForgotPasswordModal
-        isOpen={showForgotPassword}
-        onClose={() => setShowForgotPassword(false)}
-      />
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
