@@ -494,28 +494,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // PayPal routes (API paths)
   app.get("/api/paypal/setup", async (req, res) => {
-    await loadPaypalDefault(req, res);
+    try {
+      await loadPaypalDefault(req, res);
+    } catch (error) {
+      console.error("PayPal setup error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "PayPal credentials are invalid. Please check your PayPal Client ID and Secret." 
+      });
+    }
   });
 
   app.post("/api/paypal/order", async (req, res) => {
-    await createPaypalOrder(req, res);
+    try {
+      await createPaypalOrder(req, res);
+    } catch (error) {
+      console.error("PayPal order creation error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "Cannot create PayPal order. Please check PayPal configuration." 
+      });
+    }
   });
 
   app.post("/api/paypal/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
+    try {
+      await capturePaypalOrder(req, res);
+    } catch (error) {
+      console.error("PayPal capture error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "Cannot capture PayPal payment. Please try again." 
+      });
+    }
   });
 
   // PayPal routes (legacy paths expected by PayPal component)
   app.get("/setup", async (req, res) => {
-    await loadPaypalDefault(req, res);
+    try {
+      await loadPaypalDefault(req, res);
+    } catch (error) {
+      console.error("PayPal setup error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "PayPal credentials are invalid. Please check your PayPal Client ID and Secret." 
+      });
+    }
   });
 
   app.post("/order", async (req, res) => {
-    await createPaypalOrder(req, res);
+    try {
+      await createPaypalOrder(req, res);
+    } catch (error) {
+      console.error("PayPal order creation error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "Cannot create PayPal order. Please check PayPal configuration." 
+      });
+    }
   });
 
   app.post("/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
+    try {
+      await capturePaypalOrder(req, res);
+    } catch (error) {
+      console.error("PayPal capture error:", error);
+      res.status(503).json({ 
+        error: "PayPal service unavailable", 
+        message: "Cannot capture PayPal payment. Please try again." 
+      });
+    }
   });
 
   // TSU rates endpoint

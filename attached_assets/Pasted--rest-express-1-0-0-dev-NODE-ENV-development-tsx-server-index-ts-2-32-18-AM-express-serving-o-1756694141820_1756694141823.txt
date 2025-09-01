@@ -1,0 +1,80 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+2:32:18 AM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2:32:21 AM [express] GET /api/auth/user 401 in 2ms :: {"message":"Unauthorized"}
+2:32:21 AM [express] GET /api/content 200 in 150ms :: []
+2:32:25 AM [express] GET /api/auth/user 401 in 34ms :: {"message":"Unauthorized"}
+2:32:25 AM [express] GET /api/content 304 in 65ms :: []
+2:33:35 AM [express] POST /api/auth/simple-login 200 in 532ms :: {"user":{"id":"admin-001","email":"…
+2:33:35 AM [express] GET /api/auth/user 200 in 98ms :: {"id":"admin-001","email":"admin@tsu-wallet.c…
+2:33:36 AM [express] GET /api/users/transactions 200 in 98ms :: []
+info: Request POST https://api-m.sandbox.paypal.com/v1/oauth2/token 
+info: Request body {"type":"form","content":[{"key":"grant_type","value":"client_credentials"},{"key":"intent","value":"sdk_init"},{"key":"response_type","value":"client_token"}]}
+info: Response 401 77 application/json
+info: Response headers {"connection":"keep-alive","content-length":"77","content-type":"application/json","server":"nginx","access-control-expose-headers":"**Redacted**","cache-control":"max-age=0, no-cache, no-store, must-revalidate","paypal-debug-id":"**Redacted**","pragma":"no-cache","server-timing":"**Redacted**","x-paypal-token-service":"**Redacted**","http_x_pp_az_locator":"**Redacted**","strict-transport-security":"**Redacted**","edge-control":"**Redacted**","accept-ranges":"**Redacted**","date":"Mon, 01 Sep 2025 02:34:12 GMT","via":"1.1 varnish","x-served-by":"**Redacted**","x-cache":"**Redacted**","x-cache-hits":"**Redacted**","x-timer":"**Redacted**","vary":"Accept-Encoding"}
+/home/runner/workspace/node_modules/@apimatic/core/lib/errors/apiError.js:17
+        var _this = _super.call(this, message) || this;
+                           ^
+
+OAuthProviderError
+    at OAuthProviderError.ApiError [as constructor] (/home/runner/workspace/node_modules/@apimatic/core/lib/errors/apiError.js:17:28)
+    at new OAuthProviderError (/home/runner/workspace/node_modules/@paypal/paypal-server-sdk/src/errors/oAuthProviderError.ts:24:1)
+    at DefaultRequestBuilder.<anonymous> (/home/runner/workspace/node_modules/@apimatic/core/lib/http/requestBuilder.js:686:33)
+    at step (/home/runner/workspace/node_modules/tslib/tslib.js:196:27)
+    at Object.next (/home/runner/workspace/node_modules/tslib/tslib.js:177:57)
+    at fulfilled (/home/runner/workspace/node_modules/tslib/tslib.js:167:62)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  request: {
+    method: 'POST',
+    url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+    headers: {
+      Authorization: 'Basic QVpsdEdpQ25ESDBuUER4bEthQ1pyX3RPWTlxdTRNRFljUUtNWWV5TjlyczNjQmowbHF0Vkl4QlVLbEVHNE5OWVhFZlhvUFZfR0t0dXZKY1I6RUpPNlhBQ2dTd1dVSWFYSXg5MlJYMFd3UEN1NFlGNUNxQ0U5azFuWTFSQnJxQjI5R0J6TE9vcTEydnZEMXU3MUppZmd5eHdUT1kzb2g0bzc=',
+      'user-agent': 'PayPal REST API TypeScript SDK, Version: 1.1.0, on OS linux',
+      accept: 'application/json'
+    },
+    body: {
+      type: 'form',
+      content: [
+        { key: 'grant_type', value: 'client_credentials' },
+        { key: 'intent', value: 'sdk_init' },
+        { key: 'response_type', value: 'client_token' }
+      ]
+    }
+  },
+  statusCode: 401,
+  headers: {
+    connection: 'keep-alive',
+    'content-length': '77',
+    'content-type': 'application/json',
+    server: 'nginx',
+    'access-control-expose-headers': 'Server-Timing',
+    'cache-control': 'max-age=0, no-cache, no-store, must-revalidate',
+    'paypal-debug-id': 'f7202117d46dd',
+    pragma: 'no-cache',
+    'server-timing': 'traceparent;desc="00-0000000000000000000f7202117d46dd-40fb07615c62a5aa-01"',
+    'x-paypal-token-service': 'IAAS',
+    http_x_pp_az_locator: 'ccg18.slc',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains',
+    'edge-control': 'max-age=0',
+    'accept-ranges': 'bytes',
+    date: 'Mon, 01 Sep 2025 02:34:12 GMT',
+    via: '1.1 varnish',
+    'x-served-by': 'cache-chi-kigq8000122-CHI',
+    'x-cache': 'MISS',
+    'x-cache-hits': '0',
+    'x-timer': 'S1756694052.253244,VS0,VE137',
+    vary: 'Accept-Encoding'
+  },
+  body: '{"error":"invalid_client","error_description":"Client Authentication failed"}',
+  result: [Object: null prototype] {
+    error: 'invalid_client',
+    error_description: 'Client Authentication failed'
+  }
+}
+
+Node.js v20.19.3
