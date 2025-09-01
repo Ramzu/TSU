@@ -41,7 +41,7 @@ export default function MetadataEditor() {
       title: "TSU Wallet - Trade Settlement Unit | Africa-BRICS Digital Currency",
       description: "The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence. 1 TSU = 1 liter of gasoline.",
       keywords: "TSU, Trade Settlement Unit, digital currency, Africa, BRICS, cryptocurrency, wallet, blockchain, reserve-backed",
-      ogImage: "/attached_assets/TSU_1756057418012.png",
+      ogImage: "/tsu-logo.png",
       twitterCard: "summary_large_image",
       siteName: "TSU Wallet",
     },
@@ -184,7 +184,7 @@ export default function MetadataEditor() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="/attached_assets/TSU_1756057418012.png"
+                          placeholder="/tsu-logo.png"
                           data-testid="input-ogimage"
                         />
                       </FormControl>

@@ -56,7 +56,7 @@ export default function Navigation() {
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <img 
-                src="/attached_assets/TSU_1756057418012.png" 
+                src="/tsu-logo.png" 
                 alt="TSU Logo" 
                 className="w-10 h-10 mr-3 rounded-full object-cover"
                 data-testid="logo"

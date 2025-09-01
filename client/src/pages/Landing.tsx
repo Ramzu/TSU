@@ -48,7 +48,7 @@ export default function Landing() {
           <div className="text-center">
             <div className="flex justify-center mb-8">
               <img 
-                src="/attached_assets/TSU_1756057418012.png" 
+                src="/tsu-logo.png" 
                 alt="TSU Logo" 
                 className="w-32 h-32 rounded-full object-cover shadow-2xl"
                 data-testid="hero-logo"
