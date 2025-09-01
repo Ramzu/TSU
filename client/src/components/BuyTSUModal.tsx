@@ -201,12 +201,6 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                     </div>
                     <span className="font-medium text-blue-900">PayPal Payment</span>
                   </div>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
-                    <p className="text-sm text-yellow-800">
-                      <strong>PayPal Configuration Required:</strong> PayPal payments are currently unavailable due to invalid credentials. 
-                      Please use cryptocurrency payments instead or contact support to configure PayPal.
-                    </p>
-                  </div>
                   <p className="text-sm text-blue-700 mb-3">
                     Secure payment through PayPal. Click the PayPal button below to complete your purchase.
                   </p>
