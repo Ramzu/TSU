@@ -54,7 +54,11 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
+            <button 
+              onClick={() => handleNavigation('/')}
+              className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity"
+              data-testid="logo-button"
+            >
               <img 
                 src="/tsu-logo.png" 
                 alt="TSU Logo" 
@@ -62,7 +66,7 @@ export default function Navigation() {
                 data-testid="logo"
               />
               <span className="text-white font-semibold text-xl" data-testid="brand-name">TSU</span>
-            </div>
+            </button>
             {!isAuthenticated && (
               <div className="hidden md:block ml-10">
                 <div className="flex items-baseline space-x-4">

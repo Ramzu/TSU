@@ -41,7 +41,7 @@ export default function Footer() {
                   className="hover:text-tsu-gold transition-colors"
                   data-testid="footer-link-home"
                 >
-                  Dashboard
+                  Home
                 </button>
               </li>
               <li>
@@ -60,15 +60,6 @@ export default function Footer() {
                   data-testid="footer-link-currency"
                 >
                   Currency Program
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => window.location.href = '/admin'}
-                  className="hover:text-tsu-gold transition-colors"
-                  data-testid="footer-link-admin"
-                >
-                  Admin Portal
                 </button>
               </li>
             </ul>
