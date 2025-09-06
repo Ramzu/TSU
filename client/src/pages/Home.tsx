@@ -7,7 +7,7 @@ import BuyTSUModal from "@/components/BuyTSUModal";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown } from "lucide-react";
+import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown, DollarSign, CheckCircle } from "lucide-react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useState } from "react";
 
@@ -233,6 +233,81 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Programs Section */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Commodities Program */}
+            <Card className="shadow-lg bg-gradient-to-br from-green-50 to-blue-50 border-green-200" data-testid="commodities-program-card">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-green-700 flex items-center gap-2">
+                  <Coins className="h-6 w-6" />
+                  Commodities Program
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 mb-4">
+                  Transform your valuable resources into global trade liquidity. Register commodities like oil, gold, cocoa, and copper to access Trade Settlement Units backed by real reserves.
+                </p>
+                <div className="space-y-2 mb-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Turn unsold assets into usable settlement units</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Access to BRICS and African trade corridors</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Independent verification and security</span>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => window.location.href = '/commodities'}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-commodities-program"
+                >
+                  Explore Commodities Program
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Currency Program */}
+            <Card className="shadow-lg bg-gradient-to-br from-blue-50 to-green-50 border-blue-200" data-testid="currency-program-card">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-blue-700 flex items-center gap-2">
+                  <DollarSign className="h-6 w-6" />
+                  Currency Program
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 mb-4">
+                  Convert illiquid local currency into stable, usable Trade Settlement Units. Transform trapped funds into global trade power across Africa and BRICS networks.
+                </p>
+                <div className="space-y-2 mb-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                    <span>Monetize idle local currency holdings</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                    <span>Secure imports without USD bottlenecks</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                    <span>Stable value backed by gold and FX reserves</span>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => window.location.href = '/currency'}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  data-testid="button-currency-program"
+                >
+                  Explore Currency Program
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Recent Transactions */}
           <Card className="shadow-lg" data-testid="transactions-card">
