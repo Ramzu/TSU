@@ -87,6 +87,13 @@ export default function Navigation() {
                   >
                     Commodities Program
                   </button>
+                  <button 
+                    onClick={() => handleNavigation('/currency')}
+                    className="text-gray-300 hover:text-tsu-gold px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    data-testid="nav-currency"
+                  >
+                    Currency Program
+                  </button>
                 </div>
               </div>
             )}

@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Commodities from "@/pages/Commodities";
+import Currency from "@/pages/Currency";
 import NotFound from "@/pages/not-found";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -33,6 +34,7 @@ function Router() {
     <Switch>
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/commodities" component={Commodities} />
+      <Route path="/currency" component={Currency} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

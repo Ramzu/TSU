@@ -55,6 +55,15 @@ export default function Footer() {
               </li>
               <li>
                 <button 
+                  onClick={() => window.location.href = '/currency'}
+                  className="hover:text-tsu-gold transition-colors"
+                  data-testid="footer-link-currency"
+                >
+                  Currency Program
+                </button>
+              </li>
+              <li>
+                <button 
                   onClick={() => window.location.href = '/admin'}
                   className="hover:text-tsu-gold transition-colors"
                   data-testid="footer-link-admin"
