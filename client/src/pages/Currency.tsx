@@ -8,19 +8,19 @@ import Footer from "@/components/Footer";
 
 export default function Currency() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-tsu-gold to-yellow-200">
       <Navigation />
       <div className="pt-16">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
-            <DollarSign className="w-8 h-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-tsu-green rounded-full mb-6">
+            <DollarSign className="w-8 h-8 text-tsu-gold" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4" data-testid="heading-currency-program">
+          <h1 className="text-4xl font-bold text-tsu-green mb-4" data-testid="heading-currency-program">
             TSU Currency Program
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+          <p className="text-xl text-tsu-dark-green max-w-2xl mx-auto" data-testid="text-hero-subtitle">
             Transform Local Currency Into Global Trade Power
           </p>
         </div>
@@ -28,7 +28,7 @@ export default function Currency() {
         {/* What Is Section */}
         <Card className="mb-8" data-testid="card-what-is">
           <CardHeader>
-            <CardTitle className="text-2xl text-green-700" data-testid="heading-what-is">
+            <CardTitle className="text-2xl text-tsu-green" data-testid="heading-what-is">
               What Is the TSU Currency Program?
             </CardTitle>
           </CardHeader>
@@ -45,7 +45,7 @@ export default function Currency() {
         {/* How It Works Section */}
         <Card className="mb-8" data-testid="card-how-it-works">
           <CardHeader>
-            <CardTitle className="text-2xl text-green-700" data-testid="heading-how-it-works">
+            <CardTitle className="text-2xl text-tsu-green" data-testid="heading-how-it-works">
               How It Works
             </CardTitle>
           </CardHeader>

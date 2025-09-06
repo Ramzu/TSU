@@ -8,19 +8,19 @@ import Footer from "@/components/Footer";
 
 export default function Commodities() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-tsu-green to-tsu-light-green">
       <Navigation />
       <div className="pt-16">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
-            <Coins className="w-8 h-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-tsu-gold rounded-full mb-6">
+            <Coins className="w-8 h-8 text-tsu-green" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4" data-testid="heading-commodities-program">
+          <h1 className="text-4xl font-bold text-white mb-4" data-testid="heading-commodities-program">
             TSU Commodities Program
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+          <p className="text-xl text-tsu-gold max-w-2xl mx-auto" data-testid="text-hero-subtitle">
             Unlock the True Value of Your Resources
           </p>
         </div>
@@ -28,7 +28,7 @@ export default function Commodities() {
         {/* What Is Section */}
         <Card className="mb-8" data-testid="card-what-is">
           <CardHeader>
-            <CardTitle className="text-2xl text-green-700" data-testid="heading-what-is">
+            <CardTitle className="text-2xl text-tsu-green" data-testid="heading-what-is">
               What Is the TSU Commodities Program?
             </CardTitle>
           </CardHeader>
@@ -42,15 +42,15 @@ export default function Commodities() {
         {/* How It Works Section */}
         <Card className="mb-8" data-testid="card-how-it-works">
           <CardHeader>
-            <CardTitle className="text-2xl text-green-700" data-testid="heading-how-it-works">
+            <CardTitle className="text-2xl text-tsu-green" data-testid="heading-how-it-works">
               How It Works
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center" data-testid="step-register">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold">1</span>
+                <div className="w-12 h-12 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-tsu-green font-bold">1</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Register Your Commodities</h3>
                 <p className="text-sm text-gray-600">
@@ -59,8 +59,8 @@ export default function Commodities() {
               </div>
               
               <div className="text-center" data-testid="step-issuance">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold">2</span>
+                <div className="w-12 h-12 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-tsu-green font-bold">2</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">TSU Issuance with Lock-Up</h3>
                 <p className="text-sm text-gray-600">
@@ -69,8 +69,8 @@ export default function Commodities() {
               </div>
               
               <div className="text-center" data-testid="step-reserve-building">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold">3</span>
+                <div className="w-12 h-12 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-tsu-green font-bold">3</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Reserve Building</h3>
                 <p className="text-sm text-gray-600">
