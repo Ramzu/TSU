@@ -6,6 +6,9 @@ import { CheckCircle, Shield, Users, TrendingUp, DollarSign, Globe, Building, Ar
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import CurrencyConversionModal from "@/components/CurrencyConversionModal";
+import ContactModal from "@/components/ContactModal";
 
 interface ContentItem {
   key: string;
@@ -15,6 +18,9 @@ interface ContentItem {
 }
 
 export default function Currency() {
+  const [isConversionModalOpen, setIsConversionModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  
   const { data: content = [] } = useQuery<ContentItem[]>({
     queryKey: ["/api/content"],
   });
@@ -292,6 +298,7 @@ export default function Currency() {
                     size="lg" 
                     className="bg-tsu-green hover:bg-tsu-dark-green text-white font-semibold px-8 py-3"
                     data-testid="button-convert-currency"
+                    onClick={() => setIsConversionModalOpen(true)}
                   >
                     Convert Currency
                   </Button>
@@ -300,6 +307,7 @@ export default function Currency() {
                     variant="outline" 
                     className="border-2 border-tsu-green bg-transparent text-tsu-green hover:bg-tsu-green hover:text-white font-semibold px-8 py-3"
                     data-testid="button-contact-authority"
+                    onClick={() => setIsContactModalOpen(true)}
                   >
                     Contact TSU Authority
                   </Button>
@@ -311,6 +319,16 @@ export default function Currency() {
       </div>
       
       <Footer />
+      
+      {/* Modals */}
+      <CurrencyConversionModal 
+        isOpen={isConversionModalOpen} 
+        onClose={() => setIsConversionModalOpen(false)} 
+      />
+      <ContactModal 
+        isOpen={isContactModalOpen} 
+        onClose={() => setIsContactModalOpen(false)} 
+      />
     </div>
   );
 }

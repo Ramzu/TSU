@@ -6,6 +6,9 @@ import { CheckCircle, Shield, Users, TrendingUp, Coins, Globe, ArrowRight } from
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import CommodityRegistrationModal from "@/components/CommodityRegistrationModal";
+import ContactModal from "@/components/ContactModal";
 
 interface ContentItem {
   key: string;
@@ -15,6 +18,9 @@ interface ContentItem {
 }
 
 export default function Commodities() {
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  
   const { data: content = [] } = useQuery<ContentItem[]>({
     queryKey: ["/api/content"],
   });
@@ -235,6 +241,7 @@ export default function Commodities() {
                     size="lg" 
                     className="bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold px-8 py-3"
                     data-testid="button-register-commodities"
+                    onClick={() => setIsRegistrationModalOpen(true)}
                   >
                     Register Commodities
                   </Button>
@@ -243,6 +250,7 @@ export default function Commodities() {
                     variant="outline" 
                     className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-tsu-green font-semibold px-8 py-3"
                     data-testid="button-contact-authority"
+                    onClick={() => setIsContactModalOpen(true)}
                   >
                     Contact TSU Authority
                   </Button>
@@ -254,6 +262,16 @@ export default function Commodities() {
       </div>
       
       <Footer />
+      
+      {/* Modals */}
+      <CommodityRegistrationModal 
+        isOpen={isRegistrationModalOpen} 
+        onClose={() => setIsRegistrationModalOpen(false)} 
+      />
+      <ContactModal 
+        isOpen={isContactModalOpen} 
+        onClose={() => setIsContactModalOpen(false)} 
+      />
     </div>
   );
 }
