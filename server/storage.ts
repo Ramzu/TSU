@@ -8,6 +8,9 @@ import {
   siteMetadata,
   passwordResetTokens,
   smtpConfig,
+  commodityRegistrations,
+  currencyRegistrations,
+  contactMessages,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -26,6 +29,12 @@ import {
   type PasswordResetToken,
   type InsertSmtpConfig,
   type SmtpConfig,
+  type InsertCommodityRegistration,
+  type CommodityRegistration,
+  type InsertCurrencyRegistration,
+  type CurrencyRegistration,
+  type InsertContactMessage,
+  type ContactMessage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray } from "drizzle-orm";
@@ -81,6 +90,21 @@ export interface IStorage {
   // SMTP configuration operations
   getSmtpConfig(): Promise<SmtpConfig | undefined>;
   upsertSmtpConfig(config: InsertSmtpConfig): Promise<SmtpConfig>;
+  
+  // Commodity registration operations
+  createCommodityRegistration(registration: InsertCommodityRegistration): Promise<CommodityRegistration>;
+  getAllCommodityRegistrations(): Promise<CommodityRegistration[]>;
+  updateCommodityRegistration(id: string, updates: Partial<CommodityRegistration>): Promise<CommodityRegistration>;
+  
+  // Currency registration operations
+  createCurrencyRegistration(registration: InsertCurrencyRegistration): Promise<CurrencyRegistration>;
+  getAllCurrencyRegistrations(): Promise<CurrencyRegistration[]>;
+  updateCurrencyRegistration(id: string, updates: Partial<CurrencyRegistration>): Promise<CurrencyRegistration>;
+  
+  // Contact message operations
+  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
+  getAllContactMessages(): Promise<ContactMessage[]>;
+  updateContactMessage(id: string, updates: Partial<ContactMessage>): Promise<ContactMessage>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -365,6 +389,81 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return config;
+  }
+
+  // Commodity registration operations
+  async createCommodityRegistration(registrationData: InsertCommodityRegistration): Promise<CommodityRegistration> {
+    const [registration] = await db
+      .insert(commodityRegistrations)
+      .values(registrationData)
+      .returning();
+    return registration;
+  }
+
+  async getAllCommodityRegistrations(): Promise<CommodityRegistration[]> {
+    return await db
+      .select()
+      .from(commodityRegistrations)
+      .orderBy(desc(commodityRegistrations.createdAt));
+  }
+
+  async updateCommodityRegistration(id: string, updates: Partial<CommodityRegistration>): Promise<CommodityRegistration> {
+    const [registration] = await db
+      .update(commodityRegistrations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(commodityRegistrations.id, id))
+      .returning();
+    return registration;
+  }
+
+  // Currency registration operations
+  async createCurrencyRegistration(registrationData: InsertCurrencyRegistration): Promise<CurrencyRegistration> {
+    const [registration] = await db
+      .insert(currencyRegistrations)
+      .values(registrationData)
+      .returning();
+    return registration;
+  }
+
+  async getAllCurrencyRegistrations(): Promise<CurrencyRegistration[]> {
+    return await db
+      .select()
+      .from(currencyRegistrations)
+      .orderBy(desc(currencyRegistrations.createdAt));
+  }
+
+  async updateCurrencyRegistration(id: string, updates: Partial<CurrencyRegistration>): Promise<CurrencyRegistration> {
+    const [registration] = await db
+      .update(currencyRegistrations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(currencyRegistrations.id, id))
+      .returning();
+    return registration;
+  }
+
+  // Contact message operations
+  async createContactMessage(messageData: InsertContactMessage): Promise<ContactMessage> {
+    const [message] = await db
+      .insert(contactMessages)
+      .values(messageData)
+      .returning();
+    return message;
+  }
+
+  async getAllContactMessages(): Promise<ContactMessage[]> {
+    return await db
+      .select()
+      .from(contactMessages)
+      .orderBy(desc(contactMessages.createdAt));
+  }
+
+  async updateContactMessage(id: string, updates: Partial<ContactMessage>): Promise<ContactMessage> {
+    const [message] = await db
+      .update(contactMessages)
+      .set(updates)
+      .where(eq(contactMessages.id, id))
+      .returning();
+    return message;
   }
 }
 

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, insertPaymentTransactionSchema } from "@shared/schema";
+import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, insertPaymentTransactionSchema, insertCommodityRegistrationSchema, insertCurrencyRegistrationSchema, insertContactMessageSchema } from "@shared/schema";
 import { z } from "zod";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import { emailService } from "./emailService";
@@ -604,6 +604,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving content:", error);
       res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
+  // Commodity Registration endpoints
+  app.post('/api/commodity-registrations', async (req, res) => {
+    try {
+      const validation = insertCommodityRegistrationSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid registration data",
+          errors: validation.error.issues
+        });
+      }
+
+      const registration = await storage.createCommodityRegistration(validation.data);
+      res.json(registration);
+    } catch (error) {
+      console.error("Error creating commodity registration:", error);
+      res.status(500).json({ message: "Failed to submit registration" });
+    }
+  });
+
+  app.get('/api/commodity-registrations', requireAdmin, async (req: any, res) => {
+    try {
+      const registrations = await storage.getAllCommodityRegistrations();
+      res.json(registrations);
+    } catch (error) {
+      console.error("Error fetching commodity registrations:", error);
+      res.status(500).json({ message: "Failed to fetch registrations" });
+    }
+  });
+
+  app.put('/api/commodity-registrations/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      
+      const registration = await storage.updateCommodityRegistration(id, {
+        status,
+        adminNotes,
+        reviewedBy: req.currentUser.id,
+      });
+      
+      res.json(registration);
+    } catch (error) {
+      console.error("Error updating commodity registration:", error);
+      res.status(500).json({ message: "Failed to update registration" });
+    }
+  });
+
+  // Currency Registration endpoints
+  app.post('/api/currency-registrations', async (req, res) => {
+    try {
+      const validation = insertCurrencyRegistrationSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid registration data",
+          errors: validation.error.issues
+        });
+      }
+
+      const registration = await storage.createCurrencyRegistration(validation.data);
+      res.json(registration);
+    } catch (error) {
+      console.error("Error creating currency registration:", error);
+      res.status(500).json({ message: "Failed to submit registration" });
+    }
+  });
+
+  app.get('/api/currency-registrations', requireAdmin, async (req: any, res) => {
+    try {
+      const registrations = await storage.getAllCurrencyRegistrations();
+      res.json(registrations);
+    } catch (error) {
+      console.error("Error fetching currency registrations:", error);
+      res.status(500).json({ message: "Failed to fetch registrations" });
+    }
+  });
+
+  app.put('/api/currency-registrations/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      
+      const registration = await storage.updateCurrencyRegistration(id, {
+        status,
+        adminNotes,
+        reviewedBy: req.currentUser.id,
+      });
+      
+      res.json(registration);
+    } catch (error) {
+      console.error("Error updating currency registration:", error);
+      res.status(500).json({ message: "Failed to update registration" });
+    }
+  });
+
+  // Contact Messages endpoints
+  app.post('/api/contact-messages', async (req, res) => {
+    try {
+      const validation = insertContactMessageSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid message data",
+          errors: validation.error.issues
+        });
+      }
+
+      const message = await storage.createContactMessage(validation.data);
+      res.json(message);
+    } catch (error) {
+      console.error("Error creating contact message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  app.get('/api/contact-messages', requireAdmin, async (req: any, res) => {
+    try {
+      const messages = await storage.getAllContactMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching contact messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.put('/api/contact-messages/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { isRead, adminResponse } = req.body;
+      
+      const message = await storage.updateContactMessage(id, {
+        isRead,
+        adminResponse,
+        respondedBy: req.currentUser.id,
+        respondedAt: adminResponse ? new Date() : undefined,
+      });
+      
+      res.json(message);
+    } catch (error) {
+      console.error("Error updating contact message:", error);
+      res.status(500).json({ message: "Failed to update message" });
     }
   });
 
