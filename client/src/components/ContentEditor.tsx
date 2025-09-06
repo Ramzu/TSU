@@ -132,6 +132,8 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
     if (key.startsWith('features-') || key.startsWith('feature-')) return 'features';
     if (key.startsWith('about-') || key.startsWith('problem-') || key.startsWith('solution-')) return 'about';
     if (key.startsWith('cta-')) return 'cta';
+    if (key.startsWith('commodities-')) return 'commodities';
+    if (key.startsWith('currency-')) return 'currency';
     return 'general';
   };
 
