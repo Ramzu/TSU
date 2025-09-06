@@ -52,6 +52,21 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
       'solution-desc': 'TSU is a centralized CBDC-style digital currency, pegged to a diversified basket of reserves. Starting with petroleum exports to Africa, TSU provides immediate real-world utility while building trust and adoption across the continent.',
       'cta-title': 'Ready to Join the Future of Trade?',
       'cta-subtitle': 'Join thousands of businesses already using TSU for seamless Africa-BRICS trade settlements.',
+      // Commodities Program Content
+      'commodities-hero-title': 'TSU Commodities Program',
+      'commodities-hero-subtitle': 'Transform your valuable resources into global trade liquidity. Turn unsold commodities into usable Trade Settlement Units backed by real reserves.',
+      'commodities-overview-title': 'Unlock the True Value of Your Resources',
+      'commodities-overview-desc': 'The TSU Commodities Program is designed for producers, exporters, and traders who hold valuable resources but face challenges converting them into stable liquidity. By registering unsold or allocated commodities with the TSU Authority, you gain access to Trade Settlement Units backed by real reserves.',
+      'commodities-process-title': 'How It Works',
+      'commodities-process-subtitle': 'Simple, secure, and transparent process from commodity registration to TSU access',
+      // Currency Program Content
+      'currency-hero-title': 'TSU Currency Program',
+      'currency-hero-subtitle': 'Transform illiquid local currency into stable, usable Trade Settlement Units. Convert trapped funds into global trade power across Africa and BRICS networks.',
+      'currency-overview-title': 'Transform Local Currency Into Global Trade Power',
+      'currency-overview-problem': 'Many companies, cooperatives, and governments hold large balances of local currency that are hard to redeem for USD or other foreign exchange. Inflation, capital controls, and liquidity shortages mean those funds often sit idle while businesses struggle to import critical goods.',
+      'currency-overview-solution': 'The TSU Currency Program solves this problem by converting illiquid local currency into Trade Settlement Units — a stable, reserve-backed settlement instrument usable across Africa and BRICS trade corridors.',
+      'currency-process-title': 'How It Works',
+      'currency-process-subtitle': 'Simple conversion process from local currency to globally accepted TSU',
     },
   });
 
@@ -414,6 +429,180 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
                       <FormLabel>CTA Subtitle</FormLabel>
                       <FormControl>
                         <Textarea {...field} rows={2} data-testid="textarea-cta-subtitle" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Commodities Program Content */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-tsu-green">Commodities Program Page</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="commodities-hero-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hero Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-commodities-hero-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="commodities-hero-subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hero Subtitle</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={3} data-testid="textarea-commodities-hero-subtitle" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="commodities-overview-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overview Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-commodities-overview-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="commodities-overview-desc"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overview Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={4} data-testid="textarea-commodities-overview-desc" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="commodities-process-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Process Section Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-commodities-process-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="commodities-process-subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Process Section Subtitle</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={2} data-testid="textarea-commodities-process-subtitle" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Currency Program Content */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-tsu-green">Currency Program Page</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="currency-hero-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hero Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-currency-hero-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-hero-subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hero Subtitle</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={3} data-testid="textarea-currency-hero-subtitle" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-overview-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overview Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-currency-overview-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-overview-problem"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Problem Statement</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={4} data-testid="textarea-currency-overview-problem" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-overview-solution"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Solution Statement</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={3} data-testid="textarea-currency-overview-solution" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-process-title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Process Section Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-currency-process-title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="currency-process-subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Process Section Subtitle</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={2} data-testid="textarea-currency-process-subtitle" />
                       </FormControl>
                     </FormItem>
                   )}

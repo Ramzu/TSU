@@ -5,8 +5,25 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Shield, Users, TrendingUp, Coins, Globe, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useQuery } from "@tanstack/react-query";
+
+interface ContentItem {
+  key: string;
+  title?: string;
+  value: string;
+  section?: string;
+}
 
 export default function Commodities() {
+  const { data: content = [] } = useQuery<ContentItem[]>({
+    queryKey: ["/api/content"],
+  });
+
+  const getContent = (key: string, defaultValue: string) => {
+    const item = content.find((c) => c.key === key);
+    return item?.value || defaultValue;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -19,10 +36,10 @@ export default function Commodities() {
               <Coins className="w-10 h-10 text-tsu-green" />
             </div>
             <h1 className="text-5xl font-bold text-white mb-6" data-testid="heading-commodities-program">
-              TSU Commodities Program
+              {getContent('commodities-hero-title', 'TSU Commodities Program')}
             </h1>
             <p className="text-xl text-tsu-gold max-w-3xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-              Transform your valuable resources into global trade liquidity. Turn unsold commodities into usable Trade Settlement Units backed by real reserves.
+              {getContent('commodities-hero-subtitle', 'Transform your valuable resources into global trade liquidity. Turn unsold commodities into usable Trade Settlement Units backed by real reserves.')}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -52,12 +69,12 @@ export default function Commodities() {
           <Card className="shadow-lg" data-testid="card-overview">
             <CardHeader>
               <CardTitle className="text-3xl text-tsu-green text-center" data-testid="heading-overview">
-                Unlock the True Value of Your Resources
+                {getContent('commodities-overview-title', 'Unlock the True Value of Your Resources')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-lg text-gray-700 leading-relaxed text-center max-w-4xl mx-auto" data-testid="text-overview">
-                The TSU Commodities Program is designed for producers, exporters, and traders who hold valuable resources but face challenges converting them into stable liquidity. By registering unsold or allocated commodities with the TSU Authority, you gain access to Trade Settlement Units backed by real reserves.
+                {getContent('commodities-overview-desc', 'The TSU Commodities Program is designed for producers, exporters, and traders who hold valuable resources but face challenges converting them into stable liquidity. By registering unsold or allocated commodities with the TSU Authority, you gain access to Trade Settlement Units backed by real reserves.')}
               </p>
             </CardContent>
           </Card>
@@ -67,10 +84,10 @@ export default function Commodities() {
         <section className="mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-tsu-green mb-4" data-testid="heading-how-it-works">
-              How It Works
+              {getContent('commodities-process-title', 'How It Works')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Simple, secure, and transparent process from commodity registration to TSU access
+              {getContent('commodities-process-subtitle', 'Simple, secure, and transparent process from commodity registration to TSU access')}
             </p>
           </div>
           

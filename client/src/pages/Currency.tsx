@@ -5,8 +5,25 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Shield, Users, TrendingUp, DollarSign, Globe, Building, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useQuery } from "@tanstack/react-query";
+
+interface ContentItem {
+  key: string;
+  title?: string;
+  value: string;
+  section?: string;
+}
 
 export default function Currency() {
+  const { data: content = [] } = useQuery<ContentItem[]>({
+    queryKey: ["/api/content"],
+  });
+
+  const getContent = (key: string, defaultValue: string) => {
+    const item = content.find((c) => c.key === key);
+    return item?.value || defaultValue;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -19,10 +36,10 @@ export default function Currency() {
               <DollarSign className="w-10 h-10 text-tsu-gold" />
             </div>
             <h1 className="text-5xl font-bold text-tsu-green mb-6" data-testid="heading-currency-program">
-              TSU Currency Program
+              {getContent('currency-hero-title', 'TSU Currency Program')}
             </h1>
             <p className="text-xl text-tsu-dark-green max-w-3xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-              Transform illiquid local currency into stable, usable Trade Settlement Units. Convert trapped funds into global trade power across Africa and BRICS networks.
+              {getContent('currency-hero-subtitle', 'Transform illiquid local currency into stable, usable Trade Settlement Units. Convert trapped funds into global trade power across Africa and BRICS networks.')}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -52,16 +69,16 @@ export default function Currency() {
           <Card className="shadow-lg" data-testid="card-overview">
             <CardHeader>
               <CardTitle className="text-3xl text-tsu-green text-center" data-testid="heading-overview">
-                Transform Local Currency Into Global Trade Power
+                {getContent('currency-overview-title', 'Transform Local Currency Into Global Trade Power')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <p className="text-lg text-gray-700 leading-relaxed text-center max-w-4xl mx-auto" data-testid="text-problem">
-                  Many companies, cooperatives, and governments hold large balances of local currency that are hard to redeem for USD or other foreign exchange. Inflation, capital controls, and liquidity shortages mean those funds often sit idle while businesses struggle to import critical goods.
+                  {getContent('currency-overview-problem', 'Many companies, cooperatives, and governments hold large balances of local currency that are hard to redeem for USD or other foreign exchange. Inflation, capital controls, and liquidity shortages mean those funds often sit idle while businesses struggle to import critical goods.')}
                 </p>
                 <p className="text-lg text-gray-700 leading-relaxed text-center max-w-4xl mx-auto" data-testid="text-solution">
-                  The TSU Currency Program solves this problem by converting illiquid local currency into Trade Settlement Units — a stable, reserve-backed settlement instrument usable across Africa and BRICS trade corridors.
+                  {getContent('currency-overview-solution', 'The TSU Currency Program solves this problem by converting illiquid local currency into Trade Settlement Units — a stable, reserve-backed settlement instrument usable across Africa and BRICS trade corridors.')}
                 </p>
               </div>
             </CardContent>
@@ -72,10 +89,10 @@ export default function Currency() {
         <section className="mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-tsu-green mb-4" data-testid="heading-how-it-works">
-              How It Works
+              {getContent('currency-process-title', 'How It Works')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Simple conversion process from local currency to globally accepted TSU
+              {getContent('currency-process-subtitle', 'Simple conversion process from local currency to globally accepted TSU')}
             </p>
           </div>
           
