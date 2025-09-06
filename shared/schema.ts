@@ -249,6 +249,61 @@ export const siteMetadata = pgTable("site_metadata", {
   createdBy: varchar("created_by").references(() => users.id),
 });
 
+// Registration status enum
+export const registrationStatusEnum = pgEnum('registration_status', ['pending', 'approved', 'rejected', 'under_review']);
+
+// Commodity registrations table
+export const commodityRegistrations = pgTable("commodity_registrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: varchar("company_name").notNull(),
+  contactEmail: varchar("contact_email").notNull(),
+  contactPhone: varchar("contact_phone"),
+  location: varchar("location").notNull(),
+  country: countryEnum("country").notNull(),
+  commodityType: varchar("commodity_type").notNull(),
+  quantity: varchar("quantity").notNull(),
+  additionalInfo: text("additional_info"),
+  status: registrationStatusEnum("status").default('pending'),
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+});
+
+// Currency conversion registrations table  
+export const currencyRegistrations = pgTable("currency_registrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: varchar("company_name").notNull(),
+  contactEmail: varchar("contact_email").notNull(),
+  contactPhone: varchar("contact_phone"),
+  location: varchar("location").notNull(),
+  country: countryEnum("country").notNull(),
+  currencyType: varchar("currency_type").notNull(),
+  amount: varchar("amount").notNull(),
+  purpose: text("purpose"),
+  additionalInfo: text("additional_info"),
+  status: registrationStatusEnum("status").default('pending'),
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+});
+
+// Contact messages table
+export const contactMessages = pgTable("contact_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  subject: varchar("subject").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  adminResponse: text("admin_response"),
+  createdAt: timestamp("created_at").defaultNow(),
+  respondedAt: timestamp("responded_at"),
+  respondedBy: varchar("responded_by").references(() => users.id),
+});
+
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
   user: one(users, {
     fields: [passwordResetTokens.userId],
@@ -259,6 +314,27 @@ export const passwordResetTokensRelations = relations(passwordResetTokens, ({ on
 export const smtpConfigRelations = relations(smtpConfig, ({ one }) => ({
   createdBy: one(users, {
     fields: [smtpConfig.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const commodityRegistrationsRelations = relations(commodityRegistrations, ({ one }) => ({
+  reviewedBy: one(users, {
+    fields: [commodityRegistrations.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+export const currencyRegistrationsRelations = relations(currencyRegistrations, ({ one }) => ({
+  reviewedBy: one(users, {
+    fields: [currencyRegistrations.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+export const contactMessagesRelations = relations(contactMessages, ({ one }) => ({
+  respondedBy: one(users, {
+    fields: [contactMessages.respondedBy],
     references: [users.id],
   }),
 }));
@@ -280,6 +356,23 @@ export const insertSiteMetadataSchema = createInsertSchema(siteMetadata).omit({
   updatedAt: true,
 });
 
+export const insertCommodityRegistrationSchema = createInsertSchema(commodityRegistrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCurrencyRegistrationSchema = createInsertSchema(currencyRegistrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
@@ -298,6 +391,12 @@ export type InsertSmtpConfig = z.infer<typeof insertSmtpConfigSchema>;
 export type SmtpConfig = typeof smtpConfig.$inferSelect;
 export type InsertSiteMetadata = z.infer<typeof insertSiteMetadataSchema>;
 export type SiteMetadata = typeof siteMetadata.$inferSelect;
+export type InsertCommodityRegistration = z.infer<typeof insertCommodityRegistrationSchema>;
+export type CommodityRegistration = typeof commodityRegistrations.$inferSelect;
+export type InsertCurrencyRegistration = z.infer<typeof insertCurrencyRegistrationSchema>;
+export type CurrencyRegistration = typeof currencyRegistrations.$inferSelect;
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+export type ContactMessage = typeof contactMessages.$inferSelect;
 
 // Country options for forms
 export const COUNTRY_OPTIONS = [
