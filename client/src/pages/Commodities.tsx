@@ -205,6 +205,191 @@ export default function Commodities() {
           </CardContent>
         </Card>
 
+        {/* TSU for Traders Section */}
+        <div className="mb-8">
+          <Separator className="my-8" />
+          
+          {/* Traders Hero Section */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
+              <Globe className="w-8 h-8 text-blue-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4" data-testid="heading-tsu-for-traders">
+              TSU for Traders
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-testid="text-traders-subtitle">
+              Reliable Commodities. Transparent Settlement.
+            </p>
+          </div>
+
+          {/* Why Trade with TSU */}
+          <Card className="mb-6" data-testid="card-why-trade">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-700" data-testid="heading-why-trade">
+                Why Trade with TSU?
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 leading-relaxed mb-4" data-testid="text-why-trade-description">
+                The TSU Commodities Program connects you directly with producers across Africa and BRICS nations, ensuring access to real, verified resources without the bottlenecks of traditional USD-based settlement.
+              </p>
+              <p className="text-gray-700 mb-4">With TSU, every trade is:</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3" data-testid="feature-reserve-backed">
+                  <CheckCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <div>
+                    <strong>Reserve-Backed:</strong> Anchored in gold, foreign exchange, and commodities.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3" data-testid="feature-verified">
+                  <CheckCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <div>
+                    <strong>Verified:</strong> All producer assets are independently validated by Trustees.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3" data-testid="feature-transparent">
+                  <CheckCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <div>
+                    <strong>Transparent:</strong> Proof-of-reserves and audits published monthly.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* How It Works for Traders */}
+          <Card className="mb-6" data-testid="card-traders-how-it-works">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-700" data-testid="heading-traders-how-it-works">
+                How It Works
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center" data-testid="step-browse">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-600 font-bold">1</span>
+                  </div>
+                  <h3 className="font-semibold mb-2 text-gray-900">Browse Available Commodities</h3>
+                  <p className="text-sm text-gray-600">
+                    Access oil, cocoa, copper, grain, and more through the TSU system.
+                  </p>
+                </div>
+                
+                <div className="text-center" data-testid="step-settle">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-600 font-bold">2</span>
+                  </div>
+                  <h3 className="font-semibold mb-2 text-gray-900">Settle in TSU</h3>
+                  <p className="text-sm text-gray-600">
+                    Pay producers directly in TSU, backed by a diversified reserve basket.
+                  </p>
+                </div>
+                
+                <div className="text-center" data-testid="step-redeem">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-600 font-bold">3</span>
+                  </div>
+                  <h3 className="font-semibold mb-2 text-gray-900">Redeem or Reuse</h3>
+                  <p className="text-sm text-gray-600">
+                    Redeem TSU for gold or BRICS currencies (CNY, ZAR, RUB, INR). Reuse TSU to source additional commodities.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Key Advantages */}
+          <Card className="mb-6" data-testid="card-key-advantages">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-700" data-testid="heading-key-advantages">
+                Key Advantages for Traders
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3" data-testid="advantage-direct-access">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Access</Badge>
+                  <div>
+                    <strong>Direct Access to Producers</strong> – Secure supplies at competitive terms.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3" data-testid="advantage-de-dollarized">
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Settlement</Badge>
+                  <div>
+                    <strong>De-Dollarized Settlement</strong> – Avoid USD restrictions and clearing delays.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3" data-testid="advantage-lower-risk">
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Security</Badge>
+                  <div>
+                    <strong>Lower Counterparty Risk</strong> – TSU lock-up and over-collateralization ensure stability.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3" data-testid="advantage-efficiency">
+                  <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">Speed</Badge>
+                  <div>
+                    <strong>Efficiency</strong> – Faster settlement cycles across borders.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Traders Example */}
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-green-50 border-blue-200" data-testid="card-traders-example">
+            <CardHeader>
+              <CardTitle className="text-blue-700" data-testid="heading-traders-example">Example</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-gray-700">
+                <p data-testid="text-traders-example-step1">• A South African importer buys cocoa from Ghana using TSU.</p>
+                <p data-testid="text-traders-example-step2">• The cooperative receives TSU backed by verified reserves.</p>
+                <p data-testid="text-traders-example-step3">• The importer pays in TSU instead of struggling for USD clearance.</p>
+                <p data-testid="text-traders-example-step4">• Both sides settle transparently with international oversight.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Traders CTA */}
+          <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white" data-testid="card-traders-cta">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-4" data-testid="heading-start-trading">Start Trading with TSU</h3>
+                <p className="text-blue-100 mb-6" data-testid="text-traders-cta-description">
+                  Access real commodities and settle securely with TSU.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    size="lg" 
+                    variant="secondary" 
+                    className="bg-white text-blue-700 hover:bg-blue-50"
+                    data-testid="button-open-trader-account"
+                  >
+                    Open Trader Account
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-white text-white hover:bg-blue-800"
+                    data-testid="button-contact-tsu-authority"
+                  >
+                    Contact TSU Authority
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-white text-white hover:bg-blue-800"
+                    data-testid="button-view-commodities"
+                  >
+                    View Available Commodities
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Call to Action */}
         <Card className="bg-gradient-to-r from-green-600 to-green-700 text-white" data-testid="card-cta">
           <CardContent className="pt-6">
