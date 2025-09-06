@@ -52,8 +52,8 @@ export default function Currency() {
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center" data-testid="step-deposit">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold">1</span>
+                <div className="w-12 h-12 bg-tsu-green rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-tsu-gold font-bold">1</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Deposit Local Currency Into Escrow</h3>
                 <p className="text-sm text-gray-600">
@@ -62,8 +62,8 @@ export default function Currency() {
               </div>
               
               <div className="text-center" data-testid="step-issuance">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold">2</span>
+                <div className="w-12 h-12 bg-tsu-green rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-tsu-gold font-bold">2</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">TSU Issuance with Lock-Up</h3>
                 <p className="text-sm text-gray-600">
