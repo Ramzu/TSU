@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
+import Commodities from "@/pages/Commodities";
 import NotFound from "@/pages/not-found";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -31,6 +32,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/commodities" component={Commodities} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
