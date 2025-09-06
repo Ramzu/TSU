@@ -191,6 +191,48 @@ export default function Home() {
             </CardContent>
           </Card>
 
+          {/* Commodities Program Section */}
+          <Card className="shadow-lg mb-8 bg-gradient-to-r from-green-50 to-blue-50 border-green-200" data-testid="commodities-section">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-tsu-green flex items-center gap-2">
+                <Coins className="h-6 w-6 text-tsu-gold" />
+                TSU Commodities Program
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6 items-center">
+                <div>
+                  <p className="text-gray-700 mb-4">
+                    Turn your commodities into global trade liquidity. Register unsold resources like oil, cocoa, copper, and grain to access TSU-backed settlement units.
+                  </p>
+                  <div className="space-y-2 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      Direct access to producers and traders across Africa & BRICS
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      Reserve-backed by gold, foreign exchange, and verified commodities
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                      De-dollarized settlement with transparent monthly audits
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <Button 
+                    onClick={() => window.location.href = '/commodities'}
+                    className="bg-tsu-green hover:bg-tsu-light-green text-white px-6 py-3"
+                    data-testid="button-learn-commodities"
+                  >
+                    Learn More About Commodities
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Recent Transactions */}
           <Card className="shadow-lg" data-testid="transactions-card">
             <CardHeader className="flex flex-row items-center justify-between">
