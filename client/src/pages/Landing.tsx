@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import SimpleLoginModal from "@/components/SimpleLoginModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Globe, Zap, Users, BarChart3, Clock } from "lucide-react";
+import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Footer from "@/components/Footer";
@@ -151,6 +151,94 @@ export default function Landing() {
               <p className="text-gray-600" data-testid="feature-3-desc">
                 {getContent('feature-3-desc', t('features.stable.desc'))}
               </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Programs Section */}
+      <section className="py-16 bg-gray-50" data-testid="programs-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-tsu-green mb-4" data-testid="programs-title">
+              Transform Your Assets with TSU
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="programs-subtitle">
+              Unlock the true value of your resources and currencies through our comprehensive programs
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Commodities Program */}
+            <Card className="shadow-lg bg-gradient-to-br from-green-50 to-blue-50 border-green-200 p-8" data-testid="landing-commodities-program-card">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Coins className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-semibold text-green-700" data-testid="commodities-program-title">
+                  Commodities Program
+                </h3>
+              </div>
+              <p className="text-gray-700 mb-6 text-center">
+                Transform your valuable resources into global trade liquidity. Register commodities like oil, gold, cocoa, and copper to access Trade Settlement Units backed by real reserves.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Turn unsold assets into usable settlement units</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Access to BRICS and African trade corridors</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Independent verification and security</span>
+                </div>
+              </div>
+              <Button 
+                onClick={() => window.location.href = '/commodities'}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
+                data-testid="button-landing-commodities-program"
+              >
+                Explore Commodities Program
+              </Button>
+            </Card>
+
+            {/* Currency Program */}
+            <Card className="shadow-lg bg-gradient-to-br from-blue-50 to-green-50 border-blue-200 p-8" data-testid="landing-currency-program-card">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <DollarSign className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-semibold text-blue-700" data-testid="currency-program-title">
+                  Currency Program
+                </h3>
+              </div>
+              <p className="text-gray-700 mb-6 text-center">
+                Convert illiquid local currency into stable, usable Trade Settlement Units. Transform trapped funds into global trade power across Africa and BRICS networks.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span className="text-gray-700">Monetize idle local currency holdings</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span className="text-gray-700">Secure imports without USD bottlenecks</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span className="text-gray-700">Stable value backed by gold and FX reserves</span>
+                </div>
+              </div>
+              <Button 
+                onClick={() => window.location.href = '/currency'}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                data-testid="button-landing-currency-program"
+              >
+                Explore Currency Program
+              </Button>
             </Card>
           </div>
         </div>
