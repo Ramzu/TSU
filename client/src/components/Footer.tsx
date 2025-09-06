@@ -91,13 +91,25 @@ export default function Footer() {
             © 2024 Trade Settlement Unit Authority. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-300">
-            <button className="hover:text-tsu-gold transition-colors" data-testid="footer-link-privacy">
+            <button 
+              onClick={() => window.location.href = '/privacy-policy'}
+              className="hover:text-tsu-gold transition-colors" 
+              data-testid="footer-link-privacy"
+            >
               Privacy Policy
             </button>
-            <button className="hover:text-tsu-gold transition-colors" data-testid="footer-link-terms">
+            <button 
+              onClick={() => window.location.href = '/terms-of-service'}
+              className="hover:text-tsu-gold transition-colors" 
+              data-testid="footer-link-terms"
+            >
               Terms of Service
             </button>
-            <button className="hover:text-tsu-gold transition-colors" data-testid="footer-link-audit">
+            <button 
+              onClick={() => window.location.href = '/monthly-audit-reports'}
+              className="hover:text-tsu-gold transition-colors" 
+              data-testid="footer-link-audit"
+            >
               Monthly Audit Reports
             </button>
           </div>
