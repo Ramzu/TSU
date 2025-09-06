@@ -376,7 +376,7 @@ export default function Commodities() {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="border-white text-white hover:bg-blue-800"
+                    className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-blue-700 font-semibold"
                     data-testid="button-contact-tsu-authority"
                   >
                     Contact TSU Authority
@@ -384,7 +384,7 @@ export default function Commodities() {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="border-white text-white hover:bg-blue-800"
+                    className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-blue-700 font-semibold"
                     data-testid="button-view-commodities"
                   >
                     View Available Commodities
@@ -415,7 +415,7 @@ export default function Commodities() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white text-white hover:bg-green-800"
+                  className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-green-700 font-semibold"
                   data-testid="button-contact-authority"
                 >
                   Contact TSU Authority
@@ -423,7 +423,7 @@ export default function Commodities() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white text-white hover:bg-green-800"
+                  className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-green-700 font-semibold"
                   data-testid="button-download-framework"
                 >
                   Download Partnership Framework
