@@ -13,16 +13,44 @@ export default function Commodities() {
       <div className="pt-16">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
-            <Coins className="w-8 h-8 text-green-600" />
+        <div className="text-center mb-12 relative">
+          {/* Background commodity collage */}
+          <div className="absolute inset-0 opacity-10 overflow-hidden rounded-lg">
+            <div className="grid grid-cols-4 gap-2 h-full">
+              <img 
+                src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=400&fit=crop&crop=center" 
+                alt="Gold bars" 
+                className="w-full h-full object-cover rounded"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1516876535655-4b36c2d04d27?w=300&h=400&fit=crop&crop=center" 
+                alt="Cocoa beans" 
+                className="w-full h-full object-cover rounded"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1582540291066-b2a2065dfad2?w=300&h=400&fit=crop&crop=center" 
+                alt="Copper metal" 
+                className="w-full h-full object-cover rounded"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=400&fit=crop&crop=center" 
+                alt="Wheat grain" 
+                className="w-full h-full object-cover rounded"
+              />
+            </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4" data-testid="heading-commodities-program">
-            TSU Commodities Program
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
-            Unlock the True Value of Your Resources
-          </p>
+          
+          <div className="relative z-10 bg-white/90 backdrop-blur-sm rounded-lg p-8 max-w-4xl mx-auto">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
+              <Coins className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4" data-testid="heading-commodities-program">
+              TSU Commodities Program
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+              Unlock the True Value of Your Resources
+            </p>
+          </div>
         </div>
 
         {/* What Is Section */}
@@ -48,8 +76,15 @@ export default function Commodities() {
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center" data-testid="step-register">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center relative" data-testid="step-register">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-green-200 shadow-lg">
+                  <img 
+                    src="https://images.unsplash.com/photo-1541730315851-0c9b36e85984?w=200&h=200&fit=crop&crop=center" 
+                    alt="Oil barrels" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 mt-8">
                   <span className="text-green-600 font-bold">1</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Register Your Commodities</h3>
@@ -58,8 +93,15 @@ export default function Commodities() {
                 </p>
               </div>
               
-              <div className="text-center" data-testid="step-issuance">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center relative" data-testid="step-issuance">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-green-200 shadow-lg">
+                  <img 
+                    src="https://images.unsplash.com/photo-1516876535655-4b36c2d04d27?w=200&h=200&fit=crop&crop=center" 
+                    alt="Cocoa beans" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 mt-8">
                   <span className="text-green-600 font-bold">2</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">TSU Issuance with Lock-Up</h3>
@@ -68,8 +110,15 @@ export default function Commodities() {
                 </p>
               </div>
               
-              <div className="text-center" data-testid="step-reserve-building">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center relative" data-testid="step-reserve-building">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-green-200 shadow-lg">
+                  <img 
+                    src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=200&h=200&fit=crop&crop=center" 
+                    alt="Gold bars" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 mt-8">
                   <span className="text-green-600 font-bold">3</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Reserve Building</h3>
@@ -78,8 +127,15 @@ export default function Commodities() {
                 </p>
               </div>
               
-              <div className="text-center" data-testid="step-unlock">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center relative" data-testid="step-unlock">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-green-200 shadow-lg">
+                  <img 
+                    src="https://images.unsplash.com/photo-1582540291066-b2a2065dfad2?w=200&h=200&fit=crop&crop=center" 
+                    alt="Copper metal" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 mt-8">
                   <span className="text-green-600 font-bold">4</span>
                 </div>
                 <h3 className="font-semibold mb-2 text-gray-900">Unlock & Redeem</h3>
@@ -87,6 +143,99 @@ export default function Commodities() {
                   Once the lock-up expires, your TSU is unlocked. You can pay for imports, redeem for BRICS currencies, or exchange for gold.
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Supported Commodities Showcase */}
+        <Card className="mb-8 bg-gradient-to-r from-green-50 to-blue-50 border-green-200" data-testid="card-commodities-showcase">
+          <CardHeader>
+            <CardTitle className="text-2xl text-green-700 text-center" data-testid="heading-supported-commodities">
+              Supported Commodities
+            </CardTitle>
+            <p className="text-center text-gray-600 mt-2">
+              Transform your valuable resources into global trade liquidity
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1541730315851-0c9b36e85984?w=200&h=200&fit=crop&crop=center" 
+                    alt="Crude Oil" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Crude Oil</h4>
+                <p className="text-xs text-gray-500">Brent, WTI, Light Sweet</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=200&h=200&fit=crop&crop=center" 
+                    alt="Gold" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Gold</h4>
+                <p className="text-xs text-gray-500">Bullion, Refined Gold</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1516876535655-4b36c2d04d27?w=200&h=200&fit=crop&crop=center" 
+                    alt="Cocoa" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Cocoa</h4>
+                <p className="text-xs text-gray-500">Premium, Fair Trade</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1582540291066-b2a2065dfad2?w=200&h=200&fit=crop&crop=center" 
+                    alt="Copper" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Copper</h4>
+                <p className="text-xs text-gray-500">Grade A, Cathode</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=200&h=200&fit=crop&crop=center" 
+                    alt="Wheat" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Wheat</h4>
+                <p className="text-xs text-gray-500">Hard Red, Durum</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-lg overflow-hidden mx-auto mb-3 shadow-lg border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1605379399642-870262d3d051?w=200&h=200&fit=crop&crop=center" 
+                    alt="Diamonds" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h4 className="font-semibold text-gray-900">Diamonds</h4>
+                <p className="text-xs text-gray-500">Rough, Certified</p>
+              </div>
+            </div>
+            
+            <div className="text-center mt-6">
+              <p className="text-sm text-gray-600">
+                Plus many more: Cotton, Coffee, Platinum, Natural Gas, Soybeans, and other verified commodities
+              </p>
             </div>
           </CardContent>
         </Card>
