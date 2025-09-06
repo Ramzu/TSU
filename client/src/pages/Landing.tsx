@@ -170,35 +170,35 @@ export default function Landing() {
           
           <div className="grid md:grid-cols-2 gap-8">
             {/* Commodities Program */}
-            <Card className="shadow-lg bg-gradient-to-br from-green-50 to-blue-50 border-green-200 p-8" data-testid="landing-commodities-program-card">
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8" data-testid="landing-commodities-program-card">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Coins className="h-8 w-8 text-green-600" />
+                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Coins className="h-8 w-8 text-tsu-green" />
                 </div>
-                <h3 className="text-2xl font-semibold text-green-700" data-testid="commodities-program-title">
+                <h3 className="text-2xl font-semibold text-tsu-gold" data-testid="commodities-program-title">
                   Commodities Program
                 </h3>
               </div>
-              <p className="text-gray-700 mb-6 text-center">
+              <p className="text-white/90 mb-6 text-center">
                 Transform your valuable resources into global trade liquidity. Register commodities like oil, gold, cocoa, and copper to access Trade Settlement Units backed by real reserves.
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Turn unsold assets into usable settlement units</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Turn unsold assets into usable settlement units</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Access to BRICS and African trade corridors</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Access to BRICS and African trade corridors</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Independent verification and security</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Independent verification and security</span>
                 </div>
               </div>
               <Button 
                 onClick={() => window.location.href = '/commodities'}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
+                className="w-full bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold py-3"
                 data-testid="button-landing-commodities-program"
               >
                 Explore Commodities Program
@@ -206,35 +206,35 @@ export default function Landing() {
             </Card>
 
             {/* Currency Program */}
-            <Card className="shadow-lg bg-gradient-to-br from-blue-50 to-green-50 border-blue-200 p-8" data-testid="landing-currency-program-card">
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-gold to-yellow-400 text-tsu-green border-tsu-gold p-8" data-testid="landing-currency-program-card">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <DollarSign className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-tsu-green rounded-full flex items-center justify-center mx-auto mb-4">
+                  <DollarSign className="h-8 w-8 text-tsu-gold" />
                 </div>
-                <h3 className="text-2xl font-semibold text-blue-700" data-testid="currency-program-title">
+                <h3 className="text-2xl font-semibold text-tsu-green" data-testid="currency-program-title">
                   Currency Program
                 </h3>
               </div>
-              <p className="text-gray-700 mb-6 text-center">
+              <p className="text-tsu-dark-green mb-6 text-center">
                 Convert illiquid local currency into stable, usable Trade Settlement Units. Transform trapped funds into global trade power across Africa and BRICS networks.
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  <span className="text-gray-700">Monetize idle local currency holdings</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
+                  <span className="text-tsu-dark-green">Monetize idle local currency holdings</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  <span className="text-gray-700">Secure imports without USD bottlenecks</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
+                  <span className="text-tsu-dark-green">Secure imports without USD bottlenecks</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  <span className="text-gray-700">Stable value backed by gold and FX reserves</span>
+                  <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
+                  <span className="text-tsu-dark-green">Stable value backed by gold and FX reserves</span>
                 </div>
               </div>
               <Button 
                 onClick={() => window.location.href = '/currency'}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                className="w-full bg-tsu-green hover:bg-tsu-dark-green text-white font-semibold py-3"
                 data-testid="button-landing-currency-program"
               >
                 Explore Currency Program
