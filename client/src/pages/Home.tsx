@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import BuyTSUModal from "@/components/BuyTSUModal";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown } from "lucide-react";
@@ -302,6 +303,7 @@ export default function Home() {
 
       {/* Modals */}
       <BuyTSUModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
+      <Footer />
     </div>
   );
 }

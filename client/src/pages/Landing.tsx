@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Globe, Zap, Users, BarChart3, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import Footer from "@/components/Footer";
 
 interface ContentItem {
   key: string;
@@ -260,6 +261,7 @@ export default function Landing() {
       
       {/* Login Modal */}
       <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} mode={loginModalMode} />
+      <Footer />
     </div>
   );
 }

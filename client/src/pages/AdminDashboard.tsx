@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail } from "lucide-react";
+import Footer from "@/components/Footer";
 
 interface AdminStats {
   totalUsers: number;
@@ -577,6 +578,7 @@ export default function AdminDashboard() {
       <AddAdminModal isOpen={showAddAdminModal} onClose={() => setShowAddAdminModal(false)} />
       {showContentEditor && <ContentEditor onClose={() => setShowContentEditor(false)} />}
       {showMetadataEditor && <MetadataEditor />}
+      <Footer />
     </div>
   );
 }

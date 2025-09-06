@@ -13,6 +13,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Save, RefreshCw, Globe, Share2 } from "lucide-react";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 
 const metadataSchema = z.object({
   title: z.string().min(1, "Title is required").max(60, "Title should be under 60 characters"),
@@ -97,8 +99,11 @@ export default function MetadataEditor() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="mb-8">
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <div className="pt-16">
+        <div className="container mx-auto p-6 max-w-4xl">
+          <div className="mb-8">
         <h1 className="text-3xl font-bold text-tsu-green mb-2">
           Social Media Metadata Editor
         </h1>
@@ -370,6 +375,9 @@ export default function MetadataEditor() {
           </Card>
         </div>
       </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }

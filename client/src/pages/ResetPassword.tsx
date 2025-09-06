@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import ResetPasswordModal from "@/components/ResetPasswordModal";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 
 export default function ResetPassword() {
   const [location, setLocation] = useLocation();
@@ -28,17 +30,21 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Reset Link</h1>
-          <p className="text-gray-600 mb-6">This password reset link is invalid or has expired.</p>
-          <button
-            onClick={() => setLocation('/')}
-            className="bg-tsu-green text-white px-6 py-2 rounded-lg hover:bg-tsu-dark-green"
-          >
-            Return Home
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="pt-16 flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Reset Link</h1>
+            <p className="text-gray-600 mb-6">This password reset link is invalid or has expired.</p>
+            <button
+              onClick={() => setLocation('/')}
+              className="bg-tsu-green text-white px-6 py-2 rounded-lg hover:bg-tsu-dark-green"
+            >
+              Return Home
+            </button>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -46,20 +52,24 @@ export default function ResetPassword() {
   return (
     <>
       <div className="min-h-screen bg-gray-50">
-        {/* Background content - will be hidden by modal */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-tsu-green mb-4">Reset Your Password</h1>
-            <p className="text-gray-600">Please wait while we load the password reset form...</p>
+        <Navigation />
+        <div className="pt-16">
+          {/* Background content - will be hidden by modal */}
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-tsu-green mb-4">Reset Your Password</h1>
+              <p className="text-gray-600">Please wait while we load the password reset form...</p>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
       
       {/* Reset password modal */}
       <ResetPasswordModal
         isOpen={isModalOpen}
         onClose={handleClose}
-        token={token}
+        token={token!}
       />
     </>
   );
