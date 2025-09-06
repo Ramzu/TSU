@@ -67,6 +67,60 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
       'currency-overview-solution': 'The TSU Currency Program solves this problem by converting illiquid local currency into Trade Settlement Units — a stable, reserve-backed settlement instrument usable across Africa and BRICS trade corridors.',
       'currency-process-title': 'How It Works',
       'currency-process-subtitle': 'Simple conversion process from local currency to globally accepted TSU',
+      // Privacy Policy Content
+      'privacy-title': 'Privacy Policy',
+      'privacy-intro': 'Your privacy is important to us. This policy explains how we collect, use, and protect your information when you use the TSU digital wallet platform.',
+      'privacy-updated': 'Last Updated: January 2025',
+      'privacy-collection-title': 'Information We Collect',
+      'privacy-collection-content': '<p>We collect information necessary to provide secure digital wallet services:</p><ul><li><strong>Personal Information:</strong> Name, email address, phone number, and verification documents</li><li><strong>Transaction Data:</strong> Details of TSU transactions, wallet balances, and trading activity</li><li><strong>Technical Data:</strong> IP address, device information, and usage analytics</li><li><strong>Communication Data:</strong> Support inquiries and correspondence</li></ul>',
+      'privacy-use-title': 'How We Use Your Information',
+      'privacy-use-content': '<p>Your information is used to:</p><ul><li>Process transactions and maintain wallet functionality</li><li>Verify identity and comply with regulatory requirements</li><li>Provide customer support and respond to inquiries</li><li>Improve our services and detect fraudulent activity</li><li>Send important updates about your account and services</li></ul>',
+      'privacy-security-title': 'Data Security',
+      'privacy-security-content': '<p>We implement robust security measures to protect your information:</p><ul><li>End-to-end encryption for all transactions</li><li>Multi-factor authentication requirements</li><li>Regular security audits and penetration testing</li><li>Secure data centers with 24/7 monitoring</li><li>Employee background checks and access controls</li></ul>',
+      'privacy-sharing-title': 'Information Sharing',
+      'privacy-sharing-content': '<p>We do not sell your personal information. We may share data only when:</p><ul><li>Required by law or regulatory authorities</li><li>Necessary to prevent fraud or security threats</li><li>With trusted service providers under strict confidentiality agreements</li><li>In connection with business transfers (with user notification)</li></ul>',
+      'privacy-rights-title': 'Your Rights',
+      'privacy-rights-content': '<p>You have the right to:</p><ul><li>Access and review your personal information</li><li>Request corrections to inaccurate data</li><li>Request deletion of your data (subject to legal requirements)</li><li>Opt out of non-essential communications</li><li>Receive a copy of your data in a portable format</li></ul>',
+      'privacy-contact-title': 'Contact Us',
+      'privacy-contact-content': '<p>For questions about this Privacy Policy or your data:</p><p><strong>Privacy Officer</strong><br/>Email: privacy@tsu-wallet.com<br/>Address: TSU Authority Privacy Office<br/>Phone: +1-555-TSU-PRVCY</p>',
+      // Terms of Service Content
+      'terms-title': 'Terms of Service',
+      'terms-intro': 'These terms govern your use of the TSU digital wallet platform and related services. By using our platform, you agree to these terms.',
+      'terms-updated': 'Last Updated: January 2025',
+      'terms-acceptance-title': 'Acceptance of Terms',
+      'terms-acceptance-content': '<p>By accessing or using the TSU digital wallet platform, you agree to be bound by these Terms of Service and all applicable laws. If you do not agree to these terms, you may not use our services.</p><p>These terms may be updated from time to time. Continued use of the platform constitutes acceptance of any changes.</p>',
+      'terms-service-title': 'Service Description',
+      'terms-service-content': '<p>TSU provides a digital wallet platform for the Trade Settlement Unit, a reserve-backed digital currency designed for Africa-BRICS trade settlements. Our services include:</p><ul><li>Digital wallet creation and management</li><li>TSU token transactions and transfers</li><li>Commodities and currency program participation</li><li>Transaction history and reporting</li><li>Customer support services</li></ul>',
+      'terms-responsibilities-title': 'User Responsibilities',
+      'terms-responsibilities-content': '<p>As a user of the TSU platform, you agree to:</p><ul><li>Provide accurate and complete information during registration</li><li>Maintain the security of your account credentials</li><li>Comply with all applicable laws and regulations</li><li>Not use the platform for illegal or unauthorized purposes</li><li>Report any suspicious activity or security breaches</li><li>Not attempt to manipulate or compromise the platform</li></ul>',
+      'terms-prohibited-title': 'Prohibited Activities',
+      'terms-prohibited-content': '<p>The following activities are strictly prohibited:</p><ul><li>Money laundering or terrorist financing</li><li>Trading with sanctioned entities or individuals</li><li>Fraudulent transactions or misrepresentation</li><li>Unauthorized access to other user accounts</li><li>Attempting to reverse engineer or hack the platform</li><li>Creating multiple accounts to circumvent limits</li></ul>',
+      'terms-risks-title': 'Risk Disclosures',
+      'terms-risks-content': '<p>Digital currency transactions involve inherent risks:</p><ul><li>Value fluctuations despite reserve backing</li><li>Regulatory changes that may affect services</li><li>Technology risks including system outages</li><li>Irreversibility of transactions</li><li>Potential loss of access due to forgotten credentials</li></ul><p>You acknowledge these risks and use the platform at your own discretion.</p>',
+      'terms-liability-title': 'Limitation of Liability',
+      'terms-liability-content': '<p>TSU\'s liability is limited to the maximum extent permitted by law. We are not liable for:</p><ul><li>Indirect, incidental, or consequential damages</li><li>Loss of profits or business opportunities</li><li>Damages resulting from third-party actions</li><li>Technical failures beyond our control</li><li>Market losses or currency fluctuations</li></ul>',
+      'terms-termination-title': 'Account Termination',
+      'terms-termination-content': '<p>We may suspend or terminate your account if:</p><ul><li>You violate these terms of service</li><li>You engage in prohibited activities</li><li>Required by law or regulatory directive</li><li>To protect the platform or other users</li></ul><p>You may close your account at any time by contacting support. TSU balances will be handled according to applicable regulations.</p>',
+      'terms-contact-title': 'Contact Information',
+      'terms-contact-content': '<p>For questions about these Terms of Service:</p><p><strong>Legal Department</strong><br/>Email: legal@tsu-wallet.com<br/>Address: TSU Authority Legal Office<br/>Phone: +1-555-TSU-LEGAL</p>',
+      // Monthly Audit Reports Content
+      'audit-title': 'Monthly Audit Reports',
+      'audit-intro': 'Transparency and accountability are core to TSU operations. Our monthly audit reports provide detailed insights into reserve backing, transaction volumes, and platform security.',
+      'audit-overview-title': 'Audit Overview',
+      'audit-overview-content': '<p>Our monthly audits are conducted by independent certified public accounting firms and include:</p><ul><li><strong>Reserve Verification:</strong> Confirmation of gold, BRICS currencies, and commodity backing</li><li><strong>Transaction Analysis:</strong> Volume, geographic distribution, and settlement patterns</li><li><strong>Security Assessment:</strong> Platform integrity, user protection measures, and compliance status</li><li><strong>Financial Health:</strong> TSU circulation, redemption ratios, and reserve adequacy</li></ul>',
+      'audit-status-title': 'Current Audit Status',
+      'audit-reserve-ratio': '127%',
+      'audit-reserve-label': 'Reserve Coverage Ratio',
+      'audit-circulation': '847,293 TSU',
+      'audit-circulation-label': 'Total Circulation',
+      'audit-status-content': '<p>Latest audit period: <strong>December 2024</strong></p><p>All reserve requirements exceeded with full regulatory compliance maintained. No material weaknesses identified in internal controls or security systems.</p>',
+      'audit-archive-title': 'Reports Archive',
+      'audit-archive-intro': '<p>Access historical audit reports to track TSU\'s performance and transparency over time. All reports are independently verified and digitally signed.</p>',
+      'audit-archive-note': 'Reports older than 12 months are archived. Contact our compliance team for historical reports beyond this period.',
+      'audit-standards-title': 'Audit Standards & Methodology',
+      'audit-standards-content': '<p>Our audits follow internationally recognized standards:</p><ul><li><strong>GAAP Compliance:</strong> Generally Accepted Accounting Principles</li><li><strong>IFRS Standards:</strong> International Financial Reporting Standards</li><li><strong>SOC 2 Type II:</strong> Security and availability controls</li><li><strong>ISO 27001:</strong> Information security management</li><li><strong>Regulatory Requirements:</strong> Central bank and financial authority guidelines</li></ul><p>All auditing firms are rotated every three years to maintain independence and objectivity.</p>',
+      'audit-contact-title': 'Questions About Our Audits?',
+      'audit-contact-content': '<p>For inquiries about audit procedures, historical reports, or compliance questions:</p><p><strong>Compliance & Audit Team</strong><br/>Email: audits@tsu-wallet.com<br/>Address: TSU Authority Compliance Office<br/>Phone: +1-555-TSU-AUDIT</p><p>Public audit announcements and notifications are posted on our official channels and regulatory filings.</p>',
     },
   });
 
@@ -134,6 +188,9 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
     if (key.startsWith('cta-')) return 'cta';
     if (key.startsWith('commodities-')) return 'commodities';
     if (key.startsWith('currency-')) return 'currency';
+    if (key.startsWith('privacy-')) return 'privacy';
+    if (key.startsWith('terms-')) return 'terms';
+    if (key.startsWith('audit-')) return 'audit';
     return 'general';
   };
 

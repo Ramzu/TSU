@@ -11,6 +11,9 @@ import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Commodities from "@/pages/Commodities";
 import Currency from "@/pages/Currency";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import MonthlyAuditReports from "@/pages/MonthlyAuditReports";
 import NotFound from "@/pages/not-found";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -35,6 +38,9 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/commodities" component={Commodities} />
       <Route path="/currency" component={Currency} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/monthly-audit-reports" component={MonthlyAuditReports} />
       {!isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
