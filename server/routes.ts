@@ -1003,6 +1003,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New Feature Endpoints
+
+  // Notifications API
+  app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session.userId;
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.post('/api/notifications/:id/read', isAuthenticated, async (req: any, res) => {
+    try {
+      await storage.markNotificationAsRead(req.params.id);
+      res.json({ message: "Notification marked as read" });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  app.post('/api/notifications/read-all', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session.userId;
+      await storage.markAllNotificationsAsRead(userId);
+      res.json({ message: "All notifications marked as read" });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      res.status(500).json({ message: "Failed to mark all notifications as read" });
+    }
+  });
+
+  // KYC Verification API
+  app.get('/api/kyc/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session.userId;
+      const kycVerification = await storage.getUserKycVerification(userId);
+      
+      if (!kycVerification) {
+        return res.json({ status: 'not_submitted' });
+      }
+      
+      res.json({
+        status: kycVerification.status,
+        documentType: kycVerification.documentType,
+        submittedAt: kycVerification.submittedAt,
+        verificationNotes: kycVerification.verificationNotes,
+      });
+    } catch (error) {
+      console.error("Error fetching KYC status:", error);
+      res.status(500).json({ message: "Failed to fetch KYC status" });
+    }
+  });
+
+  app.post('/api/kyc/submit', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session.userId;
+      const { documentType, documentNumber, documentUrl } = req.body;
+
+      if (!documentType || !documentNumber) {
+        return res.status(400).json({ message: "Document type and number are required" });
+      }
+
+      const kycVerification = await storage.createKycVerification({
+        userId,
+        documentType,
+        documentNumber,
+        documentUrl,
+        status: 'pending',
+      });
+
+      // Create notification
+      await storage.createNotification({
+        userId,
+        type: 'kyc',
+        title: 'KYC Verification Submitted',
+        message: 'Your identity verification documents have been submitted for review.',
+      });
+
+      res.json({ kycVerification, message: "KYC verification submitted successfully" });
+    } catch (error) {
+      console.error("Error submitting KYC:", error);
+      res.status(500).json({ message: "Failed to submit KYC verification" });
+    }
+  });
+
+  // Exchange Rates API
+  app.get('/api/exchange-rates', async (req, res) => {
+    try {
+      const rates = await storage.getAllExchangeRates();
+      res.json(rates);
+    } catch (error) {
+      console.error("Error fetching exchange rates:", error);
+      res.status(500).json({ message: "Failed to fetch exchange rates" });
+    }
+  });
+
+  app.get('/api/tsu-rates', async (req, res) => {
+    try {
+      const tsuRates = await storage.getTsuRates();
+      if (!tsuRates) {
+        // Return default rates if none exist
+        return res.json([{
+          baseCurrency: 'USD',
+          tsuPrice: '1.00',
+          gasolineEquivalent: '1.0000',
+          cryptoRates: {
+            BTC: 0.000023,
+            ETH: 0.00043,
+            USD: 1.00,
+          },
+          updatedAt: new Date().toISOString(),
+        }]);
+      }
+      res.json([tsuRates]);
+    } catch (error) {
+      console.error("Error fetching TSU rates:", error);
+      res.status(500).json({ message: "Failed to fetch TSU rates" });
+    }
+  });
+
+  // Send TSU API
+  app.post('/api/transactions/send', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session.userId;
+      const { recipientEmail, amount, description } = req.body;
+
+      if (!recipientEmail || !amount) {
+        return res.status(400).json({ message: "Recipient email and amount are required" });
+      }
+
+      const transferAmount = parseFloat(amount);
+      if (isNaN(transferAmount) || transferAmount <= 0) {
+        return res.status(400).json({ message: "Amount must be a positive number" });
+      }
+
+      // Get sender user
+      const sender = await storage.getUser(userId);
+      if (!sender) {
+        return res.status(404).json({ message: "Sender not found" });
+      }
+
+      // Check balance
+      const senderBalance = parseFloat(sender.tsuBalance || '0');
+      if (senderBalance < transferAmount) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
+
+      // Get recipient user
+      const recipient = await storage.getUserByEmail(recipientEmail);
+      if (!recipient) {
+        return res.status(404).json({ message: "Recipient not found" });
+      }
+
+      // Update balances
+      const newSenderBalance = (senderBalance - transferAmount).toString();
+      const recipientBalance = parseFloat(recipient.tsuBalance || '0');
+      const newRecipientBalance = (recipientBalance + transferAmount).toString();
+
+      await storage.updateUserBalance(userId, newSenderBalance);
+      await storage.updateUserBalance(recipient.id, newRecipientBalance);
+
+      // Create transactions
+      await storage.createTransaction({
+        userId: userId,
+        type: 'transfer',
+        amount: transferAmount.toString(),
+        currency: 'TSU',
+        fromAddress: sender.email || '',
+        toAddress: recipient.email || '',
+        description: description || `Transfer to ${recipientEmail}`,
+      });
+
+      await storage.createTransaction({
+        userId: recipient.id,
+        type: 'transfer',
+        amount: transferAmount.toString(),
+        currency: 'TSU',
+        fromAddress: sender.email || '',
+        toAddress: recipient.email || '',
+        description: description || `Transfer from ${sender.email}`,
+      });
+
+      // Create notifications
+      await storage.createNotification({
+        userId: userId,
+        type: 'transaction',
+        title: 'TSU Sent',
+        message: `You sent ${transferAmount} TSU to ${recipientEmail}`,
+      });
+
+      await storage.createNotification({
+        userId: recipient.id,
+        type: 'transaction',
+        title: 'TSU Received',
+        message: `You received ${transferAmount} TSU from ${sender.email}`,
+      });
+
+      res.json({ 
+        message: "Transfer completed successfully",
+        newBalance: newSenderBalance,
+        transferAmount: transferAmount.toString(),
+        recipient: recipientEmail
+      });
+    } catch (error) {
+      console.error("Error sending TSU:", error);
+      res.status(500).json({ message: "Failed to send TSU" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -11,6 +11,11 @@ import {
   commodityRegistrations,
   currencyRegistrations,
   contactMessages,
+  notifications,
+  kycVerifications,
+  exchangeRates,
+  securityLogs,
+  loginAttempts,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -35,6 +40,16 @@ import {
   type CurrencyRegistration,
   type InsertContactMessage,
   type ContactMessage,
+  type InsertNotification,
+  type Notification,
+  type InsertKycVerification,
+  type KycVerification,
+  type InsertExchangeRate,
+  type ExchangeRate,
+  type InsertSecurityLog,
+  type SecurityLog,
+  type InsertLoginAttempt,
+  type LoginAttempt,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray } from "drizzle-orm";
@@ -105,6 +120,30 @@ export interface IStorage {
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   getAllContactMessages(): Promise<ContactMessage[]>;
   updateContactMessage(id: string, updates: Partial<ContactMessage>): Promise<ContactMessage>;
+  
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string, limit?: number): Promise<Notification[]>;
+  markNotificationAsRead(notificationId: string): Promise<void>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  
+  // KYC operations
+  createKycVerification(kyc: InsertKycVerification): Promise<KycVerification>;
+  getUserKycVerification(userId: string): Promise<KycVerification | undefined>;
+  getAllKycVerifications(): Promise<KycVerification[]>;
+  updateKycStatus(kycId: string, status: string, notes?: string, reviewerId?: string): Promise<void>;
+  
+  // Exchange rate operations
+  createExchangeRate(rate: InsertExchangeRate): Promise<ExchangeRate>;
+  getAllExchangeRates(): Promise<ExchangeRate[]>;
+  getExchangeRatesByCurrency(fromCurrency: string, toCurrency?: string): Promise<ExchangeRate[]>;
+  updateExchangeRate(rateId: string, newRate: string): Promise<void>;
+  
+  // Security operations
+  createSecurityLog(log: InsertSecurityLog): Promise<SecurityLog>;
+  getUserSecurityLogs(userId: string, limit?: number): Promise<SecurityLog[]>;
+  createLoginAttempt(attempt: InsertLoginAttempt): Promise<LoginAttempt>;
+  getRecentLoginAttempts(email: string, hoursBack?: number): Promise<LoginAttempt[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -464,6 +503,160 @@ export class DatabaseStorage implements IStorage {
       .where(eq(contactMessages.id, id))
       .returning();
     return message;
+  }
+
+  // Notification operations
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db
+      .insert(notifications)
+      .values(notification)
+      .returning();
+    return newNotification;
+  }
+
+  async getUserNotifications(userId: string, limit = 10): Promise<Notification[]> {
+    return await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit);
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.id, notificationId));
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.userId, userId));
+  }
+
+  // KYC operations
+  async createKycVerification(kyc: InsertKycVerification): Promise<KycVerification> {
+    const [verification] = await db
+      .insert(kycVerifications)
+      .values(kyc)
+      .returning();
+    return verification;
+  }
+
+  async getUserKycVerification(userId: string): Promise<KycVerification | undefined> {
+    const [verification] = await db
+      .select()
+      .from(kycVerifications)
+      .where(eq(kycVerifications.userId, userId))
+      .orderBy(desc(kycVerifications.submittedAt))
+      .limit(1);
+    return verification;
+  }
+
+  async getAllKycVerifications(): Promise<KycVerification[]> {
+    return await db
+      .select()
+      .from(kycVerifications)
+      .orderBy(desc(kycVerifications.submittedAt));
+  }
+
+  async updateKycStatus(kycId: string, status: string, notes?: string, reviewerId?: string): Promise<void> {
+    await db
+      .update(kycVerifications)
+      .set({
+        status: status as any,
+        verificationNotes: notes,
+        reviewedBy: reviewerId,
+        reviewedAt: new Date(),
+      })
+      .where(eq(kycVerifications.id, kycId));
+  }
+
+  // Exchange rate operations
+  async createExchangeRate(rate: InsertExchangeRate): Promise<ExchangeRate> {
+    const [newRate] = await db
+      .insert(exchangeRates)
+      .values(rate)
+      .returning();
+    return newRate;
+  }
+
+  async getAllExchangeRates(): Promise<ExchangeRate[]> {
+    return await db
+      .select()
+      .from(exchangeRates)
+      .where(eq(exchangeRates.isActive, true))
+      .orderBy(desc(exchangeRates.updatedAt));
+  }
+
+  async getExchangeRatesByCurrency(fromCurrency: string, toCurrency?: string): Promise<ExchangeRate[]> {
+    const conditions = [
+      eq(exchangeRates.fromCurrency, fromCurrency),
+      eq(exchangeRates.isActive, true)
+    ];
+
+    if (toCurrency) {
+      conditions.push(eq(exchangeRates.toCurrency, toCurrency));
+    }
+
+    return await db
+      .select()
+      .from(exchangeRates)
+      .where(and(...conditions))
+      .orderBy(desc(exchangeRates.updatedAt));
+  }
+
+  async updateExchangeRate(rateId: string, newRate: string): Promise<void> {
+    await db
+      .update(exchangeRates)
+      .set({
+        rate: newRate,
+        updatedAt: new Date(),
+      })
+      .where(eq(exchangeRates.id, rateId));
+  }
+
+  // Security operations
+  async createSecurityLog(log: InsertSecurityLog): Promise<SecurityLog> {
+    const [newLog] = await db
+      .insert(securityLogs)
+      .values(log)
+      .returning();
+    return newLog;
+  }
+
+  async getUserSecurityLogs(userId: string, limit = 10): Promise<SecurityLog[]> {
+    return await db
+      .select()
+      .from(securityLogs)
+      .where(eq(securityLogs.userId, userId))
+      .orderBy(desc(securityLogs.createdAt))
+      .limit(limit);
+  }
+
+  async createLoginAttempt(attempt: InsertLoginAttempt): Promise<LoginAttempt> {
+    const [newAttempt] = await db
+      .insert(loginAttempts)
+      .values(attempt)
+      .returning();
+    return newAttempt;
+  }
+
+  async getRecentLoginAttempts(email: string, hoursBack = 24): Promise<LoginAttempt[]> {
+    const timeThreshold = new Date();
+    timeThreshold.setHours(timeThreshold.getHours() - hoursBack);
+
+    return await db
+      .select()
+      .from(loginAttempts)
+      .where(and(
+        eq(loginAttempts.email, email),
+        desc(loginAttempts.createdAt)
+      ))
+      .orderBy(desc(loginAttempts.createdAt));
   }
 }
 
