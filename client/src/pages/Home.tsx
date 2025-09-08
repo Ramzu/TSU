@@ -4,10 +4,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import BuyTSUModal from "@/components/BuyTSUModal";
+import SendTSUModal from "@/components/SendTSUModal";
+import ReceiveTSUModal from "@/components/ReceiveTSUModal";
+import SecurityWidget from "@/components/SecurityWidget";
+import ExchangeRateWidget from "@/components/ExchangeRateWidget";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown, DollarSign, CheckCircle } from "lucide-react";
+import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown, DollarSign, CheckCircle, Bell, Shield } from "lucide-react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useState } from "react";
 
@@ -26,6 +30,8 @@ export default function Home() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
 
   const { data: transactions = [], isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/users/transactions"],
@@ -102,8 +108,8 @@ export default function Home() {
             <p className="text-gray-600">Welcome back, <span data-testid="user-name">{user.firstName || user.email?.split('@')[0]}</span></p>
           </div>
 
-          {/* Wallet Overview */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {/* Enhanced Wallet Overview */}
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
             <Card className="shadow-lg" data-testid="tsu-balance-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-tsu-green">TSU Balance</CardTitle>
@@ -144,6 +150,20 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">All time</p>
               </CardContent>
             </Card>
+
+            {/* Security Status */}
+            <Card className="shadow-lg" data-testid="security-status-card">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-tsu-green">Security Status</CardTitle>
+                <Shield className="h-4 w-4 text-tsu-gold" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600" data-testid="security-status">
+                  Protected
+                </div>
+                <p className="text-xs text-green-500">Account secured</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Quick Actions */}
@@ -173,7 +193,7 @@ export default function Home() {
                 <Button 
                   variant="outline"
                   className="flex flex-col items-center p-6 h-auto text-tsu-green border-tsu-green hover:bg-tsu-green hover:text-white"
-                  disabled
+                  onClick={() => setShowSendModal(true)}
                   data-testid="button-send"
                 >
                   <Send className="h-6 w-6 mb-2" />
@@ -182,7 +202,7 @@ export default function Home() {
                 <Button 
                   variant="outline"
                   className="flex flex-col items-center p-6 h-auto text-tsu-green border-tsu-green hover:bg-tsu-green hover:text-white"
-                  disabled
+                  onClick={() => setShowReceiveModal(true)}
                   data-testid="button-receive"
                 >
                   <QrCode className="h-6 w-6 mb-2" />
@@ -234,6 +254,53 @@ export default function Home() {
             </CardContent>
           </Card>
 
+
+          {/* New Features Row */}
+          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+            {/* Security & Notifications */}
+            <SecurityWidget />
+            
+            {/* Exchange Rates */}
+            <ExchangeRateWidget />
+            
+            {/* Currency Program Section */}
+            <Card className="shadow-lg bg-gradient-to-r from-blue-50 to-tsu-light-green/20 border-blue-200" data-testid="currency-section">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-tsu-green flex items-center gap-2">
+                  <DollarSign className="h-6 w-6 text-tsu-gold" />
+                  TSU Currency Program
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-gray-700 text-sm">
+                    Convert local currencies into stable, globally accepted Trade Settlement Units backed by verified reserves.
+                  </p>
+                  <div className="space-y-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500" />
+                      Direct currency conversion
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-blue-500" />
+                      Stable value backing
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-purple-500" />
+                      Real-time exchange rates
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => window.location.href = '/currency'}
+                    className="w-full bg-tsu-green hover:bg-tsu-light-green text-white"
+                    data-testid="button-learn-currency"
+                  >
+                    Learn More About Currency
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Recent Transactions */}
           <Card className="shadow-lg" data-testid="transactions-card">
@@ -304,6 +371,12 @@ export default function Home() {
 
       {/* Modals */}
       <BuyTSUModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
+      <SendTSUModal 
+        isOpen={showSendModal} 
+        onClose={() => setShowSendModal(false)}
+        currentBalance={user?.tsuBalance || "0"} 
+      />
+      <ReceiveTSUModal isOpen={showReceiveModal} onClose={() => setShowReceiveModal(false)} />
       <Footer />
     </div>
   );

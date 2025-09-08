@@ -304,6 +304,96 @@ export const contactMessages = pgTable("contact_messages", {
   respondedBy: varchar("responded_by").references(() => users.id),
 });
 
+// Security Features Tables
+
+// Login attempts tracking for security
+export const loginAttempts = pgTable("login_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull(),
+  ipAddress: varchar("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  success: boolean("success").notNull(),
+  failureReason: varchar("failure_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Rate limiting for API protection
+export const rateLimits = pgTable("rate_limits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  identifier: varchar("identifier").notNull(), // IP address or user ID
+  endpoint: varchar("endpoint").notNull(),
+  requestCount: integer("request_count").default(1),
+  windowStart: timestamp("window_start").defaultNow(),
+  resetAt: timestamp("reset_at").notNull(),
+});
+
+// KYC verification documents
+export const kycVerifications = pgTable("kyc_verifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  documentType: varchar("document_type").notNull(), // passport, national_id, etc.
+  documentNumber: varchar("document_number"),
+  documentUrl: varchar("document_url"), // URL to uploaded document
+  status: varchar("status").default('pending'), // pending, approved, rejected
+  verificationNotes: text("verification_notes"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+});
+
+// Notifications system
+export const notificationTypeEnum = pgEnum('notification_type', ['transaction', 'security', 'kyc', 'system', 'payment']);
+
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  type: notificationTypeEnum("type").notNull(),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  actionUrl: varchar("action_url"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Exchange rates for real-time pricing
+export const exchangeRates = pgTable("exchange_rates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromCurrency: varchar("from_currency").notNull(),
+  toCurrency: varchar("to_currency").notNull(),
+  rate: decimal("rate", { precision: 18, scale: 8 }).notNull(),
+  source: varchar("source").default('manual'), // manual, api, calculated
+  isActive: boolean("is_active").default(true),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by").references(() => users.id),
+});
+
+// API keys for partner integrations
+export const apiKeys = pgTable("api_keys", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  keyHash: varchar("key_hash").notNull().unique(), // Hashed API key
+  permissions: jsonb("permissions").notNull(), // Array of allowed endpoints/actions
+  userId: varchar("user_id").references(() => users.id),
+  isActive: boolean("is_active").default(true),
+  lastUsed: timestamp("last_used"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  createdBy: varchar("created_by").references(() => users.id),
+});
+
+// Security audit logs
+export const securityLogs = pgTable("security_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  action: varchar("action").notNull(), // login, logout, password_change, etc.
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  details: jsonb("details"),
+  severity: varchar("severity").default('info'), // info, warning, error, critical
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
   user: one(users, {
     fields: [passwordResetTokens.userId],
@@ -335,6 +425,49 @@ export const currencyRegistrationsRelations = relations(currencyRegistrations, (
 export const contactMessagesRelations = relations(contactMessages, ({ one }) => ({
   respondedBy: one(users, {
     fields: [contactMessages.respondedBy],
+    references: [users.id],
+  }),
+}));
+
+export const kycVerificationsRelations = relations(kycVerifications, ({ one }) => ({
+  user: one(users, {
+    fields: [kycVerifications.userId],
+    references: [users.id],
+  }),
+  reviewedBy: one(users, {
+    fields: [kycVerifications.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+export const exchangeRatesRelations = relations(exchangeRates, ({ one }) => ({
+  updatedBy: one(users, {
+    fields: [exchangeRates.updatedBy],
+    references: [users.id],
+  }),
+}));
+
+export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
+  user: one(users, {
+    fields: [apiKeys.userId],
+    references: [users.id],
+  }),
+  createdBy: one(users, {
+    fields: [apiKeys.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const securityLogsRelations = relations(securityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [securityLogs.userId],
     references: [users.id],
   }),
 }));
@@ -373,6 +506,41 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
   createdAt: true,
 });
 
+export const insertLoginAttemptSchema = createInsertSchema(loginAttempts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertRateLimitSchema = createInsertSchema(rateLimits).omit({
+  id: true,
+  windowStart: true,
+});
+
+export const insertKycVerificationSchema = createInsertSchema(kycVerifications).omit({
+  id: true,
+  submittedAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertExchangeRateSchema = createInsertSchema(exchangeRates).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSecurityLogSchema = createInsertSchema(securityLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
@@ -397,6 +565,20 @@ export type InsertCurrencyRegistration = z.infer<typeof insertCurrencyRegistrati
 export type CurrencyRegistration = typeof currencyRegistrations.$inferSelect;
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertLoginAttempt = z.infer<typeof insertLoginAttemptSchema>;
+export type LoginAttempt = typeof loginAttempts.$inferSelect;
+export type InsertRateLimit = z.infer<typeof insertRateLimitSchema>;
+export type RateLimit = typeof rateLimits.$inferSelect;
+export type InsertKycVerification = z.infer<typeof insertKycVerificationSchema>;
+export type KycVerification = typeof kycVerifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertExchangeRate = z.infer<typeof insertExchangeRateSchema>;
+export type ExchangeRate = typeof exchangeRates.$inferSelect;
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertSecurityLog = z.infer<typeof insertSecurityLogSchema>;
+export type SecurityLog = typeof securityLogs.$inferSelect;
 
 // Country options for forms
 export const COUNTRY_OPTIONS = [
