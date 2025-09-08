@@ -85,7 +85,7 @@ export default function ExchangeRateWidget() {
                   ${formatRate(currentTSURate.tsuPrice, 'USD')}
                 </div>
                 <div className="text-xs opacity-90">
-                  ⛽ {currentTSURate.gasolineEquivalent}L
+                  USD Exchange Rate
                 </div>
               </div>
             </div>

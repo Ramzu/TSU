@@ -54,10 +54,45 @@ interface Transaction {
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showCreateCoinModal, setShowCreateCoinModal] = useState(false);
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showMetadataEditor, setShowMetadataEditor] = useState(false);
+
+  // Contact form handling
+  const contactForm = useForm({
+    defaultValues: {
+      email: 'authority@tsu.africa',
+      phone: '+27 (0) 11 123 4567',
+      address: 'Johannesburg, South Africa'
+    }
+  });
+
+  // Contact info mutation
+  const contactMutation = useMutation({
+    mutationFn: async (contactData: any) => {
+      return apiRequest('POST', '/api/content', {
+        key: 'contact_info',
+        value: JSON.stringify(contactData),
+        category: 'settings'
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Contact information updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to update contact information",
+        variant: "destructive",
+      });
+    }
+  });
 
   const { data: stats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
@@ -545,55 +580,84 @@ export default function AdminDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-tsu-gold" />
-                            Email Address
-                          </label>
-                          <Input
-                            defaultValue="authority@tsu.africa"
-                            placeholder="authority@tsu.africa"
-                            data-testid="input-contact-email"
-                          />
-                        </div>
+                    <Form {...contactForm}>
+                      <form onSubmit={contactForm.handleSubmit((data) => contactMutation.mutate(data))} className="space-y-4">
+                        <FormField
+                          control={contactForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-tsu-gold" />
+                                Email Address
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="authority@tsu.africa" 
+                                  {...field}
+                                  data-testid="input-contact-email"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-tsu-gold" />
-                            Phone Number
-                          </label>
-                          <Input
-                            defaultValue="+27 (0) 11 123 4567"
-                            placeholder="+27 (0) 11 123 4567"
-                            data-testid="input-contact-phone"
-                          />
-                        </div>
+                        <FormField
+                          control={contactForm.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-tsu-gold" />
+                                Phone Number
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="+27 (0) 11 123 4567" 
+                                  {...field}
+                                  data-testid="input-contact-phone"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-tsu-gold" />
-                            Address
-                          </label>
-                          <Input
-                            defaultValue="Johannesburg, South Africa"
-                            placeholder="Johannesburg, South Africa"
-                            data-testid="input-contact-address"
-                          />
+                        <FormField
+                          control={contactForm.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-tsu-gold" />
+                                Address
+                              </FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Johannesburg, South Africa" 
+                                  {...field}
+                                  data-testid="input-contact-address"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="flex justify-end pt-4">
+                          <Button 
+                            type="submit"
+                            disabled={contactMutation.isPending}
+                            className="bg-tsu-green text-white hover:bg-tsu-light-green"
+                            data-testid="button-save-contact"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            {contactMutation.isPending ? 'Saving...' : 'Save Contact Information'}
+                          </Button>
                         </div>
-                      </div>
-                      
-                      <div className="flex justify-end pt-4">
-                        <Button 
-                          className="bg-tsu-green text-white hover:bg-tsu-light-green"
-                          data-testid="button-save-contact"
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Save Contact Information
-                        </Button>
-                      </div>
-                    </div>
+                      </form>
+                    </Form>
                   </CardContent>
                 </Card>
               </TabsContent>

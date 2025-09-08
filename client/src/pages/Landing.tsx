@@ -73,13 +73,9 @@ export default function Landing() {
                   </div>
                   <div className="text-3xl text-tsu-gold">=</div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">1 Liter</p>
-                    <p className="text-sm opacity-80">{t('hero.gasoline')}</p>
+                    <p className="text-2xl font-bold text-white">$1.00 USD</p>
+                    <p className="text-sm opacity-80">United States Dollar</p>
                   </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <p className="text-lg font-semibold text-tsu-gold">$1.25 USD</p>
-                  <p className="text-sm text-gray-200">{t('hero.exchangeRate')}</p>
                 </div>
               </div>
             </div>
