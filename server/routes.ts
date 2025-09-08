@@ -48,6 +48,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
+        // Add some debugging info for admin troubleshooting
+        console.log('Password verification failed for:', email);
+        console.log('User exists:', !!user);
+        console.log('Has password:', !!user.password);
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
@@ -58,6 +62,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error during login:", error);
       res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Admin password reset endpoint (for troubleshooting)
+  app.post('/api/admin/reset-password', async (req, res) => {
+    try {
+      const { email, newPassword, resetKey } = req.body;
+      
+      // Simple security check - you can change this key
+      if (resetKey !== 'tsu-admin-reset-2024') {
+        return res.status(401).json({ message: "Invalid reset key" });
+      }
+      
+      if (!email || !newPassword) {
+        return res.status(400).json({ message: "Email and new password are required" });
+      }
+      
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+      
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Only allow password reset for admin/super_admin roles
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
+        return res.status(403).json({ message: "Not authorized to reset this account" });
+      }
+      
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Update user password
+      await storage.updateUserPassword(user.id, hashedPassword);
+      
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ message: "Password reset failed" });
     }
   });
 
