@@ -14,7 +14,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet } from "lucide-react";
 import Footer from "@/components/Footer";
 
 interface AdminStats {
@@ -206,21 +211,25 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-8">
-                  <TabsTrigger value="users" data-testid="tab-users">User Management</TabsTrigger>
-                  <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
-                  <TabsTrigger value="balance" data-testid="tab-balance">Balance</TabsTrigger>
-                  <TabsTrigger value="reserves" data-testid="tab-reserves">Reserves</TabsTrigger>
-                  <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
-                  <TabsTrigger value="metadata" data-testid="tab-metadata">
-                    <Globe className="h-4 w-4 mr-2" />
-                    Social Media
+                <TabsList className="grid w-full grid-cols-9 gap-1">
+                  <TabsTrigger value="users" data-testid="tab-users" className="text-xs">Users</TabsTrigger>
+                  <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs">Transactions</TabsTrigger>
+                  <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs">Balance</TabsTrigger>
+                  <TabsTrigger value="reserves" data-testid="tab-reserves" className="text-xs">Reserves</TabsTrigger>
+                  <TabsTrigger value="pricing" data-testid="tab-pricing" className="text-xs">Pricing</TabsTrigger>
+                  <TabsTrigger value="contact" data-testid="tab-contact" className="text-xs">
+                    <Phone className="h-3 w-3 mr-1" />
+                    Contact
                   </TabsTrigger>
-                  <TabsTrigger value="email" data-testid="tab-email">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Email Settings
+                  <TabsTrigger value="metadata" data-testid="tab-metadata" className="text-xs">
+                    <Globe className="h-3 w-3 mr-1" />
+                    Social
                   </TabsTrigger>
-                  <TabsTrigger value="admins" data-testid="tab-admins">Admin Management</TabsTrigger>
+                  <TabsTrigger value="email" data-testid="tab-email" className="text-xs">
+                    <Mail className="h-3 w-3 mr-1" />
+                    Email
+                  </TabsTrigger>
+                  <TabsTrigger value="admins" data-testid="tab-admins" className="text-xs">Admins</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -520,6 +529,73 @@ export default function AdminDashboard() {
 
               <TabsContent value="email" className="p-6" data-testid="email-tab-content">
                 <SmtpConfigSection />
+              </TabsContent>
+
+              <TabsContent value="contact" className="p-6" data-testid="contact-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">Contact Information Management</h3>
+                  <p className="text-sm text-gray-500">Update the contact information displayed on the website</p>
+                </div>
+                
+                <Card className="max-w-2xl">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-tsu-gold" />
+                      Contact Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-tsu-gold" />
+                            Email Address
+                          </label>
+                          <Input
+                            defaultValue="authority@tsu.africa"
+                            placeholder="authority@tsu.africa"
+                            data-testid="input-contact-email"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-tsu-gold" />
+                            Phone Number
+                          </label>
+                          <Input
+                            defaultValue="+27 (0) 11 123 4567"
+                            placeholder="+27 (0) 11 123 4567"
+                            data-testid="input-contact-phone"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-tsu-gold" />
+                            Address
+                          </label>
+                          <Input
+                            defaultValue="Johannesburg, South Africa"
+                            placeholder="Johannesburg, South Africa"
+                            data-testid="input-contact-address"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end pt-4">
+                        <Button 
+                          className="bg-tsu-green text-white hover:bg-tsu-light-green"
+                          data-testid="button-save-contact"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Save Contact Information
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="admins" className="p-6" data-testid="admins-tab-content">

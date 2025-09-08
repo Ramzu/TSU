@@ -34,7 +34,8 @@ export default function Navigation() {
         description: t("toast.logoutMessage"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      window.location.reload();
+      // Redirect to home instead of reload to prevent routing issues
+      window.location.href = "/";
     },
     onError: () => {
       toast({

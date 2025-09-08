@@ -1,8 +1,22 @@
 import { useTranslation } from "react-i18next";
 import { MapPin, Mail, Phone, Globe } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Footer() {
   const { t } = useTranslation();
+  
+  // Fetch contact info from content management
+  const { data: contactInfo } = useQuery({
+    queryKey: ['/api/content'],
+    select: (content: any[]) => {
+      const contactData = content?.find((item: any) => item.key === 'contact_info');
+      return contactData ? JSON.parse(contactData.value) : {
+        email: 'authority@tsu.africa',
+        phone: '+27 (0) 11 123 4567',
+        address: 'Johannesburg, South Africa'
+      };
+    }
+  });
 
   return (
     <footer className="bg-tsu-green text-white mt-auto" data-testid="footer">
@@ -71,15 +85,15 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-200">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-tsu-gold" />
-                <span className="text-sm">authority@tsu.africa</span>
+                <span className="text-sm">{contactInfo?.email || 'authority@tsu.africa'}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-tsu-gold" />
-                <span className="text-sm">+27 (0) 11 123 4567</span>
+                <span className="text-sm">{contactInfo?.phone || '+27 (0) 11 123 4567'}</span>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-tsu-gold" />
-                <span className="text-sm">Johannesburg, South Africa</span>
+                <span className="text-sm">{contactInfo?.address || 'Johannesburg, South Africa'}</span>
               </li>
             </ul>
           </div>
@@ -88,7 +102,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-tsu-light-green mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-300 text-sm">
-            © 2024 Trade Settlement Unit Authority. All rights reserved.
+            © 2024 Trade Settlement Authority. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-300">
             <button 
