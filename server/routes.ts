@@ -626,15 +626,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Content management routes
   app.get('/api/content', async (req, res) => {
     try {
-      // Prevent caching to ensure fresh content is always served
+      // Aggressive cache prevention for content updates
       res.set({
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        'Surrogate-Control': 'no-store',
+        'Vary': '*'
       });
       
+      // Remove ETag to prevent conditional requests
+      res.removeHeader('ETag');
+      
       const content = await storage.getAllContent();
-      res.json(content);
+      
+      // Add timestamp to response to force freshness
+      res.json({
+        data: content,
+        timestamp: new Date().toISOString(),
+        version: Date.now()
+      });
     } catch (error) {
       console.error("Error fetching content:", error);
       res.status(500).json({ message: "Failed to fetch content" });

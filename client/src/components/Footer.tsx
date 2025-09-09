@@ -5,10 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 export default function Footer() {
   const { t } = useTranslation();
   
-  // Fetch contact info from content management
+  // Fetch contact info from content management with cache busting
   const { data: contactInfo } = useQuery({
-    queryKey: ['/api/content'],
-    select: (content: any[]) => {
+    queryKey: ['/api/content', Date.now()], // Force fresh fetch each time
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache in memory
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    select: (response: any) => {
+      const content = response.data || response; // Handle both old and new response format
       const contactData = content?.find((item: any) => item.key === 'contact_info');
       return contactData ? JSON.parse(contactData.value) : {
         email: 'authority@tsu.africa',

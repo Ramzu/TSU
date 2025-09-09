@@ -29,7 +29,10 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
   const queryClient = useQueryClient();
 
   const { data: content = [], isLoading } = useQuery<ContentItem[]>({
-    queryKey: ["/api/content"],
+    queryKey: ["/api/content", Date.now()], // Force fresh fetch
+    staleTime: 0,
+    gcTime: 0,
+    select: (response: any) => response.data || response, // Handle new response format
   });
 
   const form = useForm({

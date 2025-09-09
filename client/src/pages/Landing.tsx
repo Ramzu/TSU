@@ -21,7 +21,10 @@ export default function Landing() {
   const { t } = useTranslation();
   
   const { data: content = [] } = useQuery<ContentItem[]>({
-    queryKey: ["/api/content"],
+    queryKey: ["/api/content", Date.now()], // Force fresh fetch
+    staleTime: 0,
+    gcTime: 0,
+    select: (response: any) => response.data || response, // Handle new response format
   });
 
   const getContent = (key: string, defaultValue: string) => {
