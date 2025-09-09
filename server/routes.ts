@@ -626,6 +626,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Content management routes
   app.get('/api/content', async (req, res) => {
     try {
+      // Prevent caching to ensure fresh content is always served
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
       const content = await storage.getAllContent();
       res.json(content);
     } catch (error) {
