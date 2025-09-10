@@ -75,7 +75,7 @@ export default function AdminDashboard() {
       return apiRequest('POST', '/api/content', {
         key: 'contact_info',
         value: JSON.stringify(contactData),
-        category: 'settings'
+        section: 'settings'
       });
     },
     onSuccess: () => {
@@ -85,10 +85,11 @@ export default function AdminDashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Contact save error:", error);
       toast({
         title: "Error", 
-        description: "Failed to update contact information",
+        description: error.message || "Failed to update contact information",
         variant: "destructive",
       });
     }
