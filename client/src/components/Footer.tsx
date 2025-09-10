@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 export default function Footer() {
   const { t } = useTranslation();
   
-  // Fetch contact info from content management with cache busting
+  // Fetch contact info from content management
   const { data: contactInfo } = useQuery({
-    queryKey: ['/api/content', Date.now()], // Force fresh fetch each time
+    queryKey: ['/api/content'],
     staleTime: 0, // Always consider data stale
     gcTime: 0, // Don't cache in memory
     refetchOnWindowFocus: true,
