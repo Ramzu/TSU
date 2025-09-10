@@ -101,17 +101,19 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Contact information updated successfully",
+        title: "✅ Contact Information Saved!",
+        description: "Your changes are now live on tsunit.com",
+        duration: 5000,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
     },
     onError: (error: any) => {
       console.error("Contact save error:", error);
       toast({
-        title: "Error", 
+        title: "❌ Save Failed", 
         description: error.message || "Failed to update contact information",
         variant: "destructive",
+        duration: 5000,
       });
     }
   });
