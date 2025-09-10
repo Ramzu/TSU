@@ -60,14 +60,40 @@ export default function AdminDashboard() {
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showMetadataEditor, setShowMetadataEditor] = useState(false);
 
-  // Contact form handling
-  const contactForm = useForm({
-    defaultValues: {
+  // Fetch current content to get contact info
+  const { data: contentData = [] } = useQuery({
+    queryKey: ['/api/content', Date.now()],
+    staleTime: 0,
+    gcTime: 0,
+    select: (response: any) => response.data || response
+  });
+
+  // Get current contact info from database
+  const currentContactInfo = (() => {
+    const contactItem = contentData.find((item: any) => item.key === 'contact_info');
+    if (contactItem) {
+      try {
+        return JSON.parse(contactItem.value);
+      } catch (e) {
+        console.error('Error parsing contact info:', e);
+      }
+    }
+    return {
       email: 'authority@tsu.africa',
       phone: '+27 (0) 11 123 4567',
       address: 'Johannesburg, South Africa'
-    }
+    };
+  })();
+
+  // Contact form handling with actual saved values
+  const contactForm = useForm({
+    defaultValues: currentContactInfo
   });
+
+  // Update form when contact data loads
+  useEffect(() => {
+    contactForm.reset(currentContactInfo);
+  }, [currentContactInfo, contactForm]);
 
   // Contact info mutation
   const contactMutation = useMutation({
