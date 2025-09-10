@@ -60,40 +60,35 @@ export default function AdminDashboard() {
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showMetadataEditor, setShowMetadataEditor] = useState(false);
 
-  // Fetch current content to get contact info
+  // Fetch current content to get contact info (without Date.now to prevent infinite loop)
   const { data: contentData = [] } = useQuery({
-    queryKey: ['/api/content', Date.now()],
+    queryKey: ['/api/content'],
     staleTime: 0,
     gcTime: 0,
     select: (response: any) => response.data || response
   });
 
-  // Get current contact info from database
-  const currentContactInfo = (() => {
+  // Contact form handling
+  const contactForm = useForm({
+    defaultValues: {
+      email: 'authority@tsu.africa',
+      phone: '+27 (0) 11 123 4567',
+      address: 'Johannesburg, South Africa'
+    }
+  });
+
+  // Update form when contact data loads (stable effect)
+  useEffect(() => {
     const contactItem = contentData.find((item: any) => item.key === 'contact_info');
     if (contactItem) {
       try {
-        return JSON.parse(contactItem.value);
+        const savedContactInfo = JSON.parse(contactItem.value);
+        contactForm.reset(savedContactInfo);
       } catch (e) {
         console.error('Error parsing contact info:', e);
       }
     }
-    return {
-      email: 'authority@tsu.africa',
-      phone: '+27 (0) 11 123 4567',
-      address: 'Johannesburg, South Africa'
-    };
-  })();
-
-  // Contact form handling with actual saved values
-  const contactForm = useForm({
-    defaultValues: currentContactInfo
-  });
-
-  // Update form when contact data loads
-  useEffect(() => {
-    contactForm.reset(currentContactInfo);
-  }, [currentContactInfo, contactForm]);
+  }, [contentData, contactForm]);
 
   // Contact info mutation
   const contactMutation = useMutation({
