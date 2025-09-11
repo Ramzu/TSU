@@ -11,12 +11,13 @@ interface ContentItem {
 }
 
 export default function TermsOfService() {
-  const { data: content = [] } = useQuery<ContentItem[]>({
+  const { data: contentResponse } = useQuery<{data: ContentItem[]}>({
     queryKey: ["/api/content"],
   });
 
   const getContent = (key: string, defaultValue: string) => {
-    const item = content.find((c) => c.key === key);
+    const content = contentResponse?.data || [];
+    const item = Array.isArray(content) ? content.find((c: any) => c.key === key) : undefined;
     return item?.value || defaultValue;
   };
 
