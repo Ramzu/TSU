@@ -51,7 +51,7 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
   const watchPaymentMethod = form.watch("paymentMethod");
   const amount = parseFloat(watchAmount) || 0;
   const processingFee = amount * 0.025; // 2.5% fee
-  const tsuPrice = 1.25; // $1.25 per TSU
+  const tsuPrice = 1.00; // $1.00 per TSU
   const tsuAmount = (amount - processingFee) / tsuPrice;
 
   const buyTSUMutation = useMutation({
@@ -151,7 +151,7 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span>Exchange Rate:</span>
-                      <span>1 TSU = $1.25 USD</span>
+                      <span>1 TSU = $1.00 USD</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Processing Fee (2.5%):</span>

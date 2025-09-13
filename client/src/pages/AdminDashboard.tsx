@@ -469,7 +469,7 @@ export default function AdminDashboard() {
                     <CardContent className="space-y-4">
                       <div className="text-center p-6 bg-gradient-to-br from-tsu-green to-tsu-light-green rounded-lg text-white">
                         <h4 className="text-2xl font-bold mb-2">1 TSU = 1 Liter Gasoline</h4>
-                        <p className="text-lg">Current Rate: <span className="font-semibold text-tsu-gold">$1.25 USD</span></p>
+                        <p className="text-lg">Current Rate: <span className="font-semibold text-tsu-gold">$1.00 USD</span></p>
                         <p className="text-sm opacity-80">Last updated: Today</p>
                       </div>
                       
@@ -512,7 +512,7 @@ export default function AdminDashboard() {
                             type="number"
                             step="0.01"
                             min="0.01"
-                            defaultValue="1.25"
+                            defaultValue="1.00"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
                             data-testid="input-new-price"
                           />
@@ -571,7 +571,7 @@ export default function AdminDashboard() {
                           <div className="text-sm text-gray-500">January 24, 2025</div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold text-tsu-green">$1.25 USD</div>
+                          <div className="font-semibold text-tsu-green">$1.00 USD</div>
                           <div className="text-sm text-gray-500">System Launch</div>
                         </div>
                       </div>
