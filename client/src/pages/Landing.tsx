@@ -326,6 +326,25 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Trade Settlement Authority Section */}
+      <section className="py-16 bg-gray-50" data-testid="tsa-section">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-tsu-green mb-6" data-testid="tsa-title">
+              {getContent('tsa-title', 'About Trade Settlement Authority (TSA)')}
+            </h2>
+          </div>
+
+          <Card className="p-8 bg-white shadow-lg" data-testid="tsa-card">
+            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed" data-testid="tsa-description">
+              {getContent('tsa-description', `The Trade Settlement Authority (TSA) is an independent trust-based institution created to solve Africa and BRICS' long-standing trade finance and foreign exchange challenges. TSA issues the Trade Settlement Unit (TSU) — a reserve-backed digital settlement instrument — and operates programs that unlock local currencies, commodity contracts, and trade flows into stable, usable liquidity.
+
+Through its Currency Program, Commodities Program, and Beneficiary Program, TSA helps companies, governments, and citizens access fair settlement mechanisms outside of dollar bottlenecks and sanctions. TSA's mission is to expand trade corridors, strengthen financial sovereignty, and ensure that the benefits of global trade are shared across communities in Africa, the BRICS alliance, and the wider Afrodescendant diaspora.`)}
+            </div>
+          </Card>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-tsu-gold to-yellow-400" data-testid="cta-section">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
