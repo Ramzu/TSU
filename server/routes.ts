@@ -482,6 +482,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete user (super admin only)
+  app.delete('/api/admin/users/:userId', requireAdmin, async (req: any, res) => {
+    try {
+      if (req.currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
+      const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+
+      // Check if user exists
+      const userToDelete = await storage.getUser(userId);
+      if (!userToDelete) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Prevent deletion of super_admin users
+      if (userToDelete.role === 'super_admin') {
+        return res.status(403).json({ message: "Cannot delete super admin users" });
+      }
+
+      // Prevent admin from deleting themselves
+      if (userId === req.currentUser.id) {
+        return res.status(403).json({ message: "Cannot delete your own account" });
+      }
+
+      await storage.deleteUser(userId);
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
   // SMTP configuration (admin only)
   app.get('/api/admin/smtp-config', requireAdmin, async (req: any, res) => {
     try {

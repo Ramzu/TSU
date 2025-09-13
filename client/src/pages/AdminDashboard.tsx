@@ -19,7 +19,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Footer from "@/components/Footer";
 
 interface AdminStats {
@@ -112,6 +113,31 @@ export default function AdminDashboard() {
       toast({
         title: "❌ Save Failed", 
         description: error.message || "Failed to update contact information",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return apiRequest('DELETE', `/api/admin/users/${userId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "✅ User Deleted!",
+        description: "User has been permanently removed from the system",
+        duration: 5000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+    },
+    onError: (error: any) => {
+      console.error("Delete user error:", error);
+      toast({
+        title: "❌ Deletion Failed", 
+        description: error.message || "Failed to delete user",
         variant: "destructive",
         duration: 5000,
       });
@@ -338,9 +364,46 @@ export default function AdminDashboard() {
                               {userData.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                           </div>
-                          <Button variant="ghost" size="sm" className="text-tsu-gold hover:text-tsu-light-green" data-testid={`button-view-user-${userData.id}`}>
-                            View
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="ghost" size="sm" className="text-tsu-gold hover:text-tsu-light-green" data-testid={`button-view-user-${userData.id}`}>
+                              View
+                            </Button>
+                            {user && user.role === 'super_admin' && userData.role !== 'super_admin' && userData.id !== user.id && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50" 
+                                    data-testid={`button-delete-user-${userData.id}`}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to permanently delete {userData.firstName && userData.lastName 
+                                        ? `${userData.firstName} ${userData.lastName}` 
+                                        : userData.email?.split('@')[0] || 'this user'}? 
+                                      This action cannot be undone and all user data will be permanently removed.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => deleteUserMutation.mutate(userData.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                      data-testid={`confirm-delete-user-${userData.id}`}
+                                    >
+                                      {deleteUserMutation.isPending ? 'Deleting...' : 'Delete User'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))

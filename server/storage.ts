@@ -81,6 +81,7 @@ export interface IStorage {
   
   // Admin operations
   promoteUserToAdmin(userId: string, role: 'admin' | 'super_admin'): Promise<void>;
+  deleteUser(userId: string): Promise<void>;
   
   // TSU rates operations
   getTsuRates(): Promise<TsuRates | undefined>;
@@ -281,6 +282,12 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ role, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await db
+      .delete(users)
       .where(eq(users.id, userId));
   }
   
