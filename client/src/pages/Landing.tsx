@@ -21,9 +21,8 @@ export default function Landing() {
   const { t } = useTranslation();
   
   const { data: content = [] } = useQuery<ContentItem[]>({
-    queryKey: ["/api/content", Date.now()], // Force fresh fetch
-    staleTime: 0,
-    gcTime: 0,
+    queryKey: ["/api/content"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
     select: (response: any) => response.data || response, // Handle new response format
   });
 
@@ -76,7 +75,7 @@ export default function Landing() {
                   </div>
                   <div className="text-3xl text-tsu-gold">=</div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">$1.00 USD</p>
+                    <p className="text-2xl font-bold text-white">1 USD</p>
                     <p className="text-sm opacity-80">United States Dollar</p>
                   </div>
                 </div>

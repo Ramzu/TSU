@@ -29,9 +29,8 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
   const queryClient = useQueryClient();
 
   const { data: content = [], isLoading } = useQuery<ContentItem[]>({
-    queryKey: ["/api/content", Date.now()], // Force fresh fetch
-    staleTime: 0,
-    gcTime: 0,
+    queryKey: ["/api/content"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
     select: (response: any) => response.data || response, // Handle new response format
   });
 

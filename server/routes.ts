@@ -325,7 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate TSU amount based on current rates
       const processingFee = parseFloat(amount) * 0.025; // 2.5% fee
       const netAmount = parseFloat(amount) - processingFee;
-      const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.00; // Default $1.00 per TSU
+      const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.00; // Default 1 USD per TSU
       const tsuAmount = (netAmount / tsuPrice).toString();
       
       // For PayPal, only update balance if payment reference is provided (payment confirmed)

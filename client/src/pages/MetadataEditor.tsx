@@ -41,7 +41,7 @@ export default function MetadataEditor() {
     resolver: zodResolver(metadataSchema),
     defaultValues: {
       title: "TSU Wallet - Trade Settlement Unit | Africa-BRICS Digital Currency",
-      description: "The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence. 1 TSU = 1 liter of gasoline.",
+      description: "The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.",
       keywords: "TSU, Trade Settlement Unit, digital currency, Africa, BRICS, cryptocurrency, wallet, blockchain, reserve-backed",
       ogImage: "/tsu-logo.png",
       twitterCard: "summary_large_image",

@@ -531,8 +531,8 @@ export default function AdminDashboard() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center p-6 bg-gradient-to-br from-tsu-green to-tsu-light-green rounded-lg text-white">
-                        <h4 className="text-2xl font-bold mb-2">1 TSU = 1 Liter Gasoline</h4>
-                        <p className="text-lg">Current Rate: <span className="font-semibold text-tsu-gold">$1.00 USD</span></p>
+                        <h4 className="text-2xl font-bold mb-2">1 TSU = 1 USD</h4>
+                        <p className="text-lg">Current Rate: <span className="font-semibold text-tsu-gold">1 USD</span></p>
                         <p className="text-sm opacity-80">Last updated: Today</p>
                       </div>
                       
@@ -562,7 +562,7 @@ export default function AdminDashboard() {
                       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                         <h5 className="font-medium text-amber-800 mb-2">⚠️ Price Update Notice</h5>
                         <p className="text-sm text-amber-700">
-                          TSU is pegged to gasoline prices for stability. Price updates should reflect real market conditions.
+                          TSU maintains stable value backed by diversified reserves. Price updates should reflect real market conditions.
                         </p>
                       </div>
                       
@@ -602,7 +602,7 @@ export default function AdminDashboard() {
                           </label>
                           <textarea
                             rows={3}
-                            placeholder="e.g., Updated to reflect current gasoline prices"
+                            placeholder="e.g., Updated to reflect current market conditions"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
                             data-testid="textarea-update-reason"
                           />
@@ -634,7 +634,7 @@ export default function AdminDashboard() {
                           <div className="text-sm text-gray-500">January 24, 2025</div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold text-tsu-green">$1.00 USD</div>
+                          <div className="font-semibold text-tsu-green">1 USD</div>
                           <div className="text-sm text-gray-500">System Launch</div>
                         </div>
                       </div>
