@@ -28,7 +28,6 @@ import { CheckCircle, Loader2 } from "lucide-react";
 const formSchema = insertContactMessageSchema.extend({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().optional(),
   subject: z.string().min(5, "Subject must be at least 5 characters"),
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
@@ -50,7 +49,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     defaultValues: {
       name: "",
       email: "",
-      phone: "",
       subject: "",
       message: "",
     },
@@ -152,24 +150,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="tel"
-                          placeholder="+27 123 456 789" 
-                          {...field}
-                          data-testid="input-phone"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}

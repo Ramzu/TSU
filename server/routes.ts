@@ -25,9 +25,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Find user
       let user = await storage.getUserByEmail(email);
       
-      // Create admin user if it doesn't exist
-      if (!user && email === 'admin@tsu-wallet.com') {
-        const hashedPassword = await bcrypt.hash('admin123', 10);
+      // Create admin user if it doesn't exist (DEV ONLY - requires environment variable)
+      if (!user && email === 'admin@tsu-wallet.com' && process.env.NODE_ENV === 'development' && process.env.ALLOW_ADMIN_BOOTSTRAP === 'true') {
+        const adminPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD || 'tsu-admin-' + Math.random().toString(36).substring(2, 15);
+        console.log('🔐 DEVELOPMENT: Created admin user with password:', adminPassword);
+        
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
         user = await storage.createUser({
           email,
           password: hashedPassword,
@@ -68,7 +71,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Secured admin password reset endpoint (requires authentication)
   app.post('/api/admin/reset-password', isAuthenticated, async (req, res) => {
     try {
-      const currentUser = await storage.getUser((req as any).user?.id || (req as any).session?.userId);
+      // Get user ID from either OIDC claims or session
+      const userId = (req as any).user?.claims?.sub || (req as any).session?.userId;
+      const currentUser = await storage.getUser(userId);
       
       // Only super_admin can reset other admin passwords
       if (!currentUser || currentUser.role !== 'super_admin') {

@@ -59,9 +59,16 @@ export default function SendTSUModal({ isOpen, onClose, currentBalance }: SendTS
       onClose();
     },
     onError: (error: any) => {
+      let errorMessage = error.message || "Failed to send TSU. Please try again.";
+      
+      // Provide more helpful error message for recipient not found
+      if (error.message === "Recipient not found") {
+        errorMessage = "This email address is not registered in the TSU system. The recipient must create an account before receiving TSU transfers. For testing, try sending to: admin2@tsu-wallet.com";
+      }
+      
       toast({
         title: "Transfer Failed",
-        description: error.message || "Failed to send TSU. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

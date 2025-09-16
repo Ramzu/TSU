@@ -93,10 +93,6 @@ export default function Footer() {
                 <span className="text-sm">{contactInfo?.email || 'authority@tsu.africa'}</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-tsu-gold" />
-                <span className="text-sm">{contactInfo?.phone || '+27 (0) 11 123 4567'}</span>
-              </li>
-              <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-tsu-gold" />
                 <span className="text-sm">{contactInfo?.address || 'Johannesburg, South Africa'}</span>
               </li>
