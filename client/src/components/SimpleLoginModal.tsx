@@ -11,8 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 const COUNTRY_OPTIONS = [
-  // African Nations
-  { value: "south-africa", label: "South Africa", region: "Africa" },
+  // African Nations  
+  { value: "south_africa", label: "South Africa", region: "Africa" },
   { value: "nigeria", label: "Nigeria", region: "Africa" },
   { value: "egypt", label: "Egypt", region: "Africa" },
   { value: "kenya", label: "Kenya", region: "Africa" },
@@ -23,14 +23,14 @@ const COUNTRY_OPTIONS = [
   { value: "uganda", label: "Uganda", region: "Africa" },
   { value: "rwanda", label: "Rwanda", region: "Africa" },
   { value: "senegal", label: "Senegal", region: "Africa" },
-  { value: "ivory-coast", label: "Ivory Coast", region: "Africa" },
-  { value: "cameroon", label: "Cameroon", region: "Africa" },
-  { value: "tunisia", label: "Tunisia", region: "Africa" },
-  { value: "algeria", label: "Algeria", region: "Africa" },
-  { value: "zimbabwe", label: "Zimbabwe", region: "Africa" },
-  { value: "zambia", label: "Zambia", region: "Africa" },
+  { value: "ivory_coast", label: "Ivory Coast", region: "Africa" },
   { value: "botswana", label: "Botswana", region: "Africa" },
   { value: "namibia", label: "Namibia", region: "Africa" },
+  { value: "zambia", label: "Zambia", region: "Africa" },
+  { value: "zimbabwe", label: "Zimbabwe", region: "Africa" },
+  { value: "angola", label: "Angola", region: "Africa" },
+  { value: "mozambique", label: "Mozambique", region: "Africa" },
+  { value: "madagascar", label: "Madagascar", region: "Africa" },
   { value: "mauritius", label: "Mauritius", region: "Africa" },
   
   // BRICS+ Nations
@@ -40,9 +40,9 @@ const COUNTRY_OPTIONS = [
   { value: "china", label: "China", region: "BRICS+" },
   { value: "iran", label: "Iran", region: "BRICS+" },
   { value: "uae", label: "UAE", region: "BRICS+" },
-  { value: "ethiopia-brics", label: "Ethiopia", region: "BRICS+" },
-  { value: "egypt-brics", label: "Egypt", region: "BRICS+" },
-  { value: "saudi-arabia", label: "Saudi Arabia", region: "BRICS+" },
+  { value: "ethiopia_brics", label: "Ethiopia (BRICS)", region: "BRICS+" },
+  { value: "egypt_brics", label: "Egypt (BRICS)", region: "BRICS+" },
+  { value: "saudi_arabia", label: "Saudi Arabia", region: "BRICS+" },
 ];
 
 interface SimpleLoginModalProps {
@@ -66,8 +66,12 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
 
   // Registration form state
   const [registerData, setRegisterData] = useState({
+    accountType: "individual",
     firstName: "",
     lastName: "",
+    companyName: "",
+    businessType: "",
+    taxId: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -81,7 +85,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
   useEffect(() => {
     setCurrentMode(mode);
     setLoginData({ email: "", password: "" });
-    setRegisterData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "", country: "" });
+    setRegisterData({ accountType: "individual", firstName: "", lastName: "", companyName: "", businessType: "", taxId: "", email: "", password: "", confirmPassword: "", country: "" });
     setErrors({});
     setShowPassword(false);
     setShowConfirmPassword(false);
@@ -119,7 +123,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
         description: "Your account has been created successfully. You can now log in.",
       });
       setCurrentMode('login');
-      setRegisterData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "", country: "" });
+      setRegisterData({ accountType: "individual", firstName: "", lastName: "", companyName: "", businessType: "", taxId: "", email: "", password: "", confirmPassword: "", country: "" });
       setErrors({});
     },
     onError: (error: any) => {
@@ -151,12 +155,22 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
   const validateRegister = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!registerData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-    
-    if (!registerData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
+    if (registerData.accountType === 'individual') {
+      if (!registerData.firstName.trim()) {
+        newErrors.firstName = "First name is required";
+      }
+      
+      if (!registerData.lastName.trim()) {
+        newErrors.lastName = "Last name is required";
+      }
+    } else {
+      if (!registerData.companyName.trim()) {
+        newErrors.companyName = "Company name is required";
+      }
+      
+      if (!registerData.businessType.trim()) {
+        newErrors.businessType = "Business type is required";
+      }
     }
     
     if (!registerData.email) {
@@ -294,47 +308,131 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
           </form>
         ) : (
           <form onSubmit={handleRegisterSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="register-firstName">First Name</Label>
-                <Input
-                  id="register-firstName"
-                  type="text"
-                  placeholder="Your first name"
-                  value={registerData.firstName}
-                  onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+            {/* Account Type Selection */}
+            <div className="space-y-2">
+              <Label>Account Type</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={registerData.accountType === 'individual' ? 'default' : 'outline'}
+                  className="w-full"
+                  onClick={() => setRegisterData(prev => ({ ...prev, accountType: 'individual' }))}
                   disabled={registerMutation.isPending}
-                  data-testid="input-firstName"
-                  className={errors.firstName ? "border-red-500" : ""}
-                />
-                {errors.firstName && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.firstName}
-                  </p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="register-lastName">Last Name</Label>
-                <Input
-                  id="register-lastName"
-                  type="text"
-                  placeholder="Your last name"
-                  value={registerData.lastName}
-                  onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                  data-testid="button-individual"
+                >
+                  Individual
+                </Button>
+                <Button
+                  type="button"
+                  variant={registerData.accountType === 'business' ? 'default' : 'outline'}
+                  className="w-full"
+                  onClick={() => setRegisterData(prev => ({ ...prev, accountType: 'business' }))}
                   disabled={registerMutation.isPending}
-                  data-testid="input-lastName"
-                  className={errors.lastName ? "border-red-500" : ""}
-                />
-                {errors.lastName && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.lastName}
-                  </p>
-                )}
+                  data-testid="button-business"
+                >
+                  Business
+                </Button>
               </div>
             </div>
+
+            {registerData.accountType === 'individual' ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="register-firstName">First Name</Label>
+                  <Input
+                    id="register-firstName"
+                    type="text"
+                    placeholder="Your first name"
+                    value={registerData.firstName}
+                    onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+                    disabled={registerMutation.isPending}
+                    data-testid="input-firstName"
+                    className={errors.firstName ? "border-red-500" : ""}
+                  />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.firstName}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-lastName">Last Name</Label>
+                  <Input
+                    id="register-lastName"
+                    type="text"
+                    placeholder="Your last name"
+                    value={registerData.lastName}
+                    onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                    disabled={registerMutation.isPending}
+                    data-testid="input-lastName"
+                    className={errors.lastName ? "border-red-500" : ""}
+                  />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.lastName}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="register-companyName">Company Name</Label>
+                  <Input
+                    id="register-companyName"
+                    type="text"
+                    placeholder="Your company name"
+                    value={registerData.companyName}
+                    onChange={(e) => setRegisterData(prev => ({ ...prev, companyName: e.target.value }))}
+                    disabled={registerMutation.isPending}
+                    data-testid="input-companyName"
+                    className={errors.companyName ? "border-red-500" : ""}
+                  />
+                  {errors.companyName && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.companyName}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-businessType">Business Type</Label>
+                  <Input
+                    id="register-businessType"
+                    type="text"
+                    placeholder="e.g., Import/Export, Manufacturing, Services"
+                    value={registerData.businessType}
+                    onChange={(e) => setRegisterData(prev => ({ ...prev, businessType: e.target.value }))}
+                    disabled={registerMutation.isPending}
+                    data-testid="input-businessType"
+                    className={errors.businessType ? "border-red-500" : ""}
+                  />
+                  {errors.businessType && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.businessType}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-taxId">Tax ID (Optional)</Label>
+                  <Input
+                    id="register-taxId"
+                    type="text"
+                    placeholder="Business tax identification number"
+                    value={registerData.taxId}
+                    onChange={(e) => setRegisterData(prev => ({ ...prev, taxId: e.target.value }))}
+                    disabled={registerMutation.isPending}
+                    data-testid="input-taxId"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="register-email">Email Address</Label>

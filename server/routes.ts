@@ -65,15 +65,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin password reset endpoint (for troubleshooting)
-  app.post('/api/admin/reset-password', async (req, res) => {
+  // Secured admin password reset endpoint (requires authentication)
+  app.post('/api/admin/reset-password', isAuthenticated, async (req, res) => {
     try {
-      const { email, newPassword, resetKey } = req.body;
+      const currentUser = await storage.getUser((req as any).user?.id || (req as any).session?.userId);
       
-      // Simple security check - you can change this key
-      if (resetKey !== 'tsu-admin-reset-2024') {
-        return res.status(401).json({ message: "Invalid reset key" });
+      // Only super_admin can reset other admin passwords
+      if (!currentUser || currentUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Only super administrators can reset passwords" });
       }
+      
+      const { email, newPassword } = req.body;
       
       if (!email || !newPassword) {
         return res.status(400).json({ message: "Email and new password are required" });
@@ -83,42 +85,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
       
-      // Find user
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
+      // Find target user
+      const targetUser = await storage.getUserByEmail(email);
+      if (!targetUser) {
         return res.status(404).json({ message: "User not found" });
       }
       
       // Only allow password reset for admin/super_admin roles
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        return res.status(403).json({ message: "Not authorized to reset this account" });
+      if (targetUser.role !== 'admin' && targetUser.role !== 'super_admin') {
+        return res.status(403).json({ message: "Can only reset admin account passwords" });
       }
       
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       
       // Update user password
-      await storage.updateUserPassword(user.id, hashedPassword);
+      await storage.updateUserPassword(targetUser.id, hashedPassword);
       
-      res.json({ message: "Password reset successfully" });
+      res.json({ message: `Password reset successfully for ${email}` });
     } catch (error) {
       console.error("Error resetting password:", error);
       res.status(500).json({ message: "Password reset failed" });
     }
   });
 
+  // Rate limiting for registration (anti-spam protection)
+  const registrationRateLimit = new Map<string, { count: number; resetTime: number }>();
+  const REGISTRATION_LIMIT = 3; // Max registrations per IP per hour
+  const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+
   // Simple registration endpoint
   app.post('/api/auth/simple-register', async (req, res) => {
     try {
-      const { email, password, firstName, lastName, country } = req.body;
+      const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
       
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+      // Anti-spam rate limiting
+      const now = Date.now();
+      const rateLimitKey = `reg_${clientIP}`;
+      const rateLimit = registrationRateLimit.get(rateLimitKey);
+      
+      if (rateLimit) {
+        if (now < rateLimit.resetTime) {
+          if (rateLimit.count >= REGISTRATION_LIMIT) {
+            return res.status(429).json({ 
+              message: "Too many registration attempts. Please try again later." 
+            });
+          }
+          rateLimit.count += 1;
+        } else {
+          // Reset the counter after the time window
+          registrationRateLimit.set(rateLimitKey, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        }
+      } else {
+        registrationRateLimit.set(rateLimitKey, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
       }
       
-      if (password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      // Validate request body with Zod schema
+      const registrationSchema = z.object({
+        accountType: z.enum(['individual', 'business']).default('individual'),
+        email: z.string().email("Invalid email format"),
+        password: z.string().min(6, "Password must be at least 6 characters long"),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        companyName: z.string().optional(),
+        businessType: z.string().optional(),
+        taxId: z.string().optional(),
+        country: z.enum([
+          'south_africa', 'nigeria', 'kenya', 'ghana', 'egypt', 'morocco', 'ethiopia', 'tanzania', 'uganda', 'rwanda',
+          'botswana', 'namibia', 'zambia', 'zimbabwe', 'angola', 'mozambique', 'madagascar', 'mauritius', 'senegal', 'ivory_coast',
+          'brazil', 'russia', 'india', 'china', 'iran', 'egypt_brics', 'ethiopia_brics', 'uae', 'saudi_arabia'
+        ]),
+      }).refine((data) => {
+        // Conditional validation for business accounts
+        if (data.accountType === 'business') {
+          return data.companyName && data.businessType;
+        } else {
+          return data.firstName && data.lastName;
+        }
+      }, {
+        message: "Business accounts require company name and business type. Individual accounts require first name and last name."
+      });
+      
+      const validationResult = registrationSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: validationResult.error.errors[0]?.message || "Invalid registration data" 
+        });
       }
+      
+      const { accountType, email, password, firstName, lastName, companyName, businessType, taxId, country } = validationResult.data;
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
@@ -131,8 +186,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser({
         email,
         password: hashedPassword,
+        accountType: accountType || 'individual',
         firstName: firstName || '',
         lastName: lastName || '',
+        companyName: companyName || '',
+        businessType: businessType || '',
+        taxId: taxId || '',
         country,
         role: 'user',
         tsuBalance: "0.0",

@@ -36,13 +36,20 @@ export const countryEnum = pgEnum('country', [
   'brazil', 'russia', 'india', 'china', 'iran', 'egypt_brics', 'ethiopia_brics', 'uae', 'saudi_arabia'
 ]);
 
+// Account type enum
+export const accountTypeEnum = pgEnum('account_type', ['individual', 'business']);
+
 // Users table - mandatory for Replit Auth
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   password: varchar("password"), // Hashed password
+  accountType: accountTypeEnum("account_type").default('individual'),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  companyName: varchar("company_name"),
+  businessType: varchar("business_type"),
+  taxId: varchar("tax_id"),
   profileImageUrl: varchar("profile_image_url"),
   country: countryEnum("country"),
   role: userRoleEnum("role").default('user'),
