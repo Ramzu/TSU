@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useWeb3 } from "@/providers/Web3Provider";
+import { fetchCryptoPrices, calculateCryptoAmount } from "@/lib/cryptoService";
 
 declare global {
   interface Window {
@@ -23,14 +24,10 @@ interface CryptoWalletProps {
 
 export default function CryptoWallet({ amount, currency, onPaymentComplete, onPaymentError, paymentAddress }: CryptoWalletProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [rates, setRates] = useState<{ BTC: number; ETH: number } | null>(null);
+  const [isLoadingRates, setIsLoadingRates] = useState(true);
   const { toast } = useToast();
   const { account, provider, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
-
-  // Conversion rates (simplified - in production these should come from an API)
-  const RATES = {
-    BTC: 0.000025, // 1 USD = 0.000025 BTC
-    ETH: 0.0008,   // 1 USD = 0.0008 ETH
-  };
 
   // Default payment addresses (in production these should be configured securely)
   const DEFAULT_PAYMENT_ADDRESSES = {
@@ -42,7 +39,31 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
     return paymentAddress || DEFAULT_PAYMENT_ADDRESSES[currency];
   };
 
-  const cryptoAmount = (parseFloat(amount) * RATES[currency]).toFixed(8);
+  // Fetch crypto prices on component mount
+  useEffect(() => {
+    const loadRates = async () => {
+      setIsLoadingRates(true);
+      try {
+        const newRates = await fetchCryptoPrices();
+        setRates(newRates);
+      } catch (error) {
+        console.error('Failed to load crypto rates:', error);
+        toast({
+          title: "Price Loading Failed",
+          description: "Using fallback exchange rates",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingRates(false);
+      }
+    };
+
+    loadRates();
+  }, []);
+
+  const cryptoAmount = rates 
+    ? calculateCryptoAmount(parseFloat(amount), currency, rates)
+    : "Loading...";
 
   const handleConnectWallet = async () => {
     if (currency === "ETH") {
@@ -90,9 +111,10 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
         
         // Send payment to configured address
         const recipientAddress = getPaymentAddress();
+        const ethAmount = rates ? calculateCryptoAmount(parseFloat(amount), currency, rates) : "0";
         const tx = await signer.sendTransaction({
           to: recipientAddress,
-          value: ethers.parseEther(cryptoAmount),
+          value: ethers.parseEther(ethAmount),
         });
 
         await tx.wait();
@@ -153,7 +175,7 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
           <div className="text-sm text-purple-700">
             <div>Amount: {cryptoAmount} {currency}</div>
             <div className="text-xs text-purple-600">
-              ≈ ${amount} USD at current rates
+              ≈ ${amount} USD {isLoadingRates ? "(Loading rates...)" : "at current market rates"}
             </div>
           </div>
 
@@ -176,11 +198,15 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
               <div className="flex space-x-2">
                 <Button
                   onClick={processPayment}
-                  disabled={isProcessing}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  disabled={isProcessing || isLoadingRates || !rates}
+                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50"
                   data-testid="button-pay-eth"
                 >
-                  {isProcessing ? "Processing..." : `Pay ${cryptoAmount} ETH`}
+                  {isProcessing 
+                    ? "Processing..." 
+                    : isLoadingRates 
+                    ? "Loading rates..." 
+                    : `Pay ${cryptoAmount} ETH`}
                 </Button>
                 <Button
                   onClick={() => {
