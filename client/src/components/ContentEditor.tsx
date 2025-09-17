@@ -34,10 +34,8 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
     select: (response: any) => response.data || response, // Handle new response format
   });
 
-  const form = useForm({
+  const form = useForm<Record<string, string>>({
     defaultValues: {
-      'hero-title': 'Trade Settlement Unit',
-      'hero-subtitle': 'The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.',
       'features-title': 'Why Choose TSU?',
       'features-subtitle': 'Built for the future of African trade, backed by real reserves and designed for stability.',
       'feature-1-title': 'Reserve-Backed Stability',
@@ -134,7 +132,9 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
         return acc;
       }, {} as Record<string, string>);
       
+      // Reset form with actual database content
       form.reset(contentMap);
+      console.log('ContentEditor: Form updated with database content:', contentMap);
     }
   }, [content, form]);
 
