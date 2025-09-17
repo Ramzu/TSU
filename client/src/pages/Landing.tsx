@@ -41,7 +41,7 @@ export default function Landing() {
       <section 
         className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green min-h-screen flex items-center"
         style={{
-          backgroundImage: "url('/tsu-header.jpg')",
+          backgroundImage: "url('/tsu-header.jpg?v=" + Date.now() + "')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundBlendMode: 'overlay'
