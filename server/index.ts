@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
+import fs from "fs";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -40,8 +41,66 @@ app.use((req, res, next) => {
   next();
 });
 
+// Helper function to get the site URL for Open Graph tags
+function getSiteUrl(req: Request): string {
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+  return process.env.SITE_URL || `${protocol}://${host}`;
+}
+
+// Add cache headers for og-image.jpg
+app.get('/og-image.jpg', (req, res, next) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.setHeader('Content-Type', 'image/jpeg');
+  next();
+});
+
 (async () => {
   const server = await registerRoutes(app);
+
+  // Server-side Open Graph meta tag injection for root route
+  app.get('/', (req, res) => {
+    try {
+      const siteUrl = getSiteUrl(req);
+      const indexPath = path.join(process.cwd(), 'client/index.html');
+      
+      if (!fs.existsSync(indexPath)) {
+        return res.status(404).send('Index file not found');
+      }
+
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      
+      // Replace relative URLs with absolute URLs for Open Graph tags
+      html = html.replace(
+        '<meta property="og:url" content="/" />',
+        `<meta property="og:url" content="${siteUrl}/" />`
+      );
+      
+      html = html.replace(
+        '<meta property="og:image" content="/tsu-logo.png" />',
+        `<meta property="og:image" content="${siteUrl}/og-image.jpg" />`
+      );
+      
+      html = html.replace(
+        '<meta property="twitter:url" content="/" />',
+        `<meta property="twitter:url" content="${siteUrl}/" />`
+      );
+      
+      html = html.replace(
+        '<meta property="twitter:image" content="/tsu-logo.png" />',
+        `<meta property="twitter:image" content="${siteUrl}/og-image.jpg" />`
+      );
+
+      // Set cache headers to ensure fresh previews
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      
+      res.send(html);
+    } catch (error) {
+      console.error('Error serving index with OG tags:', error);
+      res.status(500).send('Server error');
+    }
+  });
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
