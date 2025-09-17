@@ -23,6 +23,7 @@ const resources = {
       "hero.learnMore": "Learn More",
       "hero.currentValue": "Current TSU Value",
       "hero.tradeUnit": "Trade Settlement Unit",
+      "hero.usd": "United States Dollar",
       "hero.gasoline": "Gasoline/Petrol",
       "hero.exchangeRate": "Current exchange rate",
       
@@ -35,6 +36,26 @@ const resources = {
       "features.trade.desc": "Designed specifically for Africa-BRICS trade settlements with minimal fees.",
       "features.stable.title": "Price Stability",
       "features.stable.desc": "Pegged to gasoline prices for predictable value across African markets.",
+      
+      // Programs Section
+      "programs.title": "Transform Your Assets with TSU",
+      "programs.subtitle": "Unlock the true value of your resources and currencies through our comprehensive programs",
+      "programs.commodities.title": "Commodities Program",
+      "programs.commodities.desc": "Transform your valuable resources into global trade liquidity. Register commodities like oil, gold, cocoa, and copper to access Trade Settlement Units backed by real reserves.",
+      "programs.commodities.benefit1": "Turn unsold assets into usable settlement units",
+      "programs.commodities.benefit2": "Access to BRICS and African trade corridors",
+      "programs.commodities.benefit3": "Independent verification and security",
+      "programs.commodities.button": "Explore Commodities Program",
+      "programs.currency.title": "Currency Program",
+      "programs.currency.desc": "Convert illiquid local currency into stable, usable Trade Settlement Units. Transform trapped funds into global trade power across Africa and BRICS networks.",
+      "programs.currency.benefit1": "Monetize idle local currency holdings",
+      "programs.currency.benefit2": "Secure imports without USD bottlenecks",
+      "programs.currency.benefit3": "Stable value backed by gold and FX reserves",
+      "programs.currency.button": "Explore Currency Program",
+      
+      // Statistics Section
+      "stats.comingSoon": "Coming Soon",
+      "stats.tradeVolume": "Trade Volume",
       
       // Authentication
       "auth.login.title": "Login to TSU Wallet",

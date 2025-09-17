@@ -78,7 +78,7 @@ export default function Landing() {
                   <div className="text-3xl text-tsu-gold">=</div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-white">1 USD</p>
-                    <p className="text-sm opacity-80">United States Dollar</p>
+                    <p className="text-sm opacity-80">{t('hero.usd')}</p>
                   </div>
                 </div>
               </div>
@@ -161,10 +161,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-tsu-green mb-4" data-testid="programs-title">
-              Transform Your Assets with TSU
+              {getContent('programs-title', t('programs.title'))}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="programs-subtitle">
-              Unlock the true value of your resources and currencies through our comprehensive programs
+              {getContent('programs-subtitle', t('programs.subtitle'))}
             </p>
           </div>
           
@@ -176,24 +176,24 @@ export default function Landing() {
                   <Coins className="h-8 w-8 text-tsu-green" />
                 </div>
                 <h3 className="text-2xl font-semibold text-tsu-gold" data-testid="commodities-program-title">
-                  Commodities Program
+                  {getContent('commodities-program-title', t('programs.commodities.title'))}
                 </h3>
               </div>
               <p className="text-white/90 mb-6 text-center">
-                Transform your valuable resources into global trade liquidity. Register commodities like oil, gold, cocoa, and copper to access Trade Settlement Units backed by real reserves.
+                {getContent('commodities-program-desc', t('programs.commodities.desc'))}
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
-                  <span className="text-white">Turn unsold assets into usable settlement units</span>
+                  <span className="text-white">{t('programs.commodities.benefit1')}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
-                  <span className="text-white">Access to BRICS and African trade corridors</span>
+                  <span className="text-white">{t('programs.commodities.benefit2')}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
-                  <span className="text-white">Independent verification and security</span>
+                  <span className="text-white">{t('programs.commodities.benefit3')}</span>
                 </div>
               </div>
               <Button 
@@ -201,7 +201,7 @@ export default function Landing() {
                 className="w-full bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold py-3"
                 data-testid="button-landing-commodities-program"
               >
-                Explore Commodities Program
+                {t('programs.commodities.button')}
               </Button>
             </Card>
 
@@ -212,24 +212,24 @@ export default function Landing() {
                   <DollarSign className="h-8 w-8 text-tsu-gold" />
                 </div>
                 <h3 className="text-2xl font-semibold text-tsu-green" data-testid="currency-program-title">
-                  Currency Program
+                  {getContent('currency-program-title', t('programs.currency.title'))}
                 </h3>
               </div>
               <p className="text-tsu-dark-green mb-6 text-center">
-                Convert illiquid local currency into stable, usable Trade Settlement Units. Transform trapped funds into global trade power across Africa and BRICS networks.
+                {getContent('currency-program-desc', t('programs.currency.desc'))}
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
-                  <span className="text-tsu-dark-green">Monetize idle local currency holdings</span>
+                  <span className="text-tsu-dark-green">{t('programs.currency.benefit1')}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
-                  <span className="text-tsu-dark-green">Secure imports without USD bottlenecks</span>
+                  <span className="text-tsu-dark-green">{t('programs.currency.benefit2')}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-tsu-green flex-shrink-0" />
-                  <span className="text-tsu-dark-green">Stable value backed by gold and FX reserves</span>
+                  <span className="text-tsu-dark-green">{t('programs.currency.benefit3')}</span>
                 </div>
               </div>
               <Button 
@@ -237,7 +237,7 @@ export default function Landing() {
                 className="w-full bg-tsu-green hover:bg-tsu-dark-green text-white font-semibold py-3"
                 data-testid="button-landing-currency-program"
               >
-                Explore Currency Program
+                {t('programs.currency.button')}
               </Button>
             </Card>
           </div>
@@ -249,8 +249,8 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div className="text-white">
-              <div className="text-4xl font-bold text-tsu-gold mb-2" data-testid="stat-trade-volume">Coming Soon</div>
-              <div className="text-lg">Trade Volume</div>
+              <div className="text-4xl font-bold text-tsu-gold mb-2" data-testid="stat-trade-volume">{t('stats.comingSoon')}</div>
+              <div className="text-lg">{t('stats.tradeVolume')}</div>
             </div>
             <div className="text-white">
               <div className="text-4xl font-bold text-tsu-gold mb-2" data-testid="stat-partner-nations">54</div>
