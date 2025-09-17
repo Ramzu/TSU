@@ -10,6 +10,7 @@ import ContentEditor from "@/components/ContentEditor";
 import MetadataEditor from "@/pages/MetadataEditor";
 import SmtpConfigSection from "@/components/SmtpConfigSection";
 import EmailMessagingSection from "@/components/EmailMessagingSection";
+import ContactMessagesSection from "@/components/ContactMessagesSection";
 import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2 } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Footer from "@/components/Footer";
 
@@ -342,7 +343,7 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-9 gap-1">
+                <TabsList className="grid w-full grid-cols-10 gap-1">
                   <TabsTrigger value="users" data-testid="tab-users" className="text-xs">Users</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs">Transactions</TabsTrigger>
                   <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs">Balance</TabsTrigger>
@@ -351,6 +352,10 @@ export default function AdminDashboard() {
                   <TabsTrigger value="contact" data-testid="tab-contact" className="text-xs">
                     <Phone className="h-3 w-3 mr-1" />
                     Contact
+                  </TabsTrigger>
+                  <TabsTrigger value="messages" data-testid="tab-messages" className="text-xs">
+                    <MessageCircle className="h-3 w-3 mr-1" />
+                    Messages
                   </TabsTrigger>
                   <TabsTrigger value="metadata" data-testid="tab-metadata" className="text-xs">
                     <Globe className="h-3 w-3 mr-1" />
@@ -801,6 +806,10 @@ export default function AdminDashboard() {
                     </Form>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="messages" className="p-6" data-testid="messages-tab-content">
+                <ContactMessagesSection />
               </TabsContent>
 
               <TabsContent value="admins" className="p-6" data-testid="admins-tab-content">
