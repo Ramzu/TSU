@@ -18,9 +18,10 @@ interface CryptoWalletProps {
   currency: "BTC" | "ETH";
   onPaymentComplete: () => void;
   onPaymentError: (error: string) => void;
+  paymentAddress?: string; // Optional custom payment address
 }
 
-export default function CryptoWallet({ amount, currency, onPaymentComplete, onPaymentError }: CryptoWalletProps) {
+export default function CryptoWallet({ amount, currency, onPaymentComplete, onPaymentError, paymentAddress }: CryptoWalletProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const { account, provider, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
@@ -31,13 +32,37 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
     ETH: 0.0008,   // 1 USD = 0.0008 ETH
   };
 
+  // Default payment addresses (in production these should be configured securely)
+  const DEFAULT_PAYMENT_ADDRESSES = {
+    ETH: "0x742d35Cc6565C3E31fD2a8a7aEf7Ef01dD1E2E0C", // Demo address
+    BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Demo address
+  };
+
+  const getPaymentAddress = () => {
+    return paymentAddress || DEFAULT_PAYMENT_ADDRESSES[currency];
+  };
+
   const cryptoAmount = (parseFloat(amount) * RATES[currency]).toFixed(8);
 
   const handleConnectWallet = async () => {
     if (currency === "ETH") {
-      await connectWallet();
-      if (web3Error) {
-        onPaymentError(web3Error);
+      try {
+        await connectWallet();
+        if (!isConnected) {
+          throw new Error("Failed to connect wallet");
+        }
+        toast({
+          title: "Wallet Connected",
+          description: "Ethereum wallet connected successfully",
+        });
+      } catch (error: any) {
+        const errorMessage = error.message || web3Error || "Failed to connect wallet";
+        toast({
+          title: "Connection Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        onPaymentError(errorMessage);
       }
     } else if (currency === "BTC") {
       // For Bitcoin, we'll simulate wallet connection
@@ -63,10 +88,10 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
         // Process Ethereum payment
         const signer = await provider.getSigner();
         
-        // For demo purposes, we'll use a simple transaction
-        // In production, you'd send to your smart contract or payment address
+        // Send payment to configured address
+        const recipientAddress = getPaymentAddress();
         const tx = await signer.sendTransaction({
-          to: "0x742d35Cc6565C3E31fD2a8a7aEf7Ef01dD1E2E0C", // Demo address
+          to: recipientAddress,
           value: ethers.parseEther(cryptoAmount),
         });
 
@@ -158,7 +183,13 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
                   {isProcessing ? "Processing..." : `Pay ${cryptoAmount} ETH`}
                 </Button>
                 <Button
-                  onClick={disconnectWallet}
+                  onClick={() => {
+                    disconnectWallet();
+                    toast({
+                      title: "Wallet Disconnected",
+                      description: "Wallet has been disconnected",
+                    });
+                  }}
                   variant="outline"
                   size="sm"
                   data-testid="button-disconnect-eth"
