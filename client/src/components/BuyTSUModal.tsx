@@ -189,11 +189,9 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="paypal" data-testid="payment-paypal">PayPal</SelectItem>
-                      <SelectItem value="bitcoin" data-testid="payment-bitcoin">Bitcoin (BTC)</SelectItem>
                       <SelectItem value="ethereum" data-testid="payment-ethereum">Ethereum (ETH)</SelectItem>
-                      <SelectItem value="credit-card" data-testid="payment-credit-card">Credit Card</SelectItem>
-                      <SelectItem value="bank-transfer" data-testid="payment-bank-transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="bitcoin" data-testid="payment-bitcoin">Bitcoin (BTC)</SelectItem>
+                      <SelectItem value="paypal" data-testid="payment-paypal">PayPal</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
