@@ -9,6 +9,23 @@ import { emailService } from "./emailService";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 
+// Utility function to check if live PayPal credentials are configured
+function hasLivePayPalCredentials(): boolean {
+  const { PAYPAL_CLIENT_ID } = process.env;
+  
+  if (!PAYPAL_CLIENT_ID) {
+    return false;
+  }
+  
+  // Live PayPal client IDs typically start with 'A' followed by alphanumeric characters
+  // Sandbox client IDs typically start with 'sb-' or other specific prefixes
+  // For safety, we'll check that it's not a sandbox credential
+  return !PAYPAL_CLIENT_ID.startsWith('sb-') && 
+         !PAYPAL_CLIENT_ID.includes('sandbox') &&
+         !PAYPAL_CLIENT_ID.includes('test') &&
+         PAYPAL_CLIENT_ID.length > 10; // Basic length check for production IDs
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -361,6 +378,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // TSU purchase endpoint
   app.post('/api/tsu/purchase', async (req: any, res) => {
     try {
+      // Block purchasing if live PayPal credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          message: "TSU purchasing is temporarily unavailable", 
+          error: "Service configuration in progress",
+          details: "TSU purchasing is currently disabled while we configure live payment processing. Please try again later."
+        });
+      }
+
       // For simple login, check session-based auth
       let userId;
       if (req.session?.userId) {
@@ -642,6 +668,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayPal routes (API paths)
   app.get("/api/paypal/setup", async (req, res) => {
     try {
+      // Block PayPal setup if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await loadPaypalDefault(req, res);
     } catch (error) {
       console.error("PayPal setup error:", error);
@@ -654,6 +688,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/paypal/order", async (req, res) => {
     try {
+      // Block PayPal order creation if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await createPaypalOrder(req, res);
     } catch (error) {
       console.error("PayPal order creation error:", error);
@@ -666,6 +708,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/paypal/order/:orderID/capture", async (req, res) => {
     try {
+      // Block PayPal order capture if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await capturePaypalOrder(req, res);
     } catch (error) {
       console.error("PayPal capture error:", error);
@@ -679,6 +729,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayPal routes (legacy paths expected by PayPal component)
   app.get("/setup", async (req, res) => {
     try {
+      // Block PayPal setup if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await loadPaypalDefault(req, res);
     } catch (error) {
       console.error("PayPal setup error:", error);
@@ -691,6 +749,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/order", async (req, res) => {
     try {
+      // Block PayPal order creation if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await createPaypalOrder(req, res);
     } catch (error) {
       console.error("PayPal order creation error:", error);
@@ -703,6 +769,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/order/:orderID/capture", async (req, res) => {
     try {
+      // Block PayPal order capture if live credentials are not configured
+      if (!hasLivePayPalCredentials()) {
+        return res.status(503).json({ 
+          error: "PayPal service unavailable", 
+          message: "TSU purchasing is temporarily disabled while we configure live payment processing. Please try again later."
+        });
+      }
+      
       await capturePaypalOrder(req, res);
     } catch (error) {
       console.error("PayPal capture error:", error);

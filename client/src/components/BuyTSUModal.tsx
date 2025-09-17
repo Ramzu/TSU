@@ -76,7 +76,7 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
       form.reset();
       onClose();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -86,6 +86,16 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);
+        return;
+      }
+
+      // Handle service unavailable error (when live PayPal credentials are not configured)
+      if (error.status === 503 || error.message?.includes("temporarily unavailable")) {
+        toast({
+          title: "TSU Purchasing Temporarily Unavailable",
+          description: "TSU purchasing is currently disabled while we configure live payment processing. Please try again later.",
+          variant: "destructive",
+        });
         return;
       }
       
