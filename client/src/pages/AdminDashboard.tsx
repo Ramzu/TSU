@@ -9,6 +9,7 @@ import AddAdminModal from "@/components/AddAdminModal";
 import ContentEditor from "@/components/ContentEditor";
 import MetadataEditor from "@/pages/MetadataEditor";
 import SmtpConfigSection from "@/components/SmtpConfigSection";
+import EmailMessagingSection from "@/components/EmailMessagingSection";
 import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,8 @@ export default function AdminDashboard() {
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [showContentEditor, setShowContentEditor] = useState(false);
   const [showMetadataEditor, setShowMetadataEditor] = useState(false);
+  const [newTsuPrice, setNewTsuPrice] = useState("1.00");
+  const [updateReason, setUpdateReason] = useState("");
 
   // Fetch current content to get contact info (without Date.now to prevent infinite loop)
   const { data: contentData = [] } = useQuery({
@@ -144,6 +147,32 @@ export default function AdminDashboard() {
     }
   });
 
+  // Update pricing mutation
+  const updatePricingMutation = useMutation({
+    mutationFn: async (data: { tsuPrice: string; reason: string }) => {
+      return apiRequest('PUT', '/api/admin/tsu-rates', data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "✅ Exchange Rate Updated!",
+        description: "TSU exchange rate has been successfully updated",
+        duration: 5000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/tsu-rates'] });
+      setNewTsuPrice("1.00");
+      setUpdateReason("");
+    },
+    onError: (error: any) => {
+      console.error("Update pricing error:", error);
+      toast({
+        title: "❌ Update Failed", 
+        description: error.message || "Failed to update exchange rate",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  });
+
   const { data: stats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && (user.role === 'admin' || user.role === 'super_admin'),
@@ -158,6 +187,23 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/transactions"],
     enabled: !!user && (user.role === 'admin' || user.role === 'super_admin'),
   });
+
+  // Handle pricing update
+  const handleUpdatePricing = () => {
+    if (!newTsuPrice || parseFloat(newTsuPrice) <= 0) {
+      toast({
+        title: "Invalid Price",
+        description: "Please enter a valid TSU price greater than 0",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updatePricingMutation.mutate({
+      tsuPrice: newTsuPrice,
+      reason: updateReason || "Admin rate update"
+    });
+  };
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== 'admin' && user.role !== 'super_admin'))) {
@@ -575,7 +621,8 @@ export default function AdminDashboard() {
                             type="number"
                             step="0.01"
                             min="0.01"
-                            defaultValue="1.00"
+                            value={newTsuPrice}
+                            onChange={(e) => setNewTsuPrice(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
                             data-testid="input-new-price"
                           />
@@ -603,6 +650,8 @@ export default function AdminDashboard() {
                           <textarea
                             rows={3}
                             placeholder="e.g., Updated to reflect current market conditions"
+                            value={updateReason}
+                            onChange={(e) => setUpdateReason(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tsu-green"
                             data-testid="textarea-update-reason"
                           />
@@ -610,11 +659,12 @@ export default function AdminDashboard() {
                         
                         <Button 
                           className="w-full bg-tsu-green hover:bg-tsu-light-green"
-                          disabled
+                          onClick={() => handleUpdatePricing()}
+                          disabled={updatePricingMutation.isPending}
                           data-testid="button-update-pricing"
                         >
                           <Settings className="h-4 w-4 mr-2" />
-                          Update Pricing (Coming Soon)
+                          {updatePricingMutation.isPending ? "Updating..." : "Update Pricing"}
                         </Button>
                       </div>
                     </CardContent>
@@ -650,7 +700,11 @@ export default function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="email" className="p-6" data-testid="email-tab-content">
-                <SmtpConfigSection />
+                <div className="space-y-8">
+                  <SmtpConfigSection />
+                  <hr className="border-gray-200" />
+                  <EmailMessagingSection />
+                </div>
               </TabsContent>
 
               <TabsContent value="contact" className="p-6" data-testid="contact-tab-content">

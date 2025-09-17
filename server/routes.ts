@@ -1381,6 +1381,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin-only endpoint to update TSU exchange rates
+  app.put('/api/admin/tsu-rates', requireAdmin, async (req: any, res) => {
+    try {
+      const { tsuPrice, processingFee, reason } = req.body;
+      
+      if (!tsuPrice || isNaN(parseFloat(tsuPrice))) {
+        return res.status(400).json({ message: "Valid TSU price is required" });
+      }
+
+      const currentUser = req.currentUser;
+      
+      // Get current TSU rates to preserve existing values
+      const currentRates = await storage.getTsuRates();
+      
+      // Update the TSU rate in database
+      await storage.upsertTsuRates({
+        baseCurrency: 'USD',
+        tsuPrice: parseFloat(tsuPrice).toString(),
+        gasolineEquivalent: currentRates?.gasolineEquivalent || '1.0000',
+        cryptoRates: currentRates?.cryptoRates || { BTC: 0.000025, ETH: 0.0008 },
+        isActive: true,
+        updatedBy: currentUser.id,
+      });
+
+      res.json({ 
+        message: "TSU exchange rate updated successfully",
+        newRate: tsuPrice,
+        updatedBy: currentUser.email
+      });
+    } catch (error) {
+      console.error("Error updating TSU rate:", error);
+      res.status(500).json({ message: "Failed to update exchange rate" });
+    }
+  });
+
+  // Admin-only endpoint to send emails to users
+  app.post('/api/admin/send-email', requireAdmin, async (req: any, res) => {
+    try {
+      const { recipients, subject, message, isHtml = false } = req.body;
+      
+      if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        return res.status(400).json({ message: "Recipients list is required" });
+      }
+      
+      if (!subject || !message) {
+        return res.status(400).json({ message: "Subject and message are required" });
+      }
+
+      const currentUser = req.currentUser;
+      let successCount = 0;
+      let failureCount = 0;
+      const errors: string[] = [];
+
+      // Check for SMTP configuration first (preferred)
+      const smtpConfig = await storage.getSmtpConfig();
+      
+      if (smtpConfig && smtpConfig.host) {
+        // Use custom SMTP server
+        const nodemailer = require('nodemailer');
+        
+        const transporter = nodemailer.createTransport({
+          host: smtpConfig.host,
+          port: smtpConfig.port || 587,
+          secure: smtpConfig.secure || false,
+          auth: {
+            user: smtpConfig.username,
+            pass: smtpConfig.password,
+          },
+        });
+
+        // Send emails using custom SMTP
+        for (const recipientEmail of recipients) {
+          try {
+            const mailOptions = {
+              from: `${smtpConfig.fromName || 'TSU Wallet'} <${smtpConfig.fromEmail}>`,
+              to: recipientEmail,
+              subject: subject,
+              text: isHtml ? undefined : message,
+              html: isHtml ? message : undefined,
+            };
+
+            await transporter.sendMail(mailOptions);
+            successCount++;
+          } catch (error: any) {
+            console.error(`Failed to send email to ${recipientEmail}:`, error);
+            failureCount++;
+            errors.push(`${recipientEmail}: ${error.message}`);
+          }
+        }
+      } else if (process.env.SENDGRID_API_KEY) {
+        // Fallback to SendGrid if SMTP not configured
+        const sgMail = require('@sendgrid/mail');
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        
+        const fromEmail = 'admin@tsu-wallet.com';
+        
+        for (const recipientEmail of recipients) {
+          try {
+            const msg = {
+              to: recipientEmail,
+              from: fromEmail,
+              subject: subject,
+              text: isHtml ? undefined : message,
+              html: isHtml ? message : undefined,
+            };
+
+            await sgMail.send(msg);
+            successCount++;
+          } catch (error: any) {
+            console.error(`Failed to send email to ${recipientEmail}:`, error);
+            failureCount++;
+            errors.push(`${recipientEmail}: ${error.message}`);
+          }
+        }
+      } else {
+        return res.status(500).json({ 
+          message: "Email service not configured. Please configure SMTP settings in the Email tab or set SENDGRID_API_KEY." 
+        });
+      }
+
+      res.json({
+        message: `Email campaign completed. ${successCount} sent, ${failureCount} failed.`,
+        successCount,
+        failureCount,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error("Error sending emails:", error);
+      res.status(500).json({ message: "Failed to send emails" });
+    }
+  });
+
+  // Admin-only endpoint to get users for email targeting
+  app.get('/api/admin/users/emails', requireAdmin, async (req: any, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      const userEmails = users
+        .filter(user => user.email && user.isActive)
+        .map(user => ({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role
+        }));
+      
+      res.json(userEmails);
+    } catch (error) {
+      console.error("Error fetching user emails:", error);
+      res.status(500).json({ message: "Failed to fetch user emails" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
