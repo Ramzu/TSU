@@ -41,14 +41,14 @@ export default function Landing() {
       <section 
         className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green min-h-screen flex items-center"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1577495508048-b635879837f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
+          backgroundImage: "url('/tsu-header.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundBlendMode: 'overlay'
         }}
         data-testid="hero-section"
       >
-        <div className="absolute inset-0 bg-tsu-green bg-opacity-80"></div>
+        <div className="absolute inset-0 bg-tsu-green bg-opacity-60"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="flex justify-center mb-8">
