@@ -10,6 +10,13 @@ app.use(express.urlencoded({ extended: false }));
 // Serve attached assets (like the TSU logo)
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
+// Helper function to get the site URL for Open Graph tags
+function getSiteUrl(req: Request): string {
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+  return process.env.SITE_URL || `${protocol}://${host}`;
+}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -50,6 +57,22 @@ app.use((req, res, next) => {
 
     res.status(status).json({ message });
     throw err;
+  });
+
+  // Add middleware to transform Open Graph URLs to absolute URLs for all environments
+  app.use((req, res, next) => {
+    if (req.path === '/' || req.path.endsWith('.html')) {
+      const originalSend = res.send;
+      res.send = function(html: any) {
+        if (typeof html === 'string' && html.includes('<meta property="og:')) {
+          const siteUrl = getSiteUrl(req);
+          html = html.replace(/content="\/og-image\.jpg"/g, `content="${siteUrl}/og-image.jpg"`);
+          html = html.replace(/content="\/"/g, `content="${siteUrl}/"`);
+        }
+        return originalSend.call(this, html);
+      };
+    }
+    next();
   });
 
   // importantly only setup vite in development and after
