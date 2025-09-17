@@ -1,9 +1,10 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import SimpleLoginModal from "@/components/SimpleLoginModal";
+import ContactModal from "@/components/ContactModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle } from "lucide-react";
+import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Footer from "@/components/Footer";
@@ -18,6 +19,7 @@ interface ContentItem {
 export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
+  const [showContactModal, setShowContactModal] = useState(false);
   const { t } = useTranslation();
   
   const { data: content = [] } = useQuery<ContentItem[]>({
@@ -353,19 +355,35 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
           <p className="text-xl text-tsu-dark-green mb-8" data-testid="cta-subtitle">
             {getContent('cta-subtitle', 'Join thousands of businesses already using TSU for seamless Africa-BRICS trade settlements.')}
           </p>
-          <Button 
-            size="lg" 
-            className="bg-tsu-green text-white hover:bg-tsu-dark-green px-8 py-3 text-lg font-semibold"
-            onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
-            data-testid="button-create-wallet"
-          >
-            {t('hero.getStarted')}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              size="lg" 
+              className="bg-tsu-green text-white hover:bg-tsu-dark-green px-8 py-3 text-lg font-semibold"
+              onClick={() => { setLoginModalMode('register'); setShowLoginModal(true); }}
+              data-testid="button-create-wallet"
+            >
+              {t('hero.getStarted')}
+            </Button>
+            <Button 
+              size="lg"
+              variant="outline"
+              className="border-2 border-tsu-green text-tsu-green hover:bg-tsu-green hover:text-white px-8 py-3 text-lg font-semibold"
+              onClick={() => setShowContactModal(true)}
+              data-testid="button-contact-us"
+            >
+              <MessageCircle className="h-5 w-5 mr-2" />
+              Contact Us
+            </Button>
+          </div>
         </div>
       </section>
       
       {/* Login Modal */}
       <SimpleLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} mode={loginModalMode} />
+      
+      {/* Contact Modal */}
+      <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
+      
       <Footer />
     </div>
   );
