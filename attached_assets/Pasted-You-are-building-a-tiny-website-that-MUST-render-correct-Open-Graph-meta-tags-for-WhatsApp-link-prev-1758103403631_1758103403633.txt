@@ -1,0 +1,69 @@
+You are building a tiny website that MUST render correct Open Graph meta tags for WhatsApp link previews. Requirements:
+
+1) Framework & rendering
+- Generate a single SSR HTML page served at "/" (no client-side injection for meta; tags must be in the initial HTML response).
+- Use a minimal Node.js + Express server OR a static HTML file served by a simple server. Do NOT rely on client-side frameworks to add <meta> tags after load.
+
+2) Static asset handling
+- Serve a user-provided image from a public HTTPS URL (e.g., /public/og-image.jpg). Ensure the image URL is absolute in the meta tag (https://<project-subdomain>.<repl.co>/og-image.jpg).
+- Configure Express to serve /public as static (if using Express). The image must return HTTP 200, correct Content-Type, and not require authentication.
+
+3) Open Graph tags (must be in initial HTML):
+<head>
+  <meta charset="utf-8" />
+  <title>{{SITE_TITLE}}</title>
+  <meta name="description" content="{{SITE_DESCRIPTION}}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{SITE_TITLE}}" />
+  <meta property="og:description" content="{{SITE_DESCRIPTION}}" />
+  <meta property="og:url" content="https://{{PUBLIC_HOST}}/" />
+  <meta property="og:image" content="https://{{PUBLIC_HOST}}/og-image.jpg" />
+  <meta property="og:image:secure_url" content="https://{{PUBLIC_HOST}}/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Recommended extras -->
+  <link rel="canonical" href="https://{{PUBLIC_HOST}}/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{SITE_TITLE}}" />
+  <meta name="twitter:description" content="{{SITE_DESCRIPTION}}" />
+  <meta name="twitter:image" content="https://{{PUBLIC_HOST}}/og-image.jpg" />
+</head>
+
+4) Content
+- In the body, render a simple landing section that mirrors the title/description so the page is useful without meta.
+
+5) Image constraints for WhatsApp
+- Use the user's attached image as /public/og-image.jpg.
+- If the image isn't already sized, auto-generate a 1200x630 version (JPEG or PNG) under 5MB, and serve that at /public/og-image.jpg.
+- Ensure the server sends: Content-Type: image/jpeg (or image/png) and a valid Content-Length.
+
+6) Robots / caching
+- Do NOT block bots. No <meta name="robots" content="noindex"> and no robots.txt disallow for / or /og-image.jpg.
+- Set Cache-Control for HTML to a short value (e.g., max-age=60) and for the image to a longer one (e.g., max-age=31536000, immutable).
+
+7) Health & status
+- HTML route "/" must return HTTP 200 (not 3xx or 4xx).
+- The og:image URL must return HTTP 200 from a direct GET.
+
+8) Configuration variables to surface in the editor:
+- SITE_TITLE (string, default: "My Site")
+- SITE_DESCRIPTION (string, default: "A short description that will appear in previews.")
+- PUBLIC_HOST (string, auto-detect from Replit deployment domain if possible; otherwise show a note to set it manually)
+
+9) Output files
+- server.js (Express server with static /public)
+- public/og-image.jpg (placeholder if user hasn’t uploaded yet)
+- views/index.html (SSR template with the meta tags above)
+- README.md with a “WhatsApp preview checklist” below.
+
+10) WhatsApp preview checklist (include in README.md and render in console on start):
+- [ ] Deployed at an HTTPS URL reachable publicly
+- [ ] Visit https://developers.facebook.com/tools/debug/ (Sharing Debugger), enter your site URL, and click “Scrape Again”
+- [ ] Confirm “Link Preview” shows your image and text
+- [ ] If the image still doesn’t appear: ensure og:image is absolute HTTPS, status 200, <5MB, 1200×630, correct Content-Type
+- [ ] Avoid meta refresh/JS redirects; keep canonical pointing to the exact URL you share
+
+IMPORTANT: Do NOT rely on client-side rendering for meta tags. The meta tags must be present in the first HTML byte served from "/".
