@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useWeb3 } from "@/providers/Web3Provider";
 
 declare global {
   interface Window {
@@ -20,11 +21,9 @@ interface CryptoWalletProps {
 }
 
 export default function CryptoWallet({ amount, currency, onPaymentComplete, onPaymentError }: CryptoWalletProps) {
-  const [account, setAccount] = useState<string | null>(null);
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const { account, provider, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
 
   // Conversion rates (simplified - in production these should come from an API)
   const RATES = {
@@ -34,43 +33,21 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
 
   const cryptoAmount = (parseFloat(amount) * RATES[currency]).toFixed(8);
 
-  const connectWallet = async () => {
-    setIsConnecting(true);
-    try {
-      if (currency === "ETH") {
-        if (window.ethereum) {
-          const ethProvider = new ethers.BrowserProvider(window.ethereum);
-          const accounts = await window.ethereum.request({
-            method: "eth_requestAccounts",
-          });
-          setAccount(accounts[0]);
-          setProvider(ethProvider);
-          toast({
-            title: "Wallet Connected",
-            description: "Ethereum wallet connected successfully",
-          });
-        } else {
-          throw new Error("No Ethereum wallet found");
-        }
-      } else if (currency === "BTC") {
-        // For Bitcoin, we'll simulate wallet connection
-        // In production, you'd integrate with actual Bitcoin wallet providers
-        toast({
-          title: "Bitcoin Payment",
-          description: "Bitcoin payment simulation - feature coming soon",
-          variant: "destructive",
-        });
+  const handleConnectWallet = async () => {
+    if (currency === "ETH") {
+      await connectWallet();
+      if (web3Error) {
+        onPaymentError(web3Error);
       }
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
-      onPaymentError("Failed to connect wallet");
+    } else if (currency === "BTC") {
+      // For Bitcoin, we'll simulate wallet connection
+      // In production, you'd integrate with actual Bitcoin wallet providers
       toast({
-        title: "Connection Failed",
-        description: "Failed to connect to wallet",
+        title: "Bitcoin Payment",
+        description: "Bitcoin payment simulation - feature coming soon",
         variant: "destructive",
       });
-    } finally {
-      setIsConnecting(false);
+      onPaymentError("Bitcoin payments not yet implemented");
     }
   };
 
@@ -132,14 +109,6 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
     }
   };
 
-  const disconnectWallet = () => {
-    setAccount(null);
-    setProvider(null);
-    toast({
-      title: "Wallet Disconnected",
-      description: "Wallet has been disconnected",
-    });
-  };
 
   return (
     <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
@@ -163,9 +132,9 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
             </div>
           </div>
 
-          {currency === "ETH" && !account && (
+          {currency === "ETH" && !isConnected && (
             <Button
-              onClick={connectWallet}
+              onClick={handleConnectWallet}
               disabled={isConnecting}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
               data-testid="button-connect-eth-wallet"
@@ -174,10 +143,10 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
             </Button>
           )}
 
-          {currency === "ETH" && account && (
+          {currency === "ETH" && isConnected && (
             <div className="space-y-2">
               <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
-                Connected: {account.slice(0, 6)}...{account.slice(-4)}
+                Connected: {account?.slice(0, 6)}...{account?.slice(-4)}
               </div>
               <div className="flex space-x-2">
                 <Button
