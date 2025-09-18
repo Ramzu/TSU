@@ -378,12 +378,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // TSU purchase endpoint
   app.post('/api/tsu/purchase', async (req: any, res) => {
     try {
-      // Block purchasing if live PayPal credentials are not configured
-      if (!hasLivePayPalCredentials()) {
+      // Get payment method from request body first to check if we need PayPal
+      const { amount, currency, paymentMethod, paymentReference } = req.body;
+      
+      // Block PayPal purchases if live PayPal credentials are not configured
+      if (paymentMethod === 'paypal' && !hasLivePayPalCredentials()) {
         return res.status(503).json({ 
-          message: "TSU purchasing is temporarily unavailable", 
+          message: "PayPal purchasing is temporarily unavailable", 
           error: "Service configuration in progress",
-          details: "TSU purchasing is currently disabled while we configure live payment processing. Please try again later."
+          details: "PayPal purchasing is currently disabled while we configure live payment processing. Please try cryptocurrency payments instead."
         });
       }
 
@@ -396,8 +399,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      
-      const { amount, currency, paymentMethod, paymentReference } = req.body;
       
       // Validate input
       if (!amount || amount <= 0) {

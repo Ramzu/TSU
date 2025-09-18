@@ -90,19 +90,31 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
         await tx.wait();
 
         // Record the transaction in our system
-        await apiRequest("POST", "/api/tsu/purchase", {
-          amount: amount,
-          currency: "USD",
-          paymentMethod: "ethereum",
-          paymentReference: tx.hash,
-        });
+        try {
+          const response = await apiRequest("POST", "/api/tsu/purchase", {
+            amount: amount,
+            currency: "USD",
+            paymentMethod: "ethereum",
+            paymentReference: tx.hash,
+          });
+          
+          const purchaseData = await response.json();
+          
+          toast({
+            title: "Purchase Successful",
+            description: `Successfully purchased ${parseFloat(purchaseData.transaction.amount).toFixed(2)} TSU with Ethereum! TX: ${tx.hash.slice(0, 10)}...`,
+          });
 
-        toast({
-          title: "Payment Successful",
-          description: `Ethereum payment completed. TX: ${tx.hash.slice(0, 10)}...`,
-        });
-
-        onPaymentComplete();
+          onPaymentComplete();
+        } catch (purchaseError: any) {
+          console.error("TSU purchase failed:", purchaseError);
+          toast({
+            title: "Payment Processed, TSU Purchase Failed", 
+            description: `Ethereum payment succeeded (TX: ${tx.hash.slice(0, 10)}...) but TSU purchase failed. Please contact support.`,
+            variant: "destructive",
+          });
+          onPaymentError(`TSU purchase failed: ${purchaseError.message || 'Unknown error'}`);
+        }
       } else if (currency === "BTC") {
         // Bitcoin payment simulation
         // In production, integrate with Bitcoin payment processors
