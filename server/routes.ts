@@ -377,6 +377,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wallet verification endpoints
+  app.post('/api/wallet/verify-challenge', async (req: any, res) => {
+    try {
+      // Get authenticated user
+      let userId;
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Generate a challenge message for the user to sign
+      const nonce = Date.now().toString();
+      const challenge = `Verify wallet ownership for TSU account ${userId} at ${nonce}`;
+      
+      // Store challenge in session temporarily
+      req.session.walletChallenge = { challenge, nonce, userId };
+      
+      res.json({ challenge });
+    } catch (error) {
+      console.error("Error generating wallet challenge:", error);
+      res.status(500).json({ message: "Failed to generate challenge" });
+    }
+  });
+
+  app.post('/api/wallet/verify-signature', async (req: any, res) => {
+    try {
+      const { signature, address } = req.body;
+      
+      // Get authenticated user
+      let userId;
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Check if we have a challenge for this session
+      const challengeData = req.session.walletChallenge;
+      if (!challengeData || challengeData.userId !== userId) {
+        return res.status(400).json({ message: "No valid challenge found" });
+      }
+
+      // Verify the signature matches the address and challenge
+      const recoveredAddress = ethers.verifyMessage(challengeData.challenge, signature);
+      
+      if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+        return res.status(400).json({ message: "Invalid signature" });
+      }
+
+      // Update user's verified Ethereum address
+      await storage.updateUserVerifiedEthAddress(userId, address.toLowerCase());
+      
+      // Clear the challenge from session
+      delete req.session.walletChallenge;
+      
+      res.json({ 
+        success: true,
+        verifiedAddress: address.toLowerCase(),
+        message: "Wallet verified successfully"
+      });
+    } catch (error) {
+      console.error("Error verifying wallet signature:", error);
+      res.status(500).json({ message: "Failed to verify wallet" });
+    }
+  });
+
   // TSU purchase endpoint
   app.post('/api/tsu/purchase', async (req: any, res) => {
     try {
@@ -477,11 +548,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           (parseFloat(amount) / ethPrice).toString()
         ).toString();
         
+        // Verify user has a verified Ethereum address
+        if (!user.verifiedEthAddress) {
+          return res.status(400).json({ 
+            message: "Ethereum wallet not verified",
+            error: "You must verify your Ethereum wallet address before making payments"
+          });
+        }
+
         // Use hardened verification with 3 confirmations and receipt checking
         const verification = await paymentVerification.verifyEthereumTransaction(
           paymentReference,
           expectedAddress,
-          expectedAmountWei
+          expectedAmountWei,
+          user.verifiedEthAddress
         );
         
         if (!verification.verified) {

@@ -54,6 +54,7 @@ export const users = pgTable("users", {
   country: countryEnum("country"),
   role: userRoleEnum("role").default('user'),
   tsuBalance: decimal("tsu_balance", { precision: 18, scale: 8 }).default('0'),
+  verifiedEthAddress: varchar("verified_eth_address"), // User's verified Ethereum wallet address
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

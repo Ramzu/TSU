@@ -16,13 +16,15 @@ export class PaymentVerificationService {
    * @param txHash - Transaction hash to verify
    * @param expectedAddress - Expected recipient address
    * @param expectedAmountWei - Expected amount in wei
-   * @param minConfirmations - Minimum confirmations required (default: 1)
+   * @param expectedFromAddress - Expected sender address (user's verified wallet)
+   * @param minConfirmations - Minimum confirmations required (default: 3)
    */
   async verifyEthereumTransaction(
     txHash: string,
     expectedAddress: string,
     expectedAmountWei: string,
-minConfirmations: number = 3
+    expectedFromAddress?: string,
+    minConfirmations: number = 3
   ): Promise<{
     verified: boolean;
     transaction?: any;
@@ -64,9 +66,11 @@ minConfirmations: number = 3
       // Verify transaction details
       const isValidRecipient = tx.to?.toLowerCase() === expectedAddress.toLowerCase();
       const isValidAmount = tx.value.toString() === expectedAmountWei;
+      const isValidSender = expectedFromAddress ? 
+        tx.from?.toLowerCase() === expectedFromAddress.toLowerCase() : true;
       const hasMinConfirmations = confirmations >= minConfirmations;
 
-      const verified = isValidRecipient && isValidAmount && hasMinConfirmations;
+      const verified = isValidRecipient && isValidAmount && isValidSender && hasMinConfirmations;
 
       return {
         verified,
@@ -75,6 +79,7 @@ minConfirmations: number = 3
         error: verified ? undefined : 
           !isValidRecipient ? 'Invalid recipient address' :
           !isValidAmount ? `Invalid amount: expected ${expectedAmountWei} wei, got ${tx.value.toString()} wei` :
+          !isValidSender ? 'Invalid sender address - transaction must come from your verified wallet' :
           !hasMinConfirmations ? `Insufficient confirmations (${confirmations}/${minConfirmations})` :
           'Unknown error'
       };
