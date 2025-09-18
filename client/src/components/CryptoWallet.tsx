@@ -32,8 +32,8 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
 
   // Payment addresses loaded from environment variables
   const DEFAULT_PAYMENT_ADDRESSES = {
-    ETH: import.meta.env.VITE_CRYPTO_ETH_ADDRESS || "0x742d35Cc6565C3E31fD2a8a7aEf7Ef01dD1E2E0C", // Fallback demo address
-    BTC: import.meta.env.VITE_CRYPTO_BTC_ADDRESS || "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Fallback demo address
+    ETH: import.meta.env.VITE_CRYPTO_ETH_ADDRESS || "0xa02476e87E6646C824dfb1C6aa071B5A73DAcc80", // Your Ethereum address
+    BTC: import.meta.env.VITE_CRYPTO_BTC_ADDRESS || "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Bitcoin address needed
   };
 
   const getPaymentAddress = () => {
