@@ -30,10 +30,10 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
   const { toast } = useToast();
   const { account, provider, walletType, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
 
-  // Default payment addresses (in production these should be configured securely)
+  // Payment addresses loaded from environment variables
   const DEFAULT_PAYMENT_ADDRESSES = {
-    ETH: "0x742d35Cc6565C3E31fD2a8a7aEf7Ef01dD1E2E0C", // Demo address
-    BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Demo address
+    ETH: import.meta.env.VITE_CRYPTO_ETH_ADDRESS || "0x742d35Cc6565C3E31fD2a8a7aEf7Ef01dD1E2E0C", // Fallback demo address
+    BTC: import.meta.env.VITE_CRYPTO_BTC_ADDRESS || "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Fallback demo address
   };
 
   const getPaymentAddress = () => {

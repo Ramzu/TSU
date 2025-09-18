@@ -6,6 +6,8 @@ import { insertTransactionSchema, insertCoinSupplySchema, insertContentSchema, i
 import { z } from "zod";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import { emailService } from "./emailService";
+import { paymentVerification } from "./paymentVerification";
+import { ethers } from "ethers";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 
@@ -419,9 +421,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.00; // Default 1 USD per TSU
       const tsuAmount = (netAmount / tsuPrice).toString();
       
-      // For PayPal, only update balance if payment reference is provided (payment confirmed)
+      // Verify payment based on payment method
       if (paymentMethod === 'paypal' && !paymentReference) {
         return res.status(400).json({ message: "Payment confirmation required for PayPal transactions" });
+      }
+      
+      if (paymentMethod === 'ethereum') {
+        if (!paymentReference) {
+          return res.status(400).json({ message: "Transaction hash required for Ethereum payments" });
+        }
+        
+        // Verify Ethereum transaction
+        const expectedAddress = process.env.CRYPTO_ETH_ADDRESS;
+        if (!expectedAddress) {
+          return res.status(500).json({ message: "Ethereum payment address not configured" });
+        }
+        
+        // Get ETH price from crypto rates or use fallback
+        let ethPrice = 2000; // fallback ETH price in USD
+        if (rates && rates.cryptoRates) {
+          try {
+            const cryptoRatesData = rates.cryptoRates as any;
+            if (cryptoRatesData?.ETH) {
+              ethPrice = cryptoRatesData.ETH;
+            }
+          } catch (e) {
+            console.log('Using fallback ETH price');
+          }
+        }
+        
+        const expectedAmountWei = ethers.parseEther(
+          (parseFloat(amount) / ethPrice).toString()
+        ).toString();
+        
+        const verification = await paymentVerification.verifyEthereumTransaction(
+          paymentReference,
+          expectedAddress,
+          expectedAmountWei,
+          1 // Require 1 confirmation
+        );
+        
+        if (!verification.verified) {
+          return res.status(400).json({ 
+            message: "Payment verification failed",
+            error: verification.error 
+          });
+        }
       }
       
       // Update user balance
