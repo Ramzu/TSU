@@ -22,7 +22,7 @@ export class PaymentVerificationService {
     txHash: string,
     expectedAddress: string,
     expectedAmountWei: string,
-    minConfirmations: number = 1
+minConfirmations: number = 3
   ): Promise<{
     verified: boolean;
     transaction?: any;
@@ -38,6 +38,23 @@ export class PaymentVerificationService {
       const tx = await this.ethProvider.getTransaction(txHash);
       if (!tx) {
         return { verified: false, error: 'Transaction not found' };
+      }
+
+      // Get transaction receipt to verify success
+      const receipt = await this.ethProvider.getTransactionReceipt(txHash);
+      if (!receipt) {
+        return { verified: false, error: 'Transaction receipt not found' };
+      }
+
+      // Check if transaction succeeded (status = 1)
+      if (receipt.status !== 1) {
+        return { verified: false, error: 'Transaction failed or reverted' };
+      }
+
+      // Verify we're on mainnet (chain ID 1)
+      const network = await this.ethProvider.getNetwork();
+      if (Number(network.chainId) !== 1) {
+        return { verified: false, error: `Wrong network: expected mainnet (1), got ${network.chainId}` };
       }
 
       // Get current block number for confirmation count
@@ -57,7 +74,7 @@ export class PaymentVerificationService {
         confirmations,
         error: verified ? undefined : 
           !isValidRecipient ? 'Invalid recipient address' :
-          !isValidAmount ? 'Invalid amount' :
+          !isValidAmount ? `Invalid amount: expected ${expectedAmountWei} wei, got ${tx.value.toString()} wei` :
           !hasMinConfirmations ? `Insufficient confirmations (${confirmations}/${minConfirmations})` :
           'Unknown error'
       };

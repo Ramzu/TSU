@@ -383,6 +383,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get payment method from request body first to check if we need PayPal
       const { amount, currency, paymentMethod, paymentReference } = req.body;
       
+      // Block unsupported payment methods
+      const supportedMethods = ['ethereum', 'paypal'];
+      if (!supportedMethods.includes(paymentMethod)) {
+        return res.status(400).json({ 
+          message: "Unsupported payment method",
+          supportedMethods
+        });
+      }
+      
       // Block PayPal purchases if live PayPal credentials are not configured
       if (paymentMethod === 'paypal' && !hasLivePayPalCredentials()) {
         return res.status(503).json({ 
@@ -421,6 +430,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tsuPrice = rates ? parseFloat(rates.tsuPrice) : 1.00; // Default 1 USD per TSU
       const tsuAmount = (netAmount / tsuPrice).toString();
       
+      // Initialize ethPrice for verification data
+      let ethPrice: number | undefined;
+      
+      // Check for replay attacks - ensure payment reference hasn't been used
+      if (paymentReference) {
+        const existingPayment = await storage.getProcessedPayment(paymentReference);
+        if (existingPayment) {
+          return res.status(409).json({ 
+            message: "Payment already processed",
+            error: "This transaction has already been used for a TSU purchase" 
+          });
+        }
+      }
+      
       // Verify payment based on payment method
       if (paymentMethod === 'paypal' && !paymentReference) {
         return res.status(400).json({ message: "Payment confirmation required for PayPal transactions" });
@@ -454,11 +477,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           (parseFloat(amount) / ethPrice).toString()
         ).toString();
         
+        // Use hardened verification with 3 confirmations and receipt checking
         const verification = await paymentVerification.verifyEthereumTransaction(
           paymentReference,
           expectedAddress,
-          expectedAmountWei,
-          1 // Require 1 confirmation
+          expectedAmountWei
         );
         
         if (!verification.verified) {
@@ -467,6 +490,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: verification.error 
           });
         }
+      }
+      
+      // Record this payment as processed to prevent replay
+      if (paymentReference) {
+        await storage.recordProcessedPayment({
+          paymentReference,
+          paymentMethod,
+          userId,
+          amountProcessed: amount,
+          tsuCredited: tsuAmount,
+          verificationData: { tsuPrice, ethPrice: paymentMethod === 'ethereum' ? ethPrice : undefined }
+        });
       }
       
       // Update user balance

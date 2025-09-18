@@ -116,14 +116,12 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
           onPaymentError(`TSU purchase failed: ${purchaseError.message || 'Unknown error'}`);
         }
       } else if (currency === "BTC") {
-        // Bitcoin payment simulation
-        // In production, integrate with Bitcoin payment processors
         toast({
-          title: "Bitcoin Payment",
-          description: "Bitcoin payments coming soon",
+          title: "Bitcoin Disabled",
+          description: "Bitcoin payments are disabled for security",
           variant: "destructive",
         });
-        onPaymentError("Bitcoin payments not yet implemented");
+        onPaymentError("Bitcoin payments are disabled");
       }
     } catch (error) {
       console.error("Payment error:", error);

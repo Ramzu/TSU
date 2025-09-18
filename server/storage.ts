@@ -16,6 +16,7 @@ import {
   exchangeRates,
   securityLogs,
   loginAttempts,
+  processedPayments,
   type User,
   type UpsertUser,
   type InsertTransaction,
@@ -50,6 +51,8 @@ import {
   type SecurityLog,
   type InsertLoginAttempt,
   type LoginAttempt,
+  type InsertProcessedPayment,
+  type ProcessedPayment,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray } from "drizzle-orm";
@@ -145,6 +148,10 @@ export interface IStorage {
   getUserSecurityLogs(userId: string, limit?: number): Promise<SecurityLog[]>;
   createLoginAttempt(attempt: InsertLoginAttempt): Promise<LoginAttempt>;
   getRecentLoginAttempts(email: string, hoursBack?: number): Promise<LoginAttempt[]>;
+  
+  // Payment verification for replay protection
+  getProcessedPayment(paymentReference: string): Promise<ProcessedPayment | undefined>;
+  recordProcessedPayment(payment: InsertProcessedPayment): Promise<ProcessedPayment>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -664,6 +671,23 @@ export class DatabaseStorage implements IStorage {
         desc(loginAttempts.createdAt)
       ))
       .orderBy(desc(loginAttempts.createdAt));
+  }
+
+  // Payment verification for replay protection
+  async getProcessedPayment(paymentReference: string): Promise<ProcessedPayment | undefined> {
+    const [payment] = await db
+      .select()
+      .from(processedPayments)
+      .where(eq(processedPayments.paymentReference, paymentReference));
+    return payment;
+  }
+
+  async recordProcessedPayment(payment: InsertProcessedPayment): Promise<ProcessedPayment> {
+    const [newPayment] = await db
+      .insert(processedPayments)
+      .values(payment)
+      .returning();
+    return newPayment;
   }
 }
 

@@ -215,6 +215,18 @@ export const insertPaymentTransactionSchema = createInsertSchema(paymentTransact
   createdAt: true,
 });
 
+// Payment verification tracking for replay protection
+export const processedPayments = pgTable("processed_payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  paymentReference: varchar("payment_reference").notNull().unique(), // tx hash
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  amountProcessed: decimal("amount_processed", { precision: 18, scale: 8 }).notNull(),
+  tsuCredited: decimal("tsu_credited", { precision: 18, scale: 8 }).notNull(),
+  verificationData: jsonb("verification_data"), // receipt, confirmations etc
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Password reset tokens table
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -586,6 +598,14 @@ export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertSecurityLog = z.infer<typeof insertSecurityLogSchema>;
 export type SecurityLog = typeof securityLogs.$inferSelect;
+
+export const insertProcessedPaymentSchema = createInsertSchema(processedPayments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertProcessedPayment = z.infer<typeof insertProcessedPaymentSchema>;
+export type ProcessedPayment = typeof processedPayments.$inferSelect;
 
 // Country options for forms
 export const COUNTRY_OPTIONS = [
