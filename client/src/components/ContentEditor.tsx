@@ -102,7 +102,7 @@ export default function ContentEditor({ onClose }: ContentEditorProps) {
       'terms-termination-title': 'Account Termination',
       'terms-termination-content': '<p>We may suspend or terminate your account if:</p><ul><li>You violate these terms of service</li><li>You engage in prohibited activities</li><li>Required by law or regulatory directive</li><li>To protect the platform or other users</li></ul><p>You may close your account at any time by contacting support. TSU balances will be handled according to applicable regulations.</p>',
       'terms-contact-title': 'Contact Information',
-      'terms-contact-content': '<p>For questions about these Terms of Service:</p><p><strong>Legal Department</strong><br/>Email: legal@tsu-wallet.com<br/>Address: TSU Authority Legal Office<br/>Phone: +1-555-TSU-LEGAL</p>',
+      'terms-contact-content': '<p>For questions about these Terms of Service:</p><p><strong>Legal Department</strong><br/>Email: legal@tsunit.com</p>',
       // Monthly Audit Reports Content
       'audit-title': 'Monthly Audit Reports',
       'audit-intro': 'Transparency and accountability are core to TSU operations. Our monthly audit reports provide detailed insights into reserve backing, transaction volumes, and platform security.',

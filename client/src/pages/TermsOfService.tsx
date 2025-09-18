@@ -177,7 +177,7 @@ export default function TermsOfService() {
               <div className="prose max-w-none" data-testid="text-terms-contact">
                 <div dangerouslySetInnerHTML={{ 
                   __html: getContent('terms-contact-content', 
-                    '<p>For questions about these Terms of Service:</p><p><strong>Legal Department</strong><br/>Email: legal@tsu-wallet.com<br/>Address: TSU Authority Legal Office<br/>Phone: +1-555-TSU-LEGAL</p>'
+                    '<p>For questions about these Terms of Service:</p><p><strong>Legal Department</strong><br/>Email: legal@tsunit.com</p>'
                   )
                 }} />
               </div>
