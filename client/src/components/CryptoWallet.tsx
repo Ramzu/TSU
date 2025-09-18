@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useWeb3 } from "@/providers/Web3Provider";
 import { fetchCryptoPrices, calculateCryptoAmount } from "@/lib/cryptoService";
+import WalletSelector from "@/components/WalletSelector";
 
 declare global {
   interface Window {
@@ -27,7 +28,7 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
   const [rates, setRates] = useState<{ BTC: number; ETH: number } | null>(null);
   const [isLoadingRates, setIsLoadingRates] = useState(true);
   const { toast } = useToast();
-  const { account, provider, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
+  const { account, provider, walletType, isConnected, isConnecting, connectWallet, disconnectWallet, error: web3Error } = useWeb3();
 
   // Default payment addresses (in production these should be configured securely)
   const DEFAULT_PAYMENT_ADDRESSES = {
@@ -65,37 +66,6 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
     ? calculateCryptoAmount(parseFloat(amount), currency, rates)
     : "Loading...";
 
-  const handleConnectWallet = async () => {
-    if (currency === "ETH") {
-      try {
-        await connectWallet();
-        if (!isConnected) {
-          throw new Error("Failed to connect wallet");
-        }
-        toast({
-          title: "Wallet Connected",
-          description: "Ethereum wallet connected successfully",
-        });
-      } catch (error: any) {
-        const errorMessage = error.message || web3Error || "Failed to connect wallet";
-        toast({
-          title: "Connection Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        onPaymentError(errorMessage);
-      }
-    } else if (currency === "BTC") {
-      // For Bitcoin, we'll simulate wallet connection
-      // In production, you'd integrate with actual Bitcoin wallet providers
-      toast({
-        title: "Bitcoin Payment",
-        description: "Bitcoin payment simulation - feature coming soon",
-        variant: "destructive",
-      });
-      onPaymentError("Bitcoin payments not yet implemented");
-    }
-  };
 
   const processPayment = async () => {
     if (!account && currency === "ETH") {
@@ -180,20 +150,20 @@ export default function CryptoWallet({ amount, currency, onPaymentComplete, onPa
           </div>
 
           {currency === "ETH" && !isConnected && (
-            <Button
-              onClick={handleConnectWallet}
-              disabled={isConnecting}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              data-testid="button-connect-eth-wallet"
-            >
-              {isConnecting ? "Connecting..." : "Connect Ethereum Wallet"}
-            </Button>
+            <WalletSelector 
+              onWalletConnect={() => {
+                toast({
+                  title: "Wallet Connected",
+                  description: `Successfully connected via ${walletType === 'metamask' ? 'MetaMask' : 'WalletConnect'}`,
+                });
+              }}
+            />
           )}
 
           {currency === "ETH" && isConnected && (
             <div className="space-y-2">
               <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
-                Connected: {account?.slice(0, 6)}...{account?.slice(-4)}
+                Connected via {walletType === 'metamask' ? 'MetaMask' : walletType === 'walletconnect' ? 'WalletConnect' : 'Wallet'}: {account?.slice(0, 6)}...{account?.slice(-4)}
               </div>
               <div className="flex space-x-2">
                 <Button
