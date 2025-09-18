@@ -10,6 +10,7 @@ import { paymentVerification } from "./paymentVerification";
 import { ethers } from "ethers";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
+import * as bitcoinMessage from "bitcoinjs-message";
 
 // Utility function to check if live PayPal credentials are configured
 function hasLivePayPalCredentials(): boolean {
@@ -448,14 +449,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bitcoin wallet verification endpoints
+  app.post('/api/wallet/bitcoin/verify-challenge', async (req: any, res) => {
+    try {
+      // Get authenticated user
+      let userId;
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Generate a challenge message for the user to sign with their Bitcoin wallet
+      const nonce = Date.now().toString();
+      const challenge = `Verify Bitcoin wallet ownership for TSU account ${userId} at ${nonce}`;
+      
+      // Store challenge in session temporarily
+      req.session.btcWalletChallenge = { challenge, nonce, userId };
+      
+      res.json({ challenge });
+    } catch (error) {
+      console.error("Error generating Bitcoin wallet challenge:", error);
+      res.status(500).json({ message: "Failed to generate challenge" });
+    }
+  });
+
+  app.post('/api/wallet/bitcoin/verify-signature', async (req: any, res) => {
+    try {
+      const { signature, address } = req.body;
+      
+      // Get authenticated user
+      let userId;
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Check if we have a challenge for this session
+      const challengeData = req.session.btcWalletChallenge;
+      if (!challengeData || challengeData.userId !== userId) {
+        return res.status(400).json({ message: "No valid challenge found" });
+      }
+
+      // Verify the Bitcoin signature matches the address and challenge
+      let isValid = false;
+      try {
+        isValid = bitcoinMessage.verify(challengeData.challenge, address, signature);
+      } catch (error) {
+        console.error('Bitcoin signature verification error:', error);
+        return res.status(400).json({ message: "Invalid signature format" });
+      }
+      
+      if (!isValid) {
+        return res.status(400).json({ message: "Invalid signature" });
+      }
+
+      // Update user's verified Bitcoin address
+      await storage.updateUserVerifiedBtcAddress(userId, address);
+      
+      // Clear the challenge from session
+      delete req.session.btcWalletChallenge;
+      
+      res.json({ 
+        success: true,
+        verifiedAddress: address,
+        message: "Bitcoin wallet verified successfully"
+      });
+    } catch (error) {
+      console.error("Error verifying Bitcoin wallet signature:", error);
+      res.status(500).json({ message: "Failed to verify Bitcoin wallet" });
+    }
+  });
+
   // TSU purchase endpoint
   app.post('/api/tsu/purchase', async (req: any, res) => {
     try {
-      // Get payment method from request body first to check if we need PayPal
-      const { amount, currency, paymentMethod, paymentReference } = req.body;
+      // SECURITY: ATOMIC REPLAY PROTECTION - Check this FIRST before any other processing
+      const { paymentReference } = req.body;
+      if (paymentReference) {
+        const existingPayment = await storage.getProcessedPayment(paymentReference);
+        if (existingPayment) {
+          return res.status(409).json({ 
+            message: "Payment already processed",
+            error: "This transaction has already been used for a TSU purchase" 
+          });
+        }
+      }
+
+      // Get payment method from request body 
+      const { amount, currency, paymentMethod } = req.body;
       
       // Block unsupported payment methods
-      const supportedMethods = ['ethereum', 'paypal'];
+      const supportedMethods = ['ethereum', 'bitcoin', 'paypal'];
       if (!supportedMethods.includes(paymentMethod)) {
         return res.status(400).json({ 
           message: "Unsupported payment method",
@@ -503,17 +593,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Initialize ethPrice for verification data
       let ethPrice: number | undefined;
-      
-      // Check for replay attacks - ensure payment reference hasn't been used
-      if (paymentReference) {
-        const existingPayment = await storage.getProcessedPayment(paymentReference);
-        if (existingPayment) {
-          return res.status(409).json({ 
-            message: "Payment already processed",
-            error: "This transaction has already been used for a TSU purchase" 
-          });
-        }
-      }
       
       // Verify payment based on payment method
       if (paymentMethod === 'paypal' && !paymentReference) {
@@ -572,6 +651,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      if (paymentMethod === 'bitcoin') {
+        if (!paymentReference) {
+          return res.status(400).json({ message: "Transaction hash required for Bitcoin payments" });
+        }
+        
+        // Verify Bitcoin transaction
+        const expectedAddress = process.env.CRYPTO_BTC_ADDRESS;
+        if (!expectedAddress) {
+          return res.status(500).json({ message: "Bitcoin payment address not configured" });
+        }
+        
+        // Get BTC price from crypto rates or use fallback
+        let btcPrice = 50000; // fallback BTC price in USD
+        if (rates && rates.cryptoRates) {
+          try {
+            const cryptoRatesData = rates.cryptoRates as any;
+            if (cryptoRatesData?.BTC) {
+              btcPrice = cryptoRatesData.BTC;
+            }
+          } catch (e) {
+            console.log('Using fallback BTC price');
+          }
+        }
+        
+        // Convert USD amount to satoshis (1 BTC = 100,000,000 satoshis)
+        const expectedAmountSats = Math.floor(
+          (parseFloat(amount) / btcPrice) * 100000000
+        ).toString();
+        
+        // SECURITY: Require verified Bitcoin address for sender verification (prevent claim hijacking)
+        if (!user.verifiedBtcAddress) {
+          return res.status(400).json({ 
+            message: "Bitcoin wallet verification required",
+            error: "You must verify your Bitcoin wallet address before making Bitcoin payments. This prevents fraudulent transactions."
+          });
+        }
+        const expectedFromAddress = user.verifiedBtcAddress;
+
+        // Use Bitcoin verification with 3 confirmations minimum (matches Ethereum security)
+        const verification = await paymentVerification.verifyBitcoinTransaction(
+          paymentReference,
+          expectedAddress,
+          expectedAmountSats,
+          expectedFromAddress,
+          3 // Bitcoin requires minimum 3 confirmations to match Ethereum security posture
+        );
+        
+        if (!verification.verified) {
+          return res.status(400).json({ 
+            message: "Payment verification failed",
+            error: verification.error 
+          });
+        }
+      }
+      
       // Record this payment as processed to prevent replay
       if (paymentReference) {
         await storage.recordProcessedPayment({
@@ -580,7 +714,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId,
           amountProcessed: amount,
           tsuCredited: tsuAmount,
-          verificationData: { tsuPrice, ethPrice: paymentMethod === 'ethereum' ? ethPrice : undefined }
+          verificationData: { 
+            tsuPrice, 
+            ethPrice: paymentMethod === 'ethereum' ? ethPrice : undefined,
+            btcPrice: paymentMethod === 'bitcoin' ? btcPrice : undefined
+          }
         });
       }
       

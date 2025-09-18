@@ -65,6 +65,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserBalance(userId: string, newBalance: string): Promise<void>;
   updateUserVerifiedEthAddress(userId: string, address: string): Promise<void>;
+  updateUserVerifiedBtcAddress(userId: string, address: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
   getUsersByRole(role: 'user' | 'admin' | 'super_admin'): Promise<User[]>;
   getUsersByCountry(country: string): Promise<User[]>;
@@ -188,6 +189,13 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ verifiedEthAddress: address, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserVerifiedBtcAddress(userId: string, address: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ verifiedBtcAddress: address, updatedAt: new Date() })
       .where(eq(users.id, userId));
   }
 
