@@ -410,9 +410,44 @@ export default function ICO() {
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6" data-testid="ico-title">
               TSU-X Token ICO
             </h1>
-            <p className="text-xl md:text-2xl text-gray-200 mb-6 max-w-3xl mx-auto" data-testid="ico-subtitle">
+            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto" data-testid="ico-subtitle">
               The utility token powering BRICS + Africa trade liquidity on Polygon Mainnet
             </p>
+
+            {/* TSU-X Explanation Section */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-4xl mx-auto text-left">
+              <h2 className="text-3xl font-bold text-tsu-gold mb-6 text-center">🚀 Why TSU-X?</h2>
+              <div className="space-y-4 text-gray-100">
+                <p className="text-lg leading-relaxed">
+                  <strong className="text-tsu-gold">TSU-X</strong> is revolutionizing global trade by creating the first blockchain-powered settlement system for Africa-BRICS commerce. Break free from USD dependency and join the financial future that puts emerging economies first.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 mt-6">
+                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
+                    <div className="text-3xl mb-3">⚡</div>
+                    <div className="font-bold text-tsu-gold text-lg">Lightning Fast</div>
+                    <div className="text-sm text-gray-200">Sub-second settlements on Polygon</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
+                    <div className="text-3xl mb-3">🌍</div>
+                    <div className="font-bold text-tsu-gold text-lg">Global Impact</div>
+                    <div className="text-sm text-gray-200">Connecting 4+ billion people</div>
+                  </div>
+                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
+                    <div className="text-3xl mb-3">💎</div>
+                    <div className="font-bold text-tsu-gold text-lg">Reserve Backed</div>
+                    <div className="text-sm text-gray-200">Real assets, real value</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Call to Action Banner */}
+              <div className="bg-gradient-to-r from-tsu-gold to-yellow-500 rounded-xl p-4 mt-6">
+                <div className="text-center text-black">
+                  <div className="text-xl font-bold mb-1">🔥 Join the Revolution!</div>
+                  <div className="text-sm font-medium">Limited time opportunity - Be part of the new trade economy</div>
+                </div>
+              </div>
+            </div>
             
             {/* ICO Progress */}
             <div className="bg-black bg-opacity-30 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
