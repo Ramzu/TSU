@@ -4,7 +4,7 @@ import SimpleLoginModal from "@/components/SimpleLoginModal";
 import ContactModal from "@/components/ContactModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle } from "lucide-react";
+import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import Footer from "@/components/Footer";
@@ -168,7 +168,7 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Commodities Program */}
             <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8" data-testid="landing-commodities-program-card">
               <div className="text-center mb-6">
@@ -238,6 +238,42 @@ export default function Landing() {
                 data-testid="button-landing-currency-program"
               >
                 {t('programs.currency.button')}
+              </Button>
+            </Card>
+
+            {/* TSU-X ICO */}
+            <Card className="shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white border-blue-700 p-8" data-testid="landing-ico-card">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-semibold text-white" data-testid="ico-card-title">
+                  TSU-X Token ICO
+                </h3>
+              </div>
+              <p className="text-white/90 mb-6 text-center">
+                Join the utility token powering BRICS + Africa trade liquidity. Purchase TSU-X on Polygon mainnet with USDC/USDT.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <span className="text-white">Governance rights in TSU ecosystem</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <span className="text-white">Fee discounts & staking rewards</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <span className="text-white">Fixed 1:1 USDC/USDT rate</span>
+                </div>
+              </div>
+              <Button 
+                onClick={() => window.location.href = '/ico'}
+                className="w-full bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3"
+                data-testid="button-landing-ico"
+              >
+                Join TSU-X ICO
               </Button>
             </Card>
           </div>
