@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "wouter";
 import Footer from "@/components/Footer";
 
 interface ContentItem {
@@ -20,6 +21,7 @@ export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
   const [showContactModal, setShowContactModal] = useState(false);
+  const [, setLocation] = useLocation();
   const { t } = useTranslation();
   
   const { data: content = [] } = useQuery<ContentItem[]>({
@@ -242,12 +244,12 @@ export default function Landing() {
             </Card>
 
             {/* TSU-X ICO */}
-            <Card className="shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white border-blue-700 p-8" data-testid="landing-ico-card">
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-dark-green to-tsu-green text-white border-tsu-green p-8" data-testid="landing-ico-card">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-8 w-8 text-tsu-green" />
                 </div>
-                <h3 className="text-2xl font-semibold text-white" data-testid="ico-card-title">
+                <h3 className="text-2xl font-semibold text-tsu-gold" data-testid="ico-card-title">
                   TSU-X Token ICO
                 </h3>
               </div>
@@ -256,21 +258,21 @@ export default function Landing() {
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">Governance rights in TSU ecosystem</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">Fee discounts & staking rewards</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">Fixed 1:1 USDC/USDT rate</span>
                 </div>
               </div>
               <Button 
-                onClick={() => window.location.href = '/ico'}
-                className="w-full bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3"
+                onClick={() => setLocation('/ico')}
+                className="w-full bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold py-3"
                 data-testid="button-landing-ico"
               >
                 Join TSU-X ICO

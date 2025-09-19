@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useWeb3 } from "@/providers/Web3Provider";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,12 +40,12 @@ const POLYGON_MAINNET = {
   blockExplorerUrls: ['https://polygonscan.com/']
 };
 
-// Token addresses on Polygon Mainnet (placeholder - replace with actual addresses)
+// Token addresses on Polygon Mainnet
 const TOKEN_ADDRESSES = {
-  USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // USDC on Polygon
-  USDT: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // USDT on Polygon  
-  TSU_X: '0x0000000000000000000000000000000000000000', // TSU-X token (to be provided)
-  TOKEN_SALE: '0x0000000000000000000000000000000000000000', // TokenSale contract (to be provided)
+  USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // USDC on Polygon (verified)
+  USDT: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // USDT on Polygon (verified)  
+  TSU_X: import.meta.env.VITE_TSU_X_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000', // TSU-X token contract
+  TOKEN_SALE: import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000', // TokenSale contract
 };
 
 const ERC20_ABI = [
@@ -74,9 +75,17 @@ interface TokenBalance {
 
 export default function ICO() {
   const { account, provider, isConnected, connectWallet, isConnecting, error: web3Error } = useWeb3();
+  const { user } = useAuth();
   const { toast } = useToast();
   
   const [purchaseAmount, setPurchaseAmount] = useState("");
+  
+  // Check if contracts are configured
+  const isConfigured = TOKEN_ADDRESSES.TSU_X !== '0x0000000000000000000000000000000000000000' && 
+                      TOKEN_ADDRESSES.TOKEN_SALE !== '0x0000000000000000000000000000000000000000';
+  
+  // Check if user is admin for configuration warnings
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
   const [selectedToken, setSelectedToken] = useState<'USDC' | 'USDT'>('USDC');
   const [balances, setBalances] = useState<TokenBalance>({
     usdc: "0",
@@ -174,13 +183,13 @@ export default function ICO() {
     if (!provider) return;
 
     try {
-      if (TOKEN_ADDRESSES.TOKEN_SALE === '0x0000000000000000000000000000000000000000') {
-        // Demo data when contract address not provided
+      if (!isConfigured) {
+        // When contracts not configured, show inactive sale
         setSaleInfo({
-          tokensSold: "2500000000", // 2.5B sold
-          maxTokens: "20000000000", // 20B total
-          isActive: true,
-          progress: 12.5 // 12.5% sold
+          tokensSold: "0",
+          maxTokens: "20000000000", // 20B total for display
+          isActive: false,
+          progress: 0
         });
         return;
       }
@@ -202,12 +211,29 @@ export default function ICO() {
       });
     } catch (error) {
       console.error('Error loading sale info:', error);
+      // On error, set inactive state
+      setSaleInfo({
+        tokensSold: "0", 
+        maxTokens: "20000000000",
+        isActive: false,
+        progress: 0
+      });
     }
   };
 
   // Approve token spending
   const approveToken = async (token: 'USDC' | 'USDT', amount: string) => {
     if (!provider || !account) return;
+    
+    // Runtime guard: Check if contracts are configured
+    if (!isConfigured) {
+      toast({
+        variant: "destructive",
+        title: "Configuration Error",
+        description: "Smart contracts are not configured. Please contact support."
+      });
+      return;
+    }
 
     const isCorrectNetwork = await ensurePolygonNetwork();
     if (!isCorrectNetwork) return;
@@ -253,6 +279,16 @@ export default function ICO() {
   // Purchase TSU-X tokens
   const purchaseTokens = async () => {
     if (!provider || !account || !purchaseAmount) return;
+    
+    // Runtime guard: Check if contracts are configured
+    if (!isConfigured) {
+      toast({
+        variant: "destructive",
+        title: "Configuration Error",
+        description: "Smart contracts are not configured. ICO is not available."
+      });
+      return;
+    }
 
     const isCorrectNetwork = await ensurePolygonNetwork();
     if (!isCorrectNetwork) return;
@@ -289,16 +325,6 @@ export default function ICO() {
 
     setIsLoading(true);
     try {
-      if (TOKEN_ADDRESSES.TOKEN_SALE === '0x0000000000000000000000000000000000000000') {
-        // Demo mode - just show success
-        toast({
-          title: "Demo Mode",
-          description: "This is a demo. In production, tokens would be purchased from the smart contract."
-        });
-        setIsLoading(false);
-        return;
-      }
-
       const signer = await provider.getSigner();
       const tokenSaleContract = new ethers.Contract(TOKEN_ADDRESSES.TOKEN_SALE, TOKEN_SALE_ABI, signer);
       
@@ -403,7 +429,9 @@ export default function ICO() {
                   <span>{(parseFloat(saleInfo.maxTokens) / 1e9).toFixed(0)}B TSU-X total</span>
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-2xl font-bold text-tsu-gold">1 USDC/USDT = 1 TSU-X</p>
+                  <p className="text-2xl font-bold text-tsu-gold">
+                    {isConfigured ? "1 USDC/USDT = 1 TSU-X" : "ICO Not Available"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -477,6 +505,35 @@ export default function ICO() {
                   </div>
                 ) : (
                   <>
+                    {/* Contract Configuration Warning - Admin Only */}
+                    {!isConfigured && isAdmin && (
+                      <Alert data-testid="config-warning">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          <strong>Admin Configuration Required:</strong> Set environment variables for smart contracts.
+                          <details className="mt-2 text-xs">
+                            <summary className="cursor-pointer font-medium">Environment Variables Needed:</summary>
+                            <div className="mt-1 space-y-1 font-mono">
+                              <div>VITE_TSU_X_TOKEN_ADDRESS: {TOKEN_ADDRESSES.TSU_X}</div>
+                              <div>VITE_TOKEN_SALE_CONTRACT_ADDRESS: {TOKEN_ADDRESSES.TOKEN_SALE}</div>
+                              <div>USDC (verified): {TOKEN_ADDRESSES.USDC}</div>
+                              <div>USDT (verified): {TOKEN_ADDRESSES.USDT}</div>
+                            </div>
+                          </details>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {/* Public Notice when not configured */}
+                    {!isConfigured && !isAdmin && (
+                      <Alert data-testid="public-notice">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          The TSU-X ICO is currently being configured. Please check back soon.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
                     {/* Connected Wallet Info */}
                     <div className="bg-green-50 p-4 rounded-lg" data-testid="wallet-connected">
                       <div className="flex items-center gap-2 text-green-700">
@@ -531,22 +588,24 @@ export default function ICO() {
                       {needsApproval && (
                         <Button
                           onClick={() => approveToken(selectedToken, purchaseAmount)}
-                          disabled={isLoading || !purchaseAmount}
+                          disabled={isLoading || !purchaseAmount || !isConfigured}
                           className="w-full"
                           variant="outline"
                           data-testid="approve-button"
                         >
-                          {isLoading ? 'Approving...' : `Approve ${selectedToken} Spending`}
+                          {!isConfigured ? 'Contract Configuration Required' :
+                           isLoading ? 'Approving...' : `Approve ${selectedToken} Spending`}
                         </Button>
                       )}
                       
                       <Button
                         onClick={purchaseTokens}
-                        disabled={isLoading || !purchaseAmount || needsApproval}
+                        disabled={isLoading || !purchaseAmount || needsApproval || !isConfigured}
                         className="w-full bg-tsu-gold hover:bg-tsu-gold/90"
                         data-testid="purchase-button"
                       >
-                        {isLoading ? 'Processing...' : 'Purchase TSU-X Tokens'}
+                        {!isConfigured ? 'Contract Configuration Required' : 
+                         isLoading ? 'Processing...' : 'Purchase TSU-X Tokens'}
                       </Button>
                     </div>
 
