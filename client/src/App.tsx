@@ -15,6 +15,7 @@ import Currency from "@/pages/Currency";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import MonthlyAuditReports from "@/pages/MonthlyAuditReports";
+import ICO from "@/pages/ICO";
 import NotFound from "@/pages/not-found";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -37,6 +38,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/ico" component={ICO} />
       <Route path="/commodities" component={Commodities} />
       <Route path="/currency" component={Currency} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
