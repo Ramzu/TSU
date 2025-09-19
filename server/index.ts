@@ -47,6 +47,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add middleware to transform Open Graph URLs to absolute URLs for all environments
+app.use((req, res, next) => {
+  if (req.path === '/' || req.path.endsWith('.html')) {
+    const originalSend = res.send;
+    res.send = function(html: any) {
+      if (typeof html === 'string' && html.includes('<meta property="og:')) {
+        const siteUrl = getSiteUrl(req);
+        html = html.replace(/content="\/og-image\.jpg"/g, `content="${siteUrl}/og-image.jpg"`);
+        html = html.replace(/content="\/"/g, `content="${siteUrl}/"`);
+      }
+      return originalSend.call(this, html);
+    };
+  }
+  next();
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -57,22 +73,6 @@ app.use((req, res, next) => {
 
     res.status(status).json({ message });
     throw err;
-  });
-
-  // Add middleware to transform Open Graph URLs to absolute URLs for all environments
-  app.use((req, res, next) => {
-    if (req.path === '/' || req.path.endsWith('.html')) {
-      const originalSend = res.send;
-      res.send = function(html: any) {
-        if (typeof html === 'string' && html.includes('<meta property="og:')) {
-          const siteUrl = getSiteUrl(req);
-          html = html.replace(/content="\/og-image\.jpg"/g, `content="${siteUrl}/og-image.jpg"`);
-          html = html.replace(/content="\/"/g, `content="${siteUrl}/"`);
-        }
-        return originalSend.call(this, html);
-      };
-    }
-    next();
   });
 
   // importantly only setup vite in development and after
