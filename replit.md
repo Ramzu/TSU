@@ -20,9 +20,14 @@ The application uses **PostgreSQL** as the primary database with **Drizzle ORM**
 ## Authentication System
 Authentication is implemented using **Replit's OpenID Connect (OIDC)** system with **Passport.js**. The system supports session-based authentication using **express-session** with PostgreSQL session storage. User sessions are managed securely with configurable TTL and HTTPS-only cookies.
 
+## Blockchain Integration
+The application includes full **Polygon mainnet** integration for the TSU-X ICO platform. The Web3 integration supports both **MetaMask** and **WalletConnect** for secure wallet connections. Smart contract interactions handle USDC/USDT to TSU-X token purchases with proper approval flows and transaction monitoring. The system includes runtime configuration guards to ensure contracts are properly configured before allowing transactions.
+
 ## Key Features
 - **Wallet Management**: Users can view balances, purchase TSU tokens, and manage transactions
 - **Transaction Processing**: Support for various transaction types including purchases, sales, transfers, and exchanges
+- **ICO Platform**: Complete TSU-X token Initial Coin Offering with Polygon mainnet integration
+- **Crypto Payments**: MetaMask and WalletConnect support for USDC/USDT to TSU-X token purchases
 - **Admin Dashboard**: Administrative interface for managing users, creating coin supplies, and content management
 - **Content Management**: Dynamic content editing system for landing page customization
 - **Role-Based Access**: Three-tier permission system (user/admin/super_admin)
@@ -60,3 +65,22 @@ The core entities include:
 - **React Hook Form**: Form state management with validation
 - **Zod**: Runtime type validation and schema validation
 - **date-fns**: Date manipulation and formatting utilities
+
+## Blockchain Libraries
+- **ethers.js**: Ethereum JavaScript library for smart contract interactions
+- **@web3modal/wagmi**: WalletConnect integration for multi-wallet support
+- **@wagmi/core**: React hooks for Ethereum wallet connections
+- **@walletconnect/ethereum-provider**: WalletConnect provider for wallet connectivity
+
+# ICO Configuration
+
+The TSU-X ICO requires the following environment variables to be configured:
+
+- `VITE_TSU_X_TOKEN_ADDRESS`: The deployed TSU-X ERC-20 token contract address on Polygon mainnet
+- `VITE_TOKEN_SALE_CONTRACT_ADDRESS`: The TokenSale smart contract address for handling purchases
+
+When these variables are not configured:
+- Admin users see detailed configuration warnings with missing environment variables
+- Public users see a neutral "ICO not available" message
+- All purchase and approval functions are blocked with runtime guards
+- The sale progress shows inactive state with zero progress
