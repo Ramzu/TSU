@@ -57,9 +57,69 @@ export default function MetadataEditor() {
     },
   });
 
+  // Function to update meta tags in document head
+  const updateMetaTags = (data: MetadataFormData) => {
+    // Update page title
+    document.title = data.title;
+
+    // Helper function to update or create meta tag
+    const updateMetaTag = (property: string, content: string) => {
+      let meta = document.querySelector(`meta[property="${property}"], meta[name="${property}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        if (property.startsWith('og:') || property.startsWith('fb:')) {
+          meta.setAttribute('property', property);
+        } else {
+          meta.setAttribute('name', property);
+        }
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // Update basic meta tags
+    updateMetaTag('title', data.title);
+    updateMetaTag('description', data.description);
+    if (data.keywords) updateMetaTag('keywords', data.keywords);
+
+    // Update Open Graph tags
+    updateMetaTag('og:type', data.ogType || 'website');
+    updateMetaTag('og:title', data.title);
+    updateMetaTag('og:description', data.description);
+    updateMetaTag('og:site_name', data.siteName);
+    if (data.fbAppId) updateMetaTag('fb:app_id', data.fbAppId);
+
+    // Update og:url (use current URL if not specified)
+    const ogUrl = data.ogUrl || window.location.href;
+    updateMetaTag('og:url', ogUrl);
+
+    // Update og:image (convert relative paths to absolute)
+    if (data.ogImage) {
+      const imageUrl = data.ogImage.startsWith('http') 
+        ? data.ogImage 
+        : `${window.location.origin}${data.ogImage.startsWith('/') ? '' : '/'}${data.ogImage}`;
+      updateMetaTag('og:image', imageUrl);
+      updateMetaTag('og:image:width', '1200');
+      updateMetaTag('og:image:height', '630');
+      updateMetaTag('og:image:type', 'image/jpeg');
+    }
+
+    // Update Twitter Card tags
+    updateMetaTag('twitter:card', data.twitterCard);
+    updateMetaTag('twitter:title', data.title);
+    updateMetaTag('twitter:description', data.description);
+    updateMetaTag('twitter:url', ogUrl);
+    if (data.ogImage) {
+      const imageUrl = data.ogImage.startsWith('http') 
+        ? data.ogImage 
+        : `${window.location.origin}${data.ogImage.startsWith('/') ? '' : '/'}${data.ogImage}`;
+      updateMetaTag('twitter:image', imageUrl);
+    }
+  };
+
   useEffect(() => {
     if (metadata && typeof metadata === 'object') {
-      form.reset({
+      const metadataValues = {
         title: (metadata as any).title || "",
         description: (metadata as any).description || "",
         keywords: (metadata as any).keywords || "",
@@ -69,9 +129,21 @@ export default function MetadataEditor() {
         twitterCard: (metadata as any).twitterCard || "summary_large_image",
         siteName: (metadata as any).siteName || "TSU Wallet",
         fbAppId: (metadata as any).fbAppId || "966242223397117",
-      });
+      };
+      form.reset(metadataValues);
+      // Update meta tags immediately when metadata loads
+      updateMetaTags(metadataValues);
     }
   }, [metadata, form]);
+
+  // Watch form values and update meta tags in real-time during editing
+  const watchedValues = form.watch();
+  useEffect(() => {
+    // Only update if we have valid values (avoid initial empty state)
+    if (watchedValues.title && watchedValues.description) {
+      updateMetaTags(watchedValues);
+    }
+  }, [watchedValues]);
 
   const updateMetadata = useMutation({
     mutationFn: async (data: MetadataFormData) => {

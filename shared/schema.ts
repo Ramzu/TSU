@@ -262,8 +262,11 @@ export const siteMetadata = pgTable("site_metadata", {
   description: text("description").notNull(),
   keywords: text("keywords"),
   ogImage: varchar("og_image"), // URL to social media image
+  ogType: varchar("og_type").default('website'), // Open Graph content type
+  ogUrl: varchar("og_url"), // Canonical URL for the page
   twitterCard: varchar("twitter_card").default('summary_large_image'),
   siteName: varchar("site_name").default('TSU Wallet'),
+  fbAppId: varchar("fb_app_id").default('966242223397117'), // Facebook App ID
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
