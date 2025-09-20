@@ -12,7 +12,7 @@ import SmtpConfigSection from "@/components/SmtpConfigSection";
 import EmailMessagingSection from "@/components/EmailMessagingSection";
 import ContactMessagesSection from "@/components/ContactMessagesSection";
 import BalanceManagement from "@/components/BalanceManagement";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +21,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import Footer from "@/components/Footer";
 
 interface AdminStats {
@@ -343,7 +344,7 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-10 gap-1">
+                <TabsList className="grid w-full grid-cols-11 gap-1">
                   <TabsTrigger value="users" data-testid="tab-users" className="text-xs">Users</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs">Transactions</TabsTrigger>
                   <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs">Balance</TabsTrigger>
@@ -366,6 +367,10 @@ export default function AdminDashboard() {
                     Email
                   </TabsTrigger>
                   <TabsTrigger value="admins" data-testid="tab-admins" className="text-xs">Admins</TabsTrigger>
+                  <TabsTrigger value="ico" data-testid="tab-ico" className="text-xs">
+                    <Coins className="h-3 w-3 mr-1" />
+                    ICO
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -856,6 +861,122 @@ export default function AdminDashboard() {
                       <span className="text-sm text-gray-500">Current User</span>
                     </div>
                   </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="ico" className="p-6" data-testid="ico-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">ICO Configuration</h3>
+                  <div className="text-sm text-gray-500">
+                    Manage TSU-X token ICO settings
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Environment Variables Setup */}
+                  <Card className="border-tsu-gold/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Settings className="h-5 w-5 text-tsu-gold" />
+                        Environment Variables
+                      </CardTitle>
+                      <CardDescription>
+                        Configure the required environment variables for the TSU-X ICO smart contracts
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          <strong>Important:</strong> Environment variables must be set in your Replit project's Secrets tool for security.
+                        </AlertDescription>
+                      </Alert>
+                      
+                      <div className="space-y-4">
+                        <div className="grid gap-4">
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-tsu-green">VITE_TSU_X_TOKEN_ADDRESS</h4>
+                                <p className="text-sm text-gray-600">TSU-X ERC-20 token contract address on Polygon mainnet</p>
+                              </div>
+                              <div className="text-right">
+                                <Badge variant={import.meta.env.VITE_TSU_X_TOKEN_ADDRESS ? "default" : "destructive"}>
+                                  {import.meta.env.VITE_TSU_X_TOKEN_ADDRESS ? "Configured" : "Missing"}
+                                </Badge>
+                                {import.meta.env.VITE_TSU_X_TOKEN_ADDRESS && (
+                                  <div className="text-xs text-gray-500 mt-1 font-mono">
+                                    {import.meta.env.VITE_TSU_X_TOKEN_ADDRESS}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-tsu-green">VITE_TOKEN_SALE_CONTRACT_ADDRESS</h4>
+                                <p className="text-sm text-gray-600">TokenSale smart contract address for handling purchases</p>
+                              </div>
+                              <div className="text-right">
+                                <Badge variant={import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS ? "default" : "destructive"}>
+                                  {import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS ? "Configured" : "Missing"}
+                                </Badge>
+                                {import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS && (
+                                  <div className="text-xs text-gray-500 mt-1 font-mono">
+                                    {import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-blue-800 mb-2">How to Set Environment Variables in Replit:</h4>
+                        <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                          <li>Open the "Secrets" tool in your Replit project sidebar</li>
+                          <li>Click "New secret" for each environment variable</li>
+                          <li>Add <code className="bg-blue-100 px-1 rounded">VITE_TSU_X_TOKEN_ADDRESS</code> with your deployed TSU-X token contract address</li>
+                          <li>Add <code className="bg-blue-100 px-1 rounded">VITE_TOKEN_SALE_CONTRACT_ADDRESS</code> with your TokenSale contract address</li>
+                          <li>Restart your application to apply the changes</li>
+                        </ol>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* ICO Status */}
+                  <Card className="border-tsu-green/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Rocket className="h-5 w-5 text-tsu-green" />
+                        ICO Status
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                          <span className="font-medium">Configuration Status:</span>
+                          <Badge variant={import.meta.env.VITE_TSU_X_TOKEN_ADDRESS && import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS ? "default" : "destructive"}>
+                            {import.meta.env.VITE_TSU_X_TOKEN_ADDRESS && import.meta.env.VITE_TOKEN_SALE_CONTRACT_ADDRESS ? "Ready" : "Incomplete"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                          <span className="font-medium">ICO Page:</span>
+                          <a 
+                            href="/ico" 
+                            className="text-tsu-green hover:text-tsu-light-green font-medium"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            View ICO Page →
+                          </a>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
             </Tabs>
