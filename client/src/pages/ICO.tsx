@@ -416,7 +416,7 @@ export default function ICO() {
 
             {/* TSU-X Explanation Section */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-4xl mx-auto text-left">
-              <h2 className="text-3xl font-bold text-tsu-gold mb-6 text-center">🚀 Why TSU-X?</h2>
+              <h2 className="text-3xl font-bold text-tsu-gold mb-6 text-center">Why TSU-X?</h2>
               <div className="space-y-4 text-gray-100">
                 <p className="text-lg leading-relaxed">
                   <strong className="text-tsu-gold">TSU-X</strong> is revolutionizing global trade by creating the first blockchain-powered settlement system for Africa-BRICS commerce. Break free from USD dependency and join the financial future that puts emerging economies first.
@@ -443,7 +443,7 @@ export default function ICO() {
               {/* Call to Action Banner */}
               <div className="bg-gradient-to-r from-tsu-gold to-yellow-500 rounded-xl p-4 mt-6">
                 <div className="text-center text-black">
-                  <div className="text-xl font-bold mb-1">🔥 Join the Revolution!</div>
+                  <div className="text-xl font-bold mb-1">Join the Revolution!</div>
                   <div className="text-sm font-medium">Limited time opportunity - Be part of the new trade economy</div>
                 </div>
               </div>
