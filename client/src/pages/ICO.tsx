@@ -414,37 +414,66 @@ export default function ICO() {
               The utility token powering BRICS + Africa trade liquidity on Polygon Mainnet
             </p>
 
-            {/* TSU-X Explanation Section */}
+            {/* What is TSU-X Section */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-4xl mx-auto text-left">
-              <h2 className="text-3xl font-bold text-tsu-gold mb-6 text-center">What is TSU-X?</h2>
-              <div className="space-y-4 text-gray-100">
-                <p className="text-lg leading-relaxed">
-                  <strong className="text-tsu-gold">TSU-X</strong> is revolutionizing global trade by creating the first blockchain-powered settlement system for Africa-BRICS commerce. Break free from USD dependency and join the financial future that puts emerging economies first.
-                </p>
-                <div className="grid md:grid-cols-3 gap-4 mt-6">
-                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
-                    <div className="text-3xl mb-3">⚡</div>
-                    <div className="font-bold text-tsu-gold text-lg">Lightning Fast</div>
-                    <div className="text-sm text-gray-200">Sub-second settlements on Polygon</div>
+              <h2 className="text-3xl font-bold text-tsu-gold mb-6 text-center">What is TSU-X in Relation to TSU?</h2>
+              <div className="space-y-6 text-gray-100">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-tsu-gold">TSU (Trade Settlement Unit)</h3>
+                    <p className="text-lg leading-relaxed">
+                      TSU is a reserve-backed digital currency designed specifically for Africa-BRICS trade settlements. 
+                      It operates as a stable, government-regulated digital currency that reduces dependency on the USD 
+                      for international trade between African nations and BRICS countries.
+                    </p>
+                    <div className="bg-white/10 rounded-lg p-4 border border-tsu-gold/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="h-5 w-5 text-tsu-gold" />
+                        <span className="font-semibold">Government Regulated</span>
+                      </div>
+                      <ul className="space-y-1 text-sm text-gray-200">
+                        <li>• Central bank backing</li>
+                        <li>• Reserve asset support</li>
+                        <li>• Regulatory compliance</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
-                    <div className="text-3xl mb-3">🌍</div>
-                    <div className="font-bold text-tsu-gold text-lg">Global Impact</div>
-                    <div className="text-sm text-gray-200">Connecting 4+ billion people</div>
-                  </div>
-                  <div className="text-center p-4 bg-white/10 rounded-lg border border-tsu-gold/30">
-                    <div className="text-3xl mb-3">💎</div>
-                    <div className="font-bold text-tsu-gold text-lg">Reserve Backed</div>
-                    <div className="text-sm text-gray-200">Real assets, real value</div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-tsu-gold">TSU-X (TSU Extended)</h3>
+                    <p className="text-lg leading-relaxed">
+                      TSU-X is the blockchain-native utility token that powers the TSU ecosystem. Built on Polygon, 
+                      it enables instant liquidity, smart contract functionality, and decentralized features that 
+                      complement the core TSU digital currency.
+                    </p>
+                    <div className="bg-white/10 rounded-lg p-4 border border-tsu-gold/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Coins className="h-5 w-5 text-tsu-gold" />
+                        <span className="font-semibold">Blockchain Powered</span>
+                      </div>
+                      <ul className="space-y-1 text-sm text-gray-200">
+                        <li>• Polygon mainnet deployment</li>
+                        <li>• Smart contract integration</li>
+                        <li>• DeFi compatibility</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Call to Action Banner */}
-              <div className="bg-gradient-to-r from-tsu-gold to-yellow-500 rounded-xl p-4 mt-6">
-                <div className="text-center text-black">
-                  <div className="text-xl font-bold mb-1">Join the Revolution!</div>
-                  <div className="text-sm font-medium">Limited time opportunity - Be part of the new trade economy</div>
+
+                <div className="bg-gradient-to-r from-tsu-gold/20 to-yellow-500/20 rounded-lg p-6 border border-tsu-gold/50">
+                  <h4 className="text-xl font-bold text-tsu-gold mb-3 text-center">The Relationship</h4>
+                  <div className="text-center">
+                    <p className="text-lg leading-relaxed mb-4">
+                      <strong className="text-tsu-gold">TSU-X</strong> acts as the digital bridge that connects traditional 
+                      TSU settlements with modern blockchain infrastructure. While TSU handles the core trade settlements, 
+                      TSU-X enables instant liquidity, programmable money features, and integration with global DeFi protocols.
+                    </p>
+                    <div className="inline-flex items-center gap-4 text-tsu-gold font-semibold">
+                      <span>TSU (Core Currency)</span>
+                      <span>↔</span>
+                      <span>TSU-X (Blockchain Utility)</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
