@@ -5,10 +5,6 @@ import ContactModal from "@/components/ContactModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle, TrendingUp } from "lucide-react";
-import businessTeamImage from "@assets/stock_images/modern_business_peop_33803d1c.jpg";
-import globalTradeImage from "@assets/stock_images/global_trade_commerc_3651a29b.jpg";
-import secureWalletImage from "@assets/stock_images/secure_digital_walle_73a97f9c.jpg";
-import commoditiesImage from "@assets/stock_images/commodities_trading,_88b4628d.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
@@ -125,56 +121,38 @@ export default function Landing() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow relative overflow-hidden" data-testid="feature-card-1">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${secureWalletImage})` }}
-              ></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-8 w-8 text-tsu-green" />
-                </div>
-                <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-1-title">
-                  {getContent('feature-1-title', t('features.reserve.title'))}
-                </h3>
-                <p className="text-gray-600" data-testid="feature-1-desc">
-                  {getContent('feature-1-desc', t('features.reserve.desc'))}
-                </p>
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow" data-testid="feature-card-1">
+              <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-tsu-green" />
               </div>
+              <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-1-title">
+                {getContent('feature-1-title', t('features.reserve.title'))}
+              </h3>
+              <p className="text-gray-600" data-testid="feature-1-desc">
+                {getContent('feature-1-desc', t('features.reserve.desc'))}
+              </p>
             </Card>
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow relative overflow-hidden" data-testid="feature-card-2">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${globalTradeImage})` }}
-              ></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Globe className="h-8 w-8 text-tsu-green" />
-                </div>
-                <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-2-title">
-                  {getContent('feature-2-title', t('features.trade.title'))}
-                </h3>
-                <p className="text-gray-600" data-testid="feature-2-desc">
-                  {getContent('feature-2-desc', t('features.trade.desc'))}
-                </p>
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow" data-testid="feature-card-2">
+              <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="h-8 w-8 text-tsu-green" />
               </div>
+              <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-2-title">
+                {getContent('feature-2-title', t('features.trade.title'))}
+              </h3>
+              <p className="text-gray-600" data-testid="feature-2-desc">
+                {getContent('feature-2-desc', t('features.trade.desc'))}
+              </p>
             </Card>
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow relative overflow-hidden" data-testid="feature-card-3">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${businessTeamImage})` }}
-              ></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-8 w-8 text-tsu-green" />
-                </div>
-                <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-3-title">
-                  {getContent('feature-3-title', t('features.stable.title'))}
-                </h3>
-                <p className="text-gray-600" data-testid="feature-3-desc">
-                  {getContent('feature-3-desc', t('features.stable.desc'))}
-                </p>
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow" data-testid="feature-card-3">
+              <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-tsu-green" />
               </div>
+              <h3 className="text-xl font-semibold text-tsu-green mb-3" data-testid="feature-3-title">
+                {getContent('feature-3-title', t('features.stable.title'))}
+              </h3>
+              <p className="text-gray-600" data-testid="feature-3-desc">
+                {getContent('feature-3-desc', t('features.stable.desc'))}
+              </p>
             </Card>
           </div>
         </div>
@@ -194,12 +172,7 @@ export default function Landing() {
           
           <div className="grid md:grid-cols-3 gap-8">
             {/* Commodities Program */}
-            <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8 relative overflow-hidden" data-testid="landing-commodities-program-card">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-20"
-                style={{ backgroundImage: `url(${commoditiesImage})` }}
-              ></div>
-              <div className="relative z-10">
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8" data-testid="landing-commodities-program-card">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
                   <Coins className="h-8 w-8 text-tsu-green" />
@@ -232,7 +205,6 @@ export default function Landing() {
               >
                 {t('programs.commodities.button')}
               </Button>
-              </div>
             </Card>
 
             {/* Currency Program */}

@@ -5,8 +5,6 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Shield, Users, TrendingUp, Coins, Globe, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import commoditiesBackground from "@assets/stock_images/commodities_trading,_b0e5c7ef.jpg";
-import globalTradeBackground from "@assets/stock_images/global_trade_commerc_c4d5b6e4.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import CommodityRegistrationModal from "@/components/CommodityRegistrationModal";
@@ -38,17 +36,7 @@ export default function Commodities() {
       <Navigation />
       
       {/* Hero Section */}
-      <section 
-        className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green pt-20 pb-16"
-        style={{
-          backgroundImage: `url(${commoditiesBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundBlendMode: 'overlay'
-        }}
-      >
-        <div className="absolute inset-0 bg-tsu-green bg-opacity-75"></div>
-        <div className="relative z-10">
+      <section className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green pt-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-tsu-gold rounded-full mb-6">
@@ -79,7 +67,6 @@ export default function Commodities() {
               </Button>
             </div>
           </div>
-        </div>
         </div>
       </section>
 
