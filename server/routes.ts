@@ -1478,11 +1478,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // First try to serve from local public directory
     const localImagePath = path.resolve(process.cwd(), 'client/public/og-image.jpg');
-    console.log('Looking for og-image at:', localImagePath);
-    console.log('File exists:', fs.existsSync(localImagePath));
     
     if (fs.existsSync(localImagePath)) {
-      console.log('Serving local og-image.jpg');
       return res.sendFile(localImagePath, {
         headers: {
           'Content-Type': 'image/jpeg',
