@@ -1473,6 +1473,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public file serving endpoint
   // Direct route for og-image.jpg (required for social media sharing)
   app.get("/og-image.jpg", async (req, res) => {
+    const path = await import('path');
+    const fs = await import('fs');
+    
+    // First try to serve from local public directory
+    const localImagePath = path.resolve(process.cwd(), 'client/public/og-image.jpg');
+    console.log('Looking for og-image at:', localImagePath);
+    console.log('File exists:', fs.existsSync(localImagePath));
+    
+    if (fs.existsSync(localImagePath)) {
+      console.log('Serving local og-image.jpg');
+      return res.sendFile(localImagePath, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'Cache-Control': 'public, max-age=86400', // 24 hours cache
+          'X-Robots-Tag': 'all' // Allow all crawlers (removes noimageindex)
+        }
+      });
+    }
+    
+    // Fallback to object storage
     const { ObjectStorageService } = await import('./objectStorage');
     const objectStorageService = new ObjectStorageService();
     try {
@@ -1480,8 +1500,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!file) {
         return res.status(404).json({ error: "OG image not found" });
       }
-      // Ensure proper content type for social media crawlers
-      res.set('Content-Type', 'image/jpeg');
+      
+      // Set WordPress-style headers for social media crawlers
+      res.set({
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'public, max-age=86400', // 24 hours cache
+        'X-Robots-Tag': 'all' // Allow all crawlers (removes noimageindex)
+      });
+      
       objectStorageService.downloadObject(file, res);
     } catch (error) {
       console.error("Error serving og-image:", error);
