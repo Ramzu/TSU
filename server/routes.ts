@@ -1471,6 +1471,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Public file serving endpoint
+  // Direct route for og-image.jpg (required for social media sharing)
+  app.get("/og-image.jpg", async (req, res) => {
+    const { ObjectStorageService } = await import('./objectStorage');
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject('og-image.jpg');
+      if (!file) {
+        return res.status(404).json({ error: "OG image not found" });
+      }
+      // Ensure proper content type for social media crawlers
+      res.set('Content-Type', 'image/jpeg');
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error serving og-image:", error);
+      return res.status(500).json({ error: "Error serving og-image" });
+    }
+  });
+
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
     const { ObjectStorageService } = await import('./objectStorage');
