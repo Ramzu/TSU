@@ -13,7 +13,7 @@ import EmailMessagingSection from "@/components/EmailMessagingSection";
 import ContactMessagesSection from "@/components/ContactMessagesSection";
 import CommodityRegistrationsSection from "@/components/CommodityRegistrationsSection";
 import CurrencyRegistrationsSection from "@/components/CurrencyRegistrationsSection";
-import ContentSyncSection from "@/components/ContentSyncSection";
+import { ContentSyncSection } from "@/components/ContentSyncSection";
 import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
