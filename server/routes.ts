@@ -668,6 +668,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Get BTC price from crypto rates or use fallback (declare outside if block for later use)
+      let btcPrice = 50000; // fallback BTC price in USD
+      if (rates && rates.cryptoRates) {
+        try {
+          const cryptoRatesData = rates.cryptoRates as any;
+          if (cryptoRatesData?.BTC) {
+            btcPrice = cryptoRatesData.BTC;
+          }
+        } catch (e) {
+          console.log('Using fallback BTC price');
+        }
+      }
+
       if (paymentMethod === 'bitcoin') {
         if (!paymentReference) {
           return res.status(400).json({ message: "Transaction hash required for Bitcoin payments" });
@@ -677,19 +690,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const expectedAddress = process.env.CRYPTO_BTC_ADDRESS;
         if (!expectedAddress) {
           return res.status(500).json({ message: "Bitcoin payment address not configured" });
-        }
-        
-        // Get BTC price from crypto rates or use fallback
-        let btcPrice = 50000; // fallback BTC price in USD
-        if (rates && rates.cryptoRates) {
-          try {
-            const cryptoRatesData = rates.cryptoRates as any;
-            if (cryptoRatesData?.BTC) {
-              btcPrice = cryptoRatesData.BTC;
-            }
-          } catch (e) {
-            console.log('Using fallback BTC price');
-          }
         }
         
         // Convert USD amount to satoshis (1 BTC = 100,000,000 satoshis)
@@ -1228,7 +1228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.upsertContent(validation.data);
           imported++;
         } catch (error) {
-          errors.push(`Failed to import '${item.key}': ${error.message}`);
+          errors.push(`Failed to import '${item.key}': ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
       
