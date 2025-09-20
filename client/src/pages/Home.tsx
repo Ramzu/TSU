@@ -12,6 +12,9 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Coins, TrendingUp, ArrowUpDown, Plus, Minus, Send, QrCode, ArrowUp, ArrowDown, DollarSign, CheckCircle, Bell, Shield } from "lucide-react";
+import financialDashboardImage from "@assets/stock_images/modern_financial_das_4c781bbf.jpg";
+import businessProfessionalImage from "@assets/stock_images/modern_business_peop_80563b0d.jpg";
+import secureWalletBg from "@assets/stock_images/secure_digital_walle_9a6a8115.jpg";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useState } from "react";
 
@@ -110,7 +113,12 @@ export default function Home() {
 
           {/* Enhanced Wallet Overview */}
           <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
-            <Card className="shadow-lg" data-testid="tsu-balance-card">
+            <Card className="shadow-lg relative overflow-hidden" data-testid="tsu-balance-card">
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-5"
+                style={{ backgroundImage: `url(${financialDashboardImage})` }}
+              ></div>
+              <div className="relative z-10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-tsu-green">TSU Balance</CardTitle>
                 <Coins className="h-4 w-4 text-tsu-gold" />
@@ -123,6 +131,7 @@ export default function Home() {
                   ≈ ${parseFloat(user.tsuBalance || '0').toFixed(2)} USD
                 </p>
               </CardContent>
+              </div>
             </Card>
 
             <Card className="shadow-lg" data-testid="portfolio-value-card">

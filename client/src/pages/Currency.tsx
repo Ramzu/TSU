@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Shield, Users, TrendingUp, DollarSign, Globe, Building, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import globalFinanceImage from "@assets/stock_images/modern_financial_das_ec08f7bf.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import CurrencyConversionModal from "@/components/CurrencyConversionModal";
@@ -36,7 +37,17 @@ export default function Currency() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-tsu-gold to-yellow-400 pt-20 pb-16">
+      <section 
+        className="relative bg-gradient-to-r from-tsu-gold to-yellow-400 pt-20 pb-16"
+        style={{
+          backgroundImage: `url(${globalFinanceImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundBlendMode: 'overlay'
+        }}
+      >
+        <div className="absolute inset-0 bg-tsu-gold bg-opacity-80"></div>
+        <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-tsu-green rounded-full mb-6">
@@ -67,6 +78,7 @@ export default function Currency() {
               </Button>
             </div>
           </div>
+        </div>
         </div>
       </section>
 

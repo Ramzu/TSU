@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { ethers } from "ethers";
 import tsuXCoinImage from "@assets/tsu-x-coin.png";
+import blockchainNetworkImage from "@assets/stock_images/blockchain_technolog_17789088.jpg";
+import cryptoVisualizationImage from "@assets/stock_images/blockchain_technolog_db576a73.jpg";
 import { useToast } from "@/hooks/use-toast";
 
 const POLYGON_MAINNET = {
@@ -395,8 +397,16 @@ export default function ICO() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green py-24">
-        <div className="absolute inset-0 bg-tsu-green bg-opacity-70"></div>
+      <section 
+        className="relative bg-gradient-to-r from-tsu-green to-tsu-light-green py-24"
+        style={{
+          backgroundImage: `url(${blockchainNetworkImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundBlendMode: 'overlay'
+        }}
+      >
+        <div className="absolute inset-0 bg-tsu-green bg-opacity-80"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-8">
