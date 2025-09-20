@@ -346,38 +346,38 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-13 gap-1">
-                  <TabsTrigger value="users" data-testid="tab-users" className="text-xs">Users</TabsTrigger>
-                  <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs">Transactions</TabsTrigger>
-                  <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs">Balance</TabsTrigger>
-                  <TabsTrigger value="reserves" data-testid="tab-reserves" className="text-xs">Reserves</TabsTrigger>
-                  <TabsTrigger value="pricing" data-testid="tab-pricing" className="text-xs">Pricing</TabsTrigger>
-                  <TabsTrigger value="contact" data-testid="tab-contact" className="text-xs">
+                <TabsList className="flex w-full overflow-x-auto gap-1 px-1">
+                  <TabsTrigger value="users" data-testid="tab-users" className="text-xs whitespace-nowrap">Users</TabsTrigger>
+                  <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs whitespace-nowrap">Transactions</TabsTrigger>
+                  <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs whitespace-nowrap">Balance</TabsTrigger>
+                  <TabsTrigger value="reserves" data-testid="tab-reserves" className="text-xs whitespace-nowrap">Reserves</TabsTrigger>
+                  <TabsTrigger value="pricing" data-testid="tab-pricing" className="text-xs whitespace-nowrap">Pricing</TabsTrigger>
+                  <TabsTrigger value="contact" data-testid="tab-contact" className="text-xs whitespace-nowrap">
                     <Phone className="h-3 w-3 mr-1" />
                     Contact
                   </TabsTrigger>
-                  <TabsTrigger value="messages" data-testid="tab-messages" className="text-xs">
+                  <TabsTrigger value="messages" data-testid="tab-messages" className="text-xs whitespace-nowrap">
                     <MessageCircle className="h-3 w-3 mr-1" />
                     Messages
                   </TabsTrigger>
-                  <TabsTrigger value="metadata" data-testid="tab-metadata" className="text-xs">
+                  <TabsTrigger value="metadata" data-testid="tab-metadata" className="text-xs whitespace-nowrap">
                     <Globe className="h-3 w-3 mr-1" />
                     Social
                   </TabsTrigger>
-                  <TabsTrigger value="email" data-testid="tab-email" className="text-xs">
+                  <TabsTrigger value="email" data-testid="tab-email" className="text-xs whitespace-nowrap">
                     <Mail className="h-3 w-3 mr-1" />
                     Email
                   </TabsTrigger>
-                  <TabsTrigger value="admins" data-testid="tab-admins" className="text-xs">Admins</TabsTrigger>
-                  <TabsTrigger value="ico" data-testid="tab-ico" className="text-xs">
+                  <TabsTrigger value="admins" data-testid="tab-admins" className="text-xs whitespace-nowrap">Admins</TabsTrigger>
+                  <TabsTrigger value="ico" data-testid="tab-ico" className="text-xs whitespace-nowrap">
                     <Coins className="h-3 w-3 mr-1" />
                     ICO
                   </TabsTrigger>
-                  <TabsTrigger value="commodities" data-testid="tab-commodities" className="text-xs">
+                  <TabsTrigger value="commodities" data-testid="tab-commodities" className="text-xs whitespace-nowrap">
                     <Package className="h-3 w-3 mr-1" />
                     Commodities
                   </TabsTrigger>
-                  <TabsTrigger value="currencies" data-testid="tab-currencies" className="text-xs">
+                  <TabsTrigger value="currencies" data-testid="tab-currencies" className="text-xs whitespace-nowrap">
                     <CreditCard className="h-3 w-3 mr-1" />
                     Currencies
                   </TabsTrigger>
