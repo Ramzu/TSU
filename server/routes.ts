@@ -1453,20 +1453,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Only image files are allowed" });
       }
 
-      // Generate a unique filename
-      const fileExtension = path.extname(fileName);
-      const uniqueFileName = `metadata-thumbnail-${nanoid()}${fileExtension}`;
-
       const { ObjectStorageService } = await import('./objectStorage');
       const objectStorageService = new ObjectStorageService();
       
       // Get presigned URL for upload
-      const { url: uploadUrl, objectPath } = await objectStorageService.getPublicImageUploadURL(uniqueFileName);
+      const { url: uploadUrl, objectPath, fileName: finalFileName } = await objectStorageService.getPublicImageUploadURL(fileName, fileType);
       
       res.json({ 
         uploadUrl, 
         objectPath,
-        fileName: uniqueFileName 
+        fileName: finalFileName 
       });
     } catch (error) {
       console.error("Error getting upload URL:", error);

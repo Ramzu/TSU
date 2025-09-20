@@ -1,6 +1,7 @@
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
+import path from "path";
 import {
   ObjectAclPolicy,
   ObjectPermission,
@@ -154,31 +155,71 @@ export class ObjectStorageService {
     });
   }
 
-  // Gets the upload URL for a public thumbnail image
-  async getPublicImageUploadURL(fileName: string): Promise<{url: string, objectPath: string}> {
+  // Gets the upload URL for a public thumbnail image with secure unique filename
+  async getPublicImageUploadURL(originalFileName: string, contentType: string): Promise<{url: string, objectPath: string, fileName: string}> {
     const publicPaths = this.getPublicObjectSearchPaths();
     if (publicPaths.length === 0) {
       throw new Error("No public object search paths configured");
     }
 
+    // Validate content type
+    if (!contentType.startsWith('image/')) {
+      throw new Error('Only image files are allowed');
+    }
+
+    // Generate secure unique filename
+    const fileExtension = this.getFileExtension(originalFileName, contentType);
+    const uniqueFileName = `metadata-thumbnail-${randomUUID()}${fileExtension}`;
+
     // Use the first public path for thumbnail uploads
     const publicPath = publicPaths[0];
-    const fullPath = `${publicPath}/${fileName}`;
+    const fullPath = `${publicPath}/${uniqueFileName}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
-    // Sign URL for PUT method with TTL
+    // Sign URL for PUT method with TTL and content type constraint
     const signedUrl = await signObjectURL({
       bucketName,
       objectName,
       method: "PUT",
       ttlSec: 900,
+      contentType,
     });
 
     return {
       url: signedUrl,
-      objectPath: `/public-objects/${fileName}`
+      objectPath: `/public-objects/${uniqueFileName}`,
+      fileName: uniqueFileName
     };
+  }
+
+  // Get safe file extension from filename and content type
+  private getFileExtension(fileName: string, contentType: string): string {
+    // Map of allowed image MIME types to extensions
+    const mimeToExt: Record<string, string> = {
+      'image/jpeg': '.jpg',
+      'image/jpg': '.jpg',
+      'image/png': '.png',
+      'image/gif': '.gif',
+      'image/webp': '.webp',
+      'image/svg+xml': '.svg'
+    };
+
+    // Get extension from content type first (more reliable)
+    if (mimeToExt[contentType]) {
+      return mimeToExt[contentType];
+    }
+
+    // Fallback to file extension if valid
+    const ext = path.extname(fileName).toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    
+    if (allowedExts.includes(ext)) {
+      return ext === '.jpeg' ? '.jpg' : ext;
+    }
+
+    // Default fallback
+    return '.jpg';
   }
 
   // Gets the object entity file from the object path.
@@ -292,17 +333,20 @@ async function signObjectURL({
   objectName,
   method,
   ttlSec,
+  contentType,
 }: {
   bucketName: string;
   objectName: string;
   method: "GET" | "PUT" | "DELETE" | "HEAD";
   ttlSec: number;
+  contentType?: string;
 }): Promise<string> {
   const request = {
     bucket_name: bucketName,
     object_name: objectName,
     method,
     expires_at: new Date(Date.now() + ttlSec * 1000).toISOString(),
+    ...(contentType && { content_type: contentType }),
   };
   const response = await fetch(
     `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,

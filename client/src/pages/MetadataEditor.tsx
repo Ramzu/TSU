@@ -20,7 +20,7 @@ const metadataSchema = z.object({
   title: z.string().min(1, "Title is required").max(60, "Title should be under 60 characters"),
   description: z.string().min(1, "Description is required").max(160, "Description should be under 160 characters"),
   keywords: z.string().optional(),
-  ogImage: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  ogImage: z.string().regex(/^(https?:\/\/|\/|$).*$/, "Must be a valid URL or site-relative path").optional().or(z.literal("")),
   twitterCard: z.enum(["summary", "summary_large_image"]).default("summary_large_image"),
   siteName: z.string().min(1, "Site name is required"),
 });
