@@ -21,8 +21,11 @@ const metadataSchema = z.object({
   description: z.string().min(1, "Description is required").max(160, "Description should be under 160 characters"),
   keywords: z.string().optional(),
   ogImage: z.string().regex(/^(https?:\/\/|\/|$).*$/, "Must be a valid URL or site-relative path").optional().or(z.literal("")),
+  ogType: z.string().default("website"),
+  ogUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   twitterCard: z.enum(["summary", "summary_large_image"]).default("summary_large_image"),
   siteName: z.string().min(1, "Site name is required"),
+  fbAppId: z.string().optional(),
 });
 
 type MetadataFormData = z.infer<typeof metadataSchema>;
@@ -46,8 +49,11 @@ export default function MetadataEditor() {
       description: "The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.",
       keywords: "TSU, Trade Settlement Unit, digital currency, Africa, BRICS, cryptocurrency, wallet, blockchain, reserve-backed",
       ogImage: "/tsu-logo.png",
+      ogType: "website",
+      ogUrl: "",
       twitterCard: "summary_large_image",
       siteName: "TSU Wallet",
+      fbAppId: "966242223397117",
     },
   });
 
@@ -58,8 +64,11 @@ export default function MetadataEditor() {
         description: (metadata as any).description || "",
         keywords: (metadata as any).keywords || "",
         ogImage: (metadata as any).ogImage || "",
+        ogType: (metadata as any).ogType || "website",
+        ogUrl: (metadata as any).ogUrl || "",
         twitterCard: (metadata as any).twitterCard || "summary_large_image",
         siteName: (metadata as any).siteName || "TSU Wallet",
+        fbAppId: (metadata as any).fbAppId || "966242223397117",
       });
     }
   }, [metadata, form]);
@@ -349,7 +358,51 @@ export default function MetadataEditor() {
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ogUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Canonical URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="https://your-site.com/current-page"
+                          data-testid="input-og-url"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The canonical URL for this page (leave empty to use current page URL)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="ogType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Content Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-og-type">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="website">Website</SelectItem>
+                            <SelectItem value="article">Article</SelectItem>
+                            <SelectItem value="product">Product</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="twitterCard"
@@ -390,6 +443,27 @@ export default function MetadataEditor() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="fbAppId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Facebook App ID (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="966242223397117"
+                          data-testid="input-fb-app-id"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Facebook App ID for social sharing (pre-filled with a default value to silence debugger warnings)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="flex space-x-4 pt-4">
                   <Button
