@@ -1145,6 +1145,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Content sync routes for development/production environment synchronization
+  app.get('/api/content/export', requireAdmin, async (req: any, res) => {
+    try {
+      const content = await storage.getAllContent();
+      
+      // Create export package with metadata
+      const exportData = {
+        version: "1.0",
+        exportedAt: new Date().toISOString(),
+        exportedBy: req.currentUser.id,
+        environment: process.env.NODE_ENV || 'development',
+        contentCount: content.length,
+        content: content.map(item => ({
+          key: item.key,
+          value: item.value,
+          updatedBy: item.updatedBy,
+          updatedAt: item.updatedAt
+        }))
+      };
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="content-export-${new Date().toISOString().slice(0, 10)}.json"`);
+      res.json(exportData);
+    } catch (error) {
+      console.error("Error exporting content:", error);
+      res.status(500).json({ message: "Failed to export content" });
+    }
+  });
+
+  app.post('/api/content/import', requireAdmin, async (req: any, res) => {
+    try {
+      const { content, overwrite = false } = req.body;
+      
+      if (!content || !Array.isArray(content)) {
+        return res.status(400).json({ message: "Invalid import data: content array required" });
+      }
+      
+      let imported = 0;
+      let skipped = 0;
+      let errors = [];
+      
+      for (const item of content) {
+        try {
+          // Check if content already exists
+          const existing = await storage.getContent(item.key);
+          
+          if (existing && !overwrite) {
+            skipped++;
+            continue;
+          }
+          
+          // Validate and import content item
+          const validation = insertContentSchema.safeParse({
+            key: item.key,
+            value: item.value,
+            updatedBy: req.currentUser.id,
+          });
+          
+          if (!validation.success) {
+            errors.push(`Invalid data for key '${item.key}': ${validation.error.issues.map(i => i.message).join(', ')}`);
+            continue;
+          }
+          
+          await storage.upsertContent(validation.data);
+          imported++;
+        } catch (error) {
+          errors.push(`Failed to import '${item.key}': ${error.message}`);
+        }
+      }
+      
+      res.json({
+        message: `Content import completed`,
+        stats: {
+          total: content.length,
+          imported,
+          skipped,
+          errors: errors.length
+        },
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error("Error importing content:", error);
+      res.status(500).json({ message: "Failed to import content" });
+    }
+  });
+
   // Commodity Registration endpoints
   app.post('/api/commodity-registrations', async (req, res) => {
     try {

@@ -13,6 +13,7 @@ import EmailMessagingSection from "@/components/EmailMessagingSection";
 import ContactMessagesSection from "@/components/ContactMessagesSection";
 import CommodityRegistrationsSection from "@/components/CommodityRegistrationsSection";
 import CurrencyRegistrationsSection from "@/components/CurrencyRegistrationsSection";
+import ContentSyncSection from "@/components/ContentSyncSection";
 import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle, Package, CreditCard } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle, Package, CreditCard, RefreshCw } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Footer from "@/components/Footer";
@@ -380,6 +381,10 @@ export default function AdminDashboard() {
                   <TabsTrigger value="currencies" data-testid="tab-currencies" className="text-xs whitespace-nowrap">
                     <CreditCard className="h-3 w-3 mr-1" />
                     Currencies
+                  </TabsTrigger>
+                  <TabsTrigger value="sync" data-testid="tab-sync" className="text-xs whitespace-nowrap">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Content Sync
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -1008,6 +1013,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <CurrencyRegistrationsSection />
+              </TabsContent>
+
+              <TabsContent value="sync" className="p-6" data-testid="sync-tab-content">
+                <ContentSyncSection />
               </TabsContent>
             </Tabs>
           </Card>
