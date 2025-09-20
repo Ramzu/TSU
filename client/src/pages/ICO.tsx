@@ -503,6 +503,113 @@ export default function ICO() {
         </div>
       </section>
 
+      {/* Why Choose TSU-X Section */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">Why Choose TSU-X?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              TSU-X isn't just another cryptocurrency – it's your gateway to the future of 
+              Africa-BRICS trade and financial independence.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-early-access">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Early Access Advantage</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Get in before widespread adoption. As the TSU ecosystem grows and more countries 
+                join the Africa-BRICS trade network, early TSU-X holders benefit from increasing 
+                utility and demand.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-real-utility">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Real-World Utility</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Unlike speculative tokens, TSU-X powers actual trade settlements worth billions. 
+                Every transaction between Africa and BRICS nations can potentially use TSU-X for 
+                instant liquidity and smart contract automation.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-institutional">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Institutional Backing</h3>
+              <p className="text-gray-600 leading-relaxed">
+                TSU-X is backed by the same reserve assets and institutional framework as TSU. 
+                This provides stability and legitimacy that pure cryptocurrency projects cannot match.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-defi">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <Coins className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">DeFi Integration</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Access the entire Polygon DeFi ecosystem. Use TSU-X for yield farming, liquidity 
+                provision, and automated trading strategies while maintaining exposure to 
+                Africa-BRICS trade growth.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-low-fees">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <Globe className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Low Fees & Speed</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Polygon's infrastructure means your TSU-X transactions cost pennies and confirm 
+                in seconds. No more waiting hours or paying high fees for international transfers.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-tsu-gold" data-testid="benefit-sovereignty">
+              <div className="flex items-center justify-center w-12 h-12 bg-tsu-gold rounded-lg mb-4">
+                <ExternalLink className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Financial Sovereignty</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Break free from USD dependency and Western banking restrictions. TSU-X enables 
+                direct peer-to-peer value transfer across the Global South without intermediaries.
+              </p>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="bg-gradient-to-r from-tsu-green to-tsu-light-green rounded-2xl p-8 text-center">
+            <h3 className="text-3xl font-bold text-white mb-4">Ready to Join the Revolution?</h3>
+            <p className="text-xl text-gray-100 mb-6 max-w-2xl mx-auto">
+              The TSU-X ICO represents more than an investment opportunity – it's your chance to 
+              be part of reshaping global trade for the next generation.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-white">
+              <div>
+                <div className="text-2xl font-bold">4+ Billion</div>
+                <div className="text-sm">People Connected</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">$2+ Trillion</div>
+                <div className="text-sm">Trade Volume Potential</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">1:1 Fixed</div>
+                <div className="text-sm">ICO Price (USDC/USDT)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
