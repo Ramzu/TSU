@@ -25,13 +25,6 @@ if (!PAYPAL_CLIENT_ID) {
 if (!PAYPAL_CLIENT_SECRET) {
   throw new Error("Missing PAYPAL_CLIENT_SECRET");
 }
-// Auto-detect environment based on credentials
-// Live PayPal client IDs start with 'A' and don't contain sandbox indicators
-const isLiveCredentials = PAYPAL_CLIENT_ID.startsWith('A') && 
-                         !PAYPAL_CLIENT_ID.includes('sb-') && 
-                         !PAYPAL_CLIENT_ID.includes('sandbox') &&
-                         !PAYPAL_CLIENT_ID.includes('test');
-
 const client = new Client({
   clientCredentialsAuthCredentials: {
     oAuthClientId: PAYPAL_CLIENT_ID,
@@ -39,7 +32,7 @@ const client = new Client({
   },
   timeout: 0,
   environment:
-                (process.env.NODE_ENV === "production" || isLiveCredentials)
+                process.env.PAYPAL_ENV?.toLowerCase() === "live"
                   ? Environment.Production
                   : Environment.Sandbox,
   logging: {
