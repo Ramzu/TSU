@@ -1015,6 +1015,16 @@ export default function AdminDashboard() {
                 <CurrencyRegistrationsSection />
               </TabsContent>
 
+              <TabsContent value="metadata" className="p-6" data-testid="metadata-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">Social Media Metadata</h3>
+                  <div className="text-sm text-gray-500">
+                    Manage SEO and social media sharing settings
+                  </div>
+                </div>
+                <MetadataEditor />
+              </TabsContent>
+
               <TabsContent value="sync" className="p-6" data-testid="sync-tab-content">
                 <ContentSyncSection />
               </TabsContent>
