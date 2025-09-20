@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Save, RefreshCw, Globe, Share2 } from "lucide-react";
+import { Eye, Save, RefreshCw, Globe, Share2, Upload, Image } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -31,6 +31,8 @@ export default function MetadataEditor() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [previewMode, setPreviewMode] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: metadata, isLoading } = useQuery({
     queryKey: ["/api/admin/metadata"],
@@ -83,8 +85,90 @@ export default function MetadataEditor() {
     },
   });
 
+  const uploadImage = useMutation({
+    mutationFn: async (file: File) => {
+      // Step 1: Get presigned URL from backend
+      const urlResponse = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
+      });
+      
+      if (!urlResponse.ok) {
+        throw new Error('Failed to get upload URL');
+      }
+      
+      const { uploadUrl, objectPath } = await urlResponse.json();
+      
+      // Step 2: Upload file directly to object storage using presigned URL
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+      
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image to storage');
+      }
+      
+      return { objectPath };
+    },
+    onSuccess: (data) => {
+      form.setValue('ogImage', data.objectPath);
+      toast({
+        title: "Image Uploaded",
+        description: "Thumbnail image has been successfully uploaded!",
+      });
+      setUploadingImage(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+      setUploadingImage(false);
+    },
+  });
+
   const handleSubmit = (data: MetadataFormData) => {
     updateMetadata.mutate(data);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+    uploadImage.mutate(file);
   };
 
   const titleLength = form.watch("title")?.length || 0;
@@ -185,16 +269,59 @@ export default function MetadataEditor() {
                   name="ogImage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Thumbnail Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="/tsu-logo.png"
-                          data-testid="input-ogimage"
-                        />
-                      </FormControl>
+                      <FormLabel>Thumbnail Image</FormLabel>
+                      <div className="space-y-4">
+                        {/* Current image preview */}
+                        {field.value && (
+                          <div className="border rounded-lg p-4 bg-gray-50">
+                            <div className="text-sm text-gray-600 mb-2">Current thumbnail:</div>
+                            <img 
+                              src={field.value} 
+                              alt="Current thumbnail" 
+                              className="max-w-full h-32 object-contain rounded border"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Upload button and URL input */}
+                        <div className="space-y-3">
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploadingImage}
+                              className="flex-1"
+                              data-testid="button-upload-image"
+                            >
+                              <Upload className="h-4 w-4 mr-2" />
+                              {uploadingImage ? "Uploading..." : "Upload Image"}
+                            </Button>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </div>
+                          
+                          <div className="text-center text-sm text-gray-500">or</div>
+                          
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Enter image URL (e.g., /tsu-logo.png)"
+                              data-testid="input-ogimage"
+                            />
+                          </FormControl>
+                        </div>
+                      </div>
                       <FormDescription>
-                        Image displayed when shared (recommended: 1200x630px)
+                        Upload an image or enter a URL. Recommended size: 1200x630px (JPG/PNG, max 5MB)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

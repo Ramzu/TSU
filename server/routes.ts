@@ -11,6 +11,23 @@ import { ethers } from "ethers";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import * as bitcoinMessage from "bitcoinjs-message";
+import multer from "multer";
+import path from "path";
+
+// Configure multer for image uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  },
+});
 
 // Utility function to check if live PayPal credentials are configured
 function hasLivePayPalCredentials(): boolean {
@@ -1419,6 +1436,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating metadata:", error);
       res.status(500).json({ message: "Failed to update metadata" });
+    }
+  });
+
+  // Get upload URL for metadata thumbnail images
+  app.post('/api/admin/upload-image', requireAdmin, async (req: any, res) => {
+    try {
+      const { fileName, fileType } = req.body;
+      
+      if (!fileName || !fileType) {
+        return res.status(400).json({ message: "fileName and fileType are required" });
+      }
+
+      // Validate file type
+      if (!fileType.startsWith('image/')) {
+        return res.status(400).json({ message: "Only image files are allowed" });
+      }
+
+      // Generate a unique filename
+      const fileExtension = path.extname(fileName);
+      const uniqueFileName = `metadata-thumbnail-${nanoid()}${fileExtension}`;
+
+      const { ObjectStorageService } = await import('./objectStorage');
+      const objectStorageService = new ObjectStorageService();
+      
+      // Get presigned URL for upload
+      const { url: uploadUrl, objectPath } = await objectStorageService.getPublicImageUploadURL(uniqueFileName);
+      
+      res.json({ 
+        uploadUrl, 
+        objectPath,
+        fileName: uniqueFileName 
+      });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  // Public file serving endpoint
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const { ObjectStorageService } = await import('./objectStorage');
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 
