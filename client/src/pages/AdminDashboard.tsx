@@ -11,6 +11,8 @@ import MetadataEditor from "@/pages/MetadataEditor";
 import SmtpConfigSection from "@/components/SmtpConfigSection";
 import EmailMessagingSection from "@/components/EmailMessagingSection";
 import ContactMessagesSection from "@/components/ContactMessagesSection";
+import CommodityRegistrationsSection from "@/components/CommodityRegistrationsSection";
+import CurrencyRegistrationsSection from "@/components/CurrencyRegistrationsSection";
 import BalanceManagement from "@/components/BalanceManagement";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle, Package, CreditCard } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Footer from "@/components/Footer";
@@ -344,7 +346,7 @@ export default function AdminDashboard() {
           <Card className="shadow-lg" data-testid="admin-tabs">
             <Tabs defaultValue="users" className="w-full">
               <div className="border-b border-gray-200 px-6">
-                <TabsList className="grid w-full grid-cols-11 gap-1">
+                <TabsList className="grid w-full grid-cols-13 gap-1">
                   <TabsTrigger value="users" data-testid="tab-users" className="text-xs">Users</TabsTrigger>
                   <TabsTrigger value="transactions" data-testid="tab-transactions" className="text-xs">Transactions</TabsTrigger>
                   <TabsTrigger value="balance" data-testid="tab-balance" className="text-xs">Balance</TabsTrigger>
@@ -370,6 +372,14 @@ export default function AdminDashboard() {
                   <TabsTrigger value="ico" data-testid="tab-ico" className="text-xs">
                     <Coins className="h-3 w-3 mr-1" />
                     ICO
+                  </TabsTrigger>
+                  <TabsTrigger value="commodities" data-testid="tab-commodities" className="text-xs">
+                    <Package className="h-3 w-3 mr-1" />
+                    Commodities
+                  </TabsTrigger>
+                  <TabsTrigger value="currencies" data-testid="tab-currencies" className="text-xs">
+                    <CreditCard className="h-3 w-3 mr-1" />
+                    Currencies
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -978,6 +988,26 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="commodities" className="p-6" data-testid="commodities-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">Commodity Registrations</h3>
+                  <div className="text-sm text-gray-500">
+                    Manage commodity program applications
+                  </div>
+                </div>
+                <CommodityRegistrationsSection />
+              </TabsContent>
+
+              <TabsContent value="currencies" className="p-6" data-testid="currencies-tab-content">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-tsu-green">Currency Registrations</h3>
+                  <div className="text-sm text-gray-500">
+                    Manage currency conversion applications
+                  </div>
+                </div>
+                <CurrencyRegistrationsSection />
               </TabsContent>
             </Tabs>
           </Card>
