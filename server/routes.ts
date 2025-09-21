@@ -578,7 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Block PayPal purchases if live PayPal credentials are not configured
-      if (paymentMethod === 'paypal' && !hasPayPalCredentials()) {
+      if ((paymentMethod === 'paypal' || paymentMethod === 'paypal-card') && !hasPayPalCredentials()) {
         return res.status(503).json({ 
           message: "PayPal purchasing is temporarily unavailable", 
           error: "Service configuration in progress",
@@ -619,7 +619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let ethPrice: number | undefined;
       
       // Verify payment based on payment method
-      if (paymentMethod === 'paypal' && !paymentReference) {
+      if ((paymentMethod === 'paypal' || paymentMethod === 'paypal-card') && !paymentReference) {
         return res.status(400).json({ message: "Payment confirmation required for PayPal transactions" });
       }
       

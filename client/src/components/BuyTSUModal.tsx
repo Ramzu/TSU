@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import PayPalButton from "./PayPalButton";
+import PayPalCardButton from "./PayPalCardButton";
 import CryptoWallet from "./CryptoWallet";
 
 const buyTSUSchema = z.object({
@@ -108,9 +109,9 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
   });
 
   const handleSubmit = (data: BuyTSUFormData) => {
-    if (data.paymentMethod === 'paypal') {
-      // For PayPal, don't call purchase API immediately
-      // PayPal button will handle the payment flow
+    if (data.paymentMethod === 'paypal' || data.paymentMethod === 'card') {
+      // For PayPal and card payments, don't call purchase API immediately
+      // Payment buttons will handle the payment flow
       return;
     }
     buyTSUMutation.mutate(data);
@@ -189,9 +190,10 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="card" data-testid="payment-card">Debit/Credit Card</SelectItem>
+                      <SelectItem value="paypal" data-testid="payment-paypal">PayPal</SelectItem>
                       <SelectItem value="ethereum" data-testid="payment-ethereum">Ethereum (ETH)</SelectItem>
                       <SelectItem value="bitcoin" data-testid="payment-bitcoin">Bitcoin (BTC)</SelectItem>
-                      <SelectItem value="paypal" data-testid="payment-paypal">PayPal</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -200,6 +202,42 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
             />
 
             {/* Payment Method Specific Instructions */}
+            {watchPaymentMethod === 'card' && amount >= 10 && (
+              <Card className="bg-green-50 border-green-200" data-testid="card-instructions">
+                <CardContent className="pt-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">💳</span>
+                    </div>
+                    <span className="font-medium text-green-900">Debit/Credit Card Payment</span>
+                  </div>
+                  <p className="text-sm text-green-700 mb-3">
+                    Pay securely with your debit or credit card. Powered by PayPal for secure processing.
+                  </p>
+                  <PayPalCardButton 
+                    amount={amount.toFixed(2)}
+                    currency="USD"
+                    onPaymentComplete={() => {
+                      toast({
+                        title: "Purchase Successful",
+                        description: `Successfully purchased ${tsuAmount.toFixed(2)} TSU with your card!`,
+                      });
+                      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/users/transactions'] });
+                      handleClose();
+                    }}
+                    onPaymentError={(error) => {
+                      toast({
+                        title: "Payment Failed",
+                        description: error,
+                        variant: "destructive",
+                      });
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+            
             {watchPaymentMethod === 'paypal' && amount >= 10 && (
               <Card className="bg-blue-50 border-blue-200" data-testid="paypal-instructions">
                 <CardContent className="pt-4">
@@ -243,8 +281,8 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
               />
             )}
 
-            {/* Only show submit button for non-crypto and non-PayPal payments */}
-            {watchPaymentMethod !== 'paypal' && watchPaymentMethod !== 'bitcoin' && watchPaymentMethod !== 'ethereum' && (
+            {/* Only show submit button for non-crypto, non-PayPal, and non-card payments */}
+            {watchPaymentMethod !== 'paypal' && watchPaymentMethod !== 'card' && watchPaymentMethod !== 'bitcoin' && watchPaymentMethod !== 'ethereum' && (
               <div className="flex space-x-4 pt-4">
                 <Button
                   type="button"
@@ -267,8 +305,8 @@ export default function BuyTSUModal({ isOpen, onClose }: BuyTSUModalProps) {
               </div>
             )}
             
-            {/* For PayPal and crypto, just show cancel button */}
-            {(watchPaymentMethod === 'paypal' || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && (
+            {/* For PayPal, card, and crypto, just show cancel button */}
+            {(watchPaymentMethod === 'paypal' || watchPaymentMethod === 'card' || watchPaymentMethod === 'bitcoin' || watchPaymentMethod === 'ethereum') && (
               <div className="flex pt-4">
                 <Button
                   type="button"
