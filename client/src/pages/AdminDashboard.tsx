@@ -15,6 +15,7 @@ import CommodityRegistrationsSection from "@/components/CommodityRegistrationsSe
 import CurrencyRegistrationsSection from "@/components/CurrencyRegistrationsSection";
 import { ContentSyncSection } from "@/components/ContentSyncSection";
 import BalanceManagement from "@/components/BalanceManagement";
+import WhitepaperUploadSection from "@/components/WhitepaperUploadSection";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,7 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle, Package, CreditCard, RefreshCw } from "lucide-react";
+import { Users, Coins, BarChart3, Shield, Plus, Edit, Settings, Globe, Mail, Phone, MapPin, DollarSign, Wallet, Trash2, MessageCircle, Rocket, AlertTriangle, Package, CreditCard, RefreshCw, FileText } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Footer from "@/components/Footer";
@@ -381,6 +382,10 @@ export default function AdminDashboard() {
                   <TabsTrigger value="currencies" data-testid="tab-currencies" className="text-xs whitespace-nowrap">
                     <CreditCard className="h-3 w-3 mr-1" />
                     Currencies
+                  </TabsTrigger>
+                  <TabsTrigger value="whitepapers" data-testid="tab-whitepapers" className="text-xs whitespace-nowrap">
+                    <FileText className="h-3 w-3 mr-1" />
+                    Whitepapers
                   </TabsTrigger>
                   <TabsTrigger value="sync" data-testid="tab-sync" className="text-xs whitespace-nowrap">
                     <RefreshCw className="h-3 w-3 mr-1" />
@@ -1013,6 +1018,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <CurrencyRegistrationsSection />
+              </TabsContent>
+
+              <TabsContent value="whitepapers" className="p-6" data-testid="whitepapers-tab-content">
+                <WhitepaperUploadSection />
               </TabsContent>
 
               <TabsContent value="metadata" className="p-6" data-testid="metadata-tab-content">

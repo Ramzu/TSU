@@ -13,6 +13,7 @@ import { nanoid } from "nanoid";
 import * as bitcoinMessage from "bitcoinjs-message";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 // Configure multer for image uploads
 const upload = multer({
@@ -25,6 +26,21 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed'));
+    }
+  },
+});
+
+// Configure multer for whitepaper uploads
+const whitepaperUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit for PDFs
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
     }
   },
 });
@@ -1427,6 +1443,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating metadata:", error);
       res.status(500).json({ message: "Failed to update metadata" });
+    }
+  });
+
+  // Whitepaper upload endpoint (admin only)
+  app.post('/api/admin/whitepaper/upload', requireAdmin, whitepaperUpload.single('whitepaper'), async (req: any, res) => {
+    try {
+      const { type } = req.body;
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      if (!type || !['tsu', 'tsu-x'].includes(type)) {
+        return res.status(400).json({ message: "Invalid whitepaper type. Must be 'tsu' or 'tsu-x'" });
+      }
+      
+      // Determine the target filename
+      const fileName = type === 'tsu' ? 'tsu-whitepaper.pdf' : 'tsu-x-whitepaper.pdf';
+      const filePath = path.join(process.cwd(), 'client', 'public', fileName);
+      
+      // Write the file to the public directory
+      fs.writeFileSync(filePath, file.buffer);
+      
+      console.log(`✅ ${type.toUpperCase()} whitepaper uploaded successfully: ${fileName}`);
+      
+      res.json({ 
+        message: "Whitepaper uploaded successfully",
+        fileName,
+        type: type.toUpperCase(),
+        size: file.size
+      });
+    } catch (error) {
+      console.error("Error uploading whitepaper:", error);
+      res.status(500).json({ message: "Failed to upload whitepaper" });
     }
   });
 

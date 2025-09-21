@@ -2,9 +2,10 @@ import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import SimpleLoginModal from "@/components/SimpleLoginModal";
 import ContactModal from "@/components/ContactModal";
+import WhitepaperModal from "@/components/WhitepaperModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle, TrendingUp } from "lucide-react";
+import { Shield, Globe, Zap, Users, BarChart3, Clock, Coins, DollarSign, CheckCircle, MessageCircle, TrendingUp, FileText, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
@@ -21,6 +22,8 @@ export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'register'>('login');
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showTsuWhitepaper, setShowTsuWhitepaper] = useState(false);
+  const [showTsuXWhitepaper, setShowTsuXWhitepaper] = useState(false);
   const [, setLocation] = useLocation();
   const { t } = useTranslation();
   
@@ -384,6 +387,118 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
         </div>
       </section>
 
+      {/* Whitepaper Section */}
+      <section className="py-16 bg-white" data-testid="whitepaper-section">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-tsu-green mb-6" data-testid="whitepaper-section-title">
+              Research & Documentation
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="whitepaper-section-subtitle">
+              Comprehensive whitepapers detailing the technical architecture, governance, and economic models behind the TSU ecosystem
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* TSU Whitepaper */}
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8" data-testid="tsu-whitepaper-card">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-tsu-green" />
+                </div>
+                <h3 className="text-2xl font-semibold text-tsu-gold mb-2" data-testid="tsu-whitepaper-title">
+                  TSU Whitepaper
+                </h3>
+                <p className="text-lg text-white/90 font-medium">Trade Settlement Unit</p>
+              </div>
+              <p className="text-white/90 mb-6 text-center leading-relaxed">
+                A comprehensive guide to TSU's reserve-backed settlement system, governance structure, and implementation across Africa-BRICS trade corridors.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Reserve-backed architecture</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Currency & Commodities Programs</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
+                  <span className="text-white">Pilot corridor implementations</span>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setShowTsuWhitepaper(true)}
+                  className="flex-1 bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold py-3"
+                  data-testid="button-tsu-whitepaper-view"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+                <Button 
+                  onClick={() => window.open('/tsu-whitepaper.pdf', '_blank')}
+                  variant="outline"
+                  className="border-2 border-tsu-gold text-tsu-gold hover:bg-tsu-gold hover:text-tsu-green px-4 py-3"
+                  data-testid="button-tsu-whitepaper-download"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+
+            {/* TSU-X Whitepaper */}
+            <Card className="shadow-lg bg-gradient-to-br from-gray-800 to-gray-900 text-white border-gray-700 p-8" data-testid="tsu-x-whitepaper-card">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Coins className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-semibold text-orange-400 mb-2" data-testid="tsu-x-whitepaper-title">
+                  TSU-X Whitepaper
+                </h3>
+                <p className="text-lg text-white/90 font-medium">Utility Token</p>
+              </div>
+              <p className="text-white/90 mb-6 text-center leading-relaxed">
+                Technical documentation for TSU-X, the blockchain-based utility token on Polygon Mainnet that powers governance and incentives.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <span className="text-white">100B tokens on Polygon</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <span className="text-white">Governance & staking utilities</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <span className="text-white">Smart contract architecture</span>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setShowTsuXWhitepaper(true)}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3"
+                  data-testid="button-tsu-x-whitepaper-view"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+                <Button 
+                  onClick={() => window.open('/tsu-x-whitepaper.pdf', '_blank')}
+                  variant="outline"
+                  className="border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-4 py-3"
+                  data-testid="button-tsu-x-whitepaper-download"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-tsu-gold to-yellow-400" data-testid="cta-section">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
@@ -421,6 +536,10 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
       
       {/* Contact Modal */}
       <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
+      
+      {/* Whitepaper Modals */}
+      <WhitepaperModal isOpen={showTsuWhitepaper} onClose={() => setShowTsuWhitepaper(false)} type="tsu" />
+      <WhitepaperModal isOpen={showTsuXWhitepaper} onClose={() => setShowTsuXWhitepaper(false)} type="tsu-x" />
       
       <Footer />
     </div>
