@@ -449,12 +449,12 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
             </Card>
 
             {/* TSU-X Whitepaper */}
-            <Card className="shadow-lg bg-gradient-to-br from-gray-800 to-gray-900 text-white border-gray-700 p-8" data-testid="tsu-x-whitepaper-card">
+            <Card className="shadow-lg bg-gradient-to-br from-tsu-green to-tsu-light-green text-white border-tsu-dark-green p-8" data-testid="tsu-x-whitepaper-card">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Coins className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-tsu-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Coins className="h-8 w-8 text-tsu-green" />
                 </div>
-                <h3 className="text-2xl font-semibold text-orange-400 mb-2" data-testid="tsu-x-whitepaper-title">
+                <h3 className="text-2xl font-semibold text-tsu-gold mb-2" data-testid="tsu-x-whitepaper-title">
                   TSU-X Whitepaper
                 </h3>
                 <p className="text-lg text-white/90 font-medium">Utility Token</p>
@@ -464,22 +464,22 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
               </p>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">100B tokens on Polygon</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">Governance & staking utilities</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-tsu-gold flex-shrink-0" />
                   <span className="text-white">Smart contract architecture</span>
                 </div>
               </div>
               <div className="flex gap-3">
                 <Button 
                   onClick={() => setShowTsuXWhitepaper(true)}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3"
+                  className="flex-1 bg-tsu-gold hover:bg-yellow-400 text-tsu-green font-semibold py-3"
                   data-testid="button-tsu-x-whitepaper-view"
                 >
                   <FileText className="h-4 w-4 mr-2" />
@@ -488,7 +488,7 @@ Through its Currency Program, Commodities Program, and Beneficiary Program, TSA 
                 <Button 
                   onClick={() => window.open('/tsu-x-whitepaper.pdf', '_blank')}
                   variant="outline"
-                  className="border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-4 py-3"
+                  className="border-2 border-tsu-gold text-tsu-gold hover:bg-tsu-gold hover:text-tsu-green px-4 py-3"
                   data-testid="button-tsu-x-whitepaper-download"
                 >
                   <Download className="h-4 w-4" />
