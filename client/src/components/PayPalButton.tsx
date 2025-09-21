@@ -141,13 +141,17 @@ export default function PayPalButton({
 
       const onClick = async () => {
         try {
+          console.log("PayPal button clicked, creating order...");
           const checkoutOptionsPromise = createOrder();
+          console.log("Order created, starting checkout...");
           await paypalCheckout.start(
             { paymentFlow: "auto" },
             checkoutOptionsPromise,
           );
-        } catch (e) {
-          console.error(e);
+          console.log("PayPal checkout started successfully");
+        } catch (e: any) {
+          console.error("PayPal checkout error:", e);
+          alert(`PayPal Error: ${e.message || e}. Please check if popups are blocked.`);
         }
       };
 
