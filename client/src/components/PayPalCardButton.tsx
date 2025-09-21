@@ -104,14 +104,50 @@ export default function PayPalCardButton({
   };
 
   useEffect(() => {
+    const loadPayPalSDK = async () => {
+      try {
+        if (!(window as any).paypal) {
+          console.log("Loading PayPal SDK for card payments...");
+          const script = document.createElement("script");
+          script.src = import.meta.env.PROD
+            ? "https://www.paypal.com/sdk/js?components=buttons"
+            : "https://www.sandbox.paypal.com/sdk/js?components=buttons";
+          script.async = true;
+          
+          return new Promise((resolve, reject) => {
+            script.onload = () => {
+              console.log("PayPal SDK loaded successfully");
+              resolve(true);
+            };
+            script.onerror = () => {
+              console.error("Failed to load PayPal SDK");
+              reject(new Error("Failed to load PayPal SDK"));
+            };
+            document.body.appendChild(script);
+          });
+        }
+        return true;
+      } catch (error) {
+        console.error("Error loading PayPal SDK:", error);
+        throw error;
+      }
+    };
+
     const initPayPal = async () => {
       try {
+        // Ensure SDK is loaded first
+        await loadPayPalSDK();
+        
+        // Small delay to ensure SDK is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         const clientToken = await fetch("/api/paypal/setup")
           .then((res) => res.json())
           .then((data) => data.clientToken);
 
         if (!(window as any).paypal) {
-          console.error("PayPal SDK not loaded");
+          console.error("PayPal SDK still not loaded after loading attempt");
+          onPaymentError?.("PayPal SDK failed to load. Please refresh and try again.");
           return;
         }
 
@@ -139,10 +175,17 @@ export default function PayPalCardButton({
             },
           });
 
+        console.log("PayPal buttons created, checking eligibility...");
+        console.log("Container ref:", cardContainerRef.current);
+        console.log("Buttons eligible:", paypalButtonsRef.current.isEligible());
+        
         if (cardContainerRef.current && paypalButtonsRef.current.isEligible()) {
+          console.log("Rendering PayPal card button...");
           paypalButtonsRef.current.render(cardContainerRef.current);
+          console.log("PayPal card button rendered successfully");
         } else {
-          console.log("PayPal card payments not eligible");
+          console.log("PayPal card payments not eligible or container not found");
+          console.log("Container:", !!cardContainerRef.current, "Eligible:", paypalButtonsRef.current.isEligible());
           onPaymentError?.("Card payments not available. Please use PayPal instead.");
         }
       } catch (error) {
@@ -151,10 +194,10 @@ export default function PayPalCardButton({
       }
     };
 
-    // Add a small delay to ensure PayPal SDK is loaded
-    const timer = setTimeout(initPayPal, 500);
+    // Initialize PayPal immediately
+    initPayPal();
+
     return () => {
-      clearTimeout(timer);
       if (paypalButtonsRef.current) {
         paypalButtonsRef.current.close();
       }
