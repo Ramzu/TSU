@@ -128,7 +128,7 @@ export default function PayPalCardButton({
         const script = document.createElement("script");
         script.src = import.meta.env.PROD
           ? "https://www.paypal.com/sdk/js?components=buttons&disable-funding=credit,card"
-          : "https://www.sandbox.paypal.com/sdk/js?components=buttons&disable-funding=credit";
+          : "https://www.paypal.com/sdk/js?components=buttons&disable-funding=credit,card";
         script.async = true;
         
         return new Promise((resolve, reject) => {
@@ -226,8 +226,13 @@ export default function PayPalCardButton({
       // Use the same createOrder function but trigger payment differently
       const orderId = await createOrder();
       
-      // For fallback, we'll redirect to PayPal directly with the order
-      window.open(`https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`, '_blank');
+      // Use live PayPal checkout URL (not sandbox)
+      const checkoutUrl = import.meta.env.PROD 
+        ? `https://www.paypal.com/checkoutnow?token=${orderId}`
+        : `https://www.paypal.com/checkoutnow?token=${orderId}`;
+      
+      console.log("Opening PayPal checkout:", checkoutUrl);
+      window.open(checkoutUrl, '_blank');
       
     } catch (error) {
       console.error("Fallback payment error:", error);
