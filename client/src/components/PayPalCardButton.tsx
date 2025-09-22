@@ -161,8 +161,7 @@ export default function PayPalCardButton({
           .then((data) => data.clientToken);
 
         if (!(window as any).paypal) {
-          console.error("PayPal SDK still not loaded after loading attempt");
-          onPaymentError?.("PayPal SDK failed to load. Please refresh and try again.");
+          console.log("PayPal SDK still not loaded, using fallback button");
           return;
         }
 
@@ -201,11 +200,10 @@ export default function PayPalCardButton({
         } else {
           console.log("PayPal card payments not eligible or container not found");
           console.log("Container:", !!cardContainerRef.current, "Eligible:", paypalButtonsRef.current.isEligible());
-          onPaymentError?.("Card payments not available. Please use PayPal instead.");
+          console.log("Fallback button will be shown");
         }
       } catch (error) {
-        console.error("Failed to initialize PayPal card payments:", error);
-        onPaymentError?.("Failed to initialize card payments");
+        console.log("PayPal card button initialization failed, using fallback:", error);
       }
     };
 
@@ -236,7 +234,7 @@ export default function PayPalCardButton({
       
     } catch (error) {
       console.error("Fallback payment error:", error);
-      onPaymentError?.("Payment initialization failed. Please try again.");
+      alert("Payment initialization failed. Please try again.");
     }
   };
 
