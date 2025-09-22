@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PayPalCardButtonProps {
@@ -20,10 +20,11 @@ export default function PayPalCardButton({
 
   const createOrder = async () => {
     try {
+      console.log("Creating PayPal order with amount:", amount, "currency:", currency);
       const orderPayload = {
         amount: amount,
         currency: currency,
-        intent: "CAPTURE",
+        intent: "CAPTURE", // PayPal API expects uppercase
       };
       const response = await fetch("/api/paypal/order", {
         method: "POST",
@@ -32,11 +33,21 @@ export default function PayPalCardButton({
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        console.error("PayPal order creation failed:", response.status, errorData);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorData.error || errorData.message}`);
       }
       
       const output = await response.json();
-      return output.id;
+      console.log("PayPal order created successfully:", output);
+      
+      // Return just the order ID string
+      if (typeof output.id === 'string') {
+        return output.id;
+      } else {
+        console.error("Order ID is not a string:", output);
+        throw new Error("Invalid order ID format");
+      }
     } catch (error) {
       console.error("Error creating PayPal order:", error);
       onPaymentError?.("Failed to create payment order");
@@ -105,28 +116,32 @@ export default function PayPalCardButton({
 
   useEffect(() => {
     const loadPayPalSDK = async () => {
-      try {
-        if (!(window as any).paypal) {
-          console.log("Loading PayPal SDK for card payments...");
-          const script = document.createElement("script");
-          script.src = import.meta.env.PROD
-            ? "https://www.paypal.com/sdk/js?components=buttons"
-            : "https://www.sandbox.paypal.com/sdk/js?components=buttons";
-          script.async = true;
-          
-          return new Promise((resolve, reject) => {
-            script.onload = () => {
-              console.log("PayPal SDK loaded successfully");
-              resolve(true);
-            };
-            script.onerror = () => {
-              console.error("Failed to load PayPal SDK");
-              reject(new Error("Failed to load PayPal SDK"));
-            };
-            document.body.appendChild(script);
-          });
-        }
+      // Check if PayPal SDK is already loaded from the main PayPal button
+      if ((window as any).paypal) {
+        console.log("PayPal SDK already loaded from main component");
         return true;
+      }
+      
+      // If not loaded, try to load it
+      try {
+        console.log("Loading PayPal SDK for card payments...");
+        const script = document.createElement("script");
+        script.src = import.meta.env.PROD
+          ? "https://www.paypal.com/sdk/js?components=buttons&disable-funding=credit,card"
+          : "https://www.sandbox.paypal.com/sdk/js?components=buttons&disable-funding=credit";
+        script.async = true;
+        
+        return new Promise((resolve, reject) => {
+          script.onload = () => {
+            console.log("PayPal SDK loaded successfully for card payments");
+            resolve(true);
+          };
+          script.onerror = () => {
+            console.error("Failed to load PayPal SDK for card payments");
+            reject(new Error("Failed to load PayPal SDK"));
+          };
+          document.body.appendChild(script);
+        });
       } catch (error) {
         console.error("Error loading PayPal SDK:", error);
         throw error;
@@ -204,13 +219,54 @@ export default function PayPalCardButton({
     };
   }, [amount, currency]);
 
+  const [showFallbackButton, setShowFallbackButton] = useState(false);
+
+  const handleFallbackPayment = async () => {
+    try {
+      // Use the same createOrder function but trigger payment differently
+      const orderId = await createOrder();
+      
+      // For fallback, we'll redirect to PayPal directly with the order
+      window.open(`https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`, '_blank');
+      
+    } catch (error) {
+      console.error("Fallback payment error:", error);
+      onPaymentError?.("Payment initialization failed. Please try again.");
+    }
+  };
+
+  // Set fallback button after timeout if PayPal button doesn't render
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (cardContainerRef.current && cardContainerRef.current.children.length === 0) {
+        console.log("PayPal card button didn't render, showing fallback");
+        setShowFallbackButton(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, []);
+
   return (
     <div className="w-full">
       <div 
         ref={cardContainerRef} 
-        className="paypal-card-button-container"
+        className="paypal-card-button-container min-h-[40px]"
         data-testid="paypal-card-button"
       />
+      
+      {showFallbackButton && (
+        <div className="mt-2">
+          <button
+            onClick={handleFallbackPayment}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+            data-testid="fallback-card-payment-button"
+          >
+            💳 Pay with Card
+          </button>
+        </div>
+      )}
+      
       <p className="text-xs text-gray-500 mt-2 text-center">
         Powered by PayPal - Pay with your debit or credit card
       </p>
