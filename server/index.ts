@@ -76,7 +76,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Add console.log statements to track server startup progress
-console.log('Starting TSU Wallet server...');
+console.log('Starting TSU server...');
 console.log('Environment:', process.env.NODE_ENV || 'development');
 console.log('Port:', process.env.PORT || '5000');
 
@@ -133,7 +133,7 @@ console.log('Port:', process.env.PORT || '5000');
       host: "0.0.0.0",
       reusePort: true,
     }, () => {
-      console.log(`✅ TSU Wallet server successfully started!`);
+      console.log(`✅ TSU server successfully started!`);
       console.log(`📱 Server running at http://0.0.0.0:${port}`);
       console.log(`🌍 Environment: ${env}`);
       log(`serving on port ${port}`);

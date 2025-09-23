@@ -248,7 +248,7 @@ export const smtpConfig = pgTable("smtp_config", {
   username: varchar("username").notNull(),
   password: varchar("password").notNull(), // Encrypted
   fromEmail: varchar("from_email").notNull(),
-  fromName: varchar("from_name").default('TSU Wallet'),
+  fromName: varchar("from_name").default('TSU'),
   isActive: boolean("is_active").default(true),
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -265,7 +265,7 @@ export const siteMetadata = pgTable("site_metadata", {
   ogType: varchar("og_type").default('website'), // Open Graph content type
   ogUrl: varchar("og_url"), // Canonical URL for the page
   twitterCard: varchar("twitter_card").default('summary_large_image'),
-  siteName: varchar("site_name").default('TSU Wallet'),
+  siteName: varchar("site_name").default('TSU'),
   fbAppId: varchar("fb_app_id").default('966242223397117'), // Facebook App ID
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),

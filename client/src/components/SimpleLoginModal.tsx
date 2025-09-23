@@ -218,7 +218,7 @@ export default function SimpleLoginModal({ isOpen, onClose, mode }: SimpleLoginM
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {currentMode === 'login' ? 'Welcome Back' : 'Join TSU Wallet'}
+            {currentMode === 'login' ? 'Welcome Back' : 'Join TSU'}
           </DialogTitle>
           <DialogDescription>
             {currentMode === 'login' 

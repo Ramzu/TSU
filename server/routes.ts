@@ -964,7 +964,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username,
         password, // TODO: Encrypt this in production
         fromEmail,
-        fromName: fromName || 'TSU Wallet',
+        fromName: fromName || 'TSU',
         createdBy: req.currentUser.id,
       });
       
@@ -2062,7 +2062,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const recipientEmail of recipients) {
           try {
             const mailOptions = {
-              from: `${smtpConfig.fromName || 'TSU Wallet'} <${smtpConfig.fromEmail}>`,
+              from: `${smtpConfig.fromName || 'TSU'} <${smtpConfig.fromEmail}>`,
               to: recipientEmail,
               subject: subject,
               text: isHtml ? undefined : message,

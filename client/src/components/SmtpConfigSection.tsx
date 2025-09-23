@@ -59,7 +59,7 @@ export default function SmtpConfigSection() {
       username: "",
       password: "",
       fromEmail: "",
-      fromName: "TSU Wallet",
+      fromName: "TSU",
     },
   });
 
@@ -73,7 +73,7 @@ export default function SmtpConfigSection() {
         username: smtpConfig.username || "",
         password: "", // Always empty for security
         fromEmail: smtpConfig.fromEmail || "",
-        fromName: smtpConfig.fromName || "TSU Wallet",
+        fromName: smtpConfig.fromName || "TSU",
       });
     }
   }, [smtpConfig, isEditing, form]);
@@ -330,7 +330,7 @@ export default function SmtpConfigSection() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="TSU Wallet"
+                          placeholder="TSU"
                           data-testid="input-from-name"
                         />
                       </FormControl>

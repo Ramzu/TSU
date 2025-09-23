@@ -46,7 +46,7 @@ export class EmailService {
     const mailOptions = {
       from: `"${smtpConfig.fromName}" <${smtpConfig.fromEmail}>`,
       to: toEmail,
-      subject: 'Reset Your TSU Wallet Password',
+      subject: 'Reset Your TSU Password',
       html: `
         <!DOCTYPE html>
         <html>
@@ -57,7 +57,7 @@ export class EmailService {
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #2d5016 0%, #3a6b1b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: #d4af37; margin: 0; font-size: 28px;">TSU Wallet</h1>
+            <h1 style="color: #d4af37; margin: 0; font-size: 28px;">TSU</h1>
             <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Trade Settlement Unit</p>
           </div>
           
@@ -66,7 +66,7 @@ export class EmailService {
             
             <p>Hello${userName ? ` ${userName}` : ''},</p>
             
-            <p>We received a request to reset your password for your TSU Wallet account. If you didn't make this request, you can safely ignore this email.</p>
+            <p>We received a request to reset your password for your TSU account. If you didn't make this request, you can safely ignore this email.</p>
             
             <p>To reset your password, click the button below:</p>
             
@@ -86,18 +86,18 @@ export class EmailService {
             </p>
             
             <p style="font-size: 14px; color: #666;">
-              This email was sent from TSU Wallet. If you have any questions, please contact our support team.
+              This email was sent from TSU. If you have any questions, please contact our support team.
             </p>
           </div>
         </body>
         </html>
       `,
       text: `
-        TSU Wallet - Password Reset Request
+        TSU - Password Reset Request
         
         Hello${userName ? ` ${userName}` : ''},
         
-        We received a request to reset your password for your TSU Wallet account. If you didn't make this request, you can safely ignore this email.
+        We received a request to reset your password for your TSU account. If you didn't make this request, you can safely ignore this email.
         
         To reset your password, visit this link:
         ${resetUrl}
@@ -106,7 +106,7 @@ export class EmailService {
         
         If you're having trouble with the link, copy and paste it into your web browser.
         
-        This email was sent from TSU Wallet. If you have any questions, please contact our support team.
+        This email was sent from TSU. If you have any questions, please contact our support team.
       `
     };
 

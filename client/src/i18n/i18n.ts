@@ -58,8 +58,8 @@ const resources = {
       "stats.tradeVolume": "Trade Volume",
       
       // Authentication
-      "auth.login.title": "Login to TSU Wallet",
-      "auth.register.title": "Create Your TSU Wallet",
+      "auth.login.title": "Login to TSU",
+      "auth.register.title": "Create Your TSU Account",
       "auth.email": "Email Address",
       "auth.password": "Password",
       "auth.firstName": "First Name",
@@ -115,7 +115,7 @@ const resources = {
       "toast.loginWelcome": "Welcome {{name}}!",
       "toast.loginFailed": "Login Failed",
       "toast.registrationSuccess": "Registration Successful",
-      "toast.registrationWelcome": "Welcome to TSU Wallet, {{name}}! Your account has been created.",
+      "toast.registrationWelcome": "Welcome to TSU, {{name}}! Your account has been created.",
       "toast.registrationFailed": "Registration Failed",
       "toast.logoutSuccess": "Logged Out",
       "toast.logoutMessage": "You have been successfully logged out.",

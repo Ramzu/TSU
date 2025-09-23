@@ -45,14 +45,14 @@ export default function MetadataEditor() {
   const form = useForm<MetadataFormData>({
     resolver: zodResolver(metadataSchema),
     defaultValues: {
-      title: "TSU Wallet - Trade Settlement Unit | Africa-BRICS Digital Currency",
+      title: "TSU - Trade Settlement Unit | Africa-BRICS Digital Currency",
       description: "The future of Africa-BRICS trade settlements. A stable, reserve-backed digital currency freeing African nations from USD dependence.",
       keywords: "TSU, Trade Settlement Unit, digital currency, Africa, BRICS, cryptocurrency, wallet, blockchain, reserve-backed",
       ogImage: "/tsu-logo.png",
       ogType: "website",
       ogUrl: "",
       twitterCard: "summary_large_image",
-      siteName: "TSU Wallet",
+      siteName: "TSU",
       fbAppId: "966242223397117",
     },
   });
@@ -127,7 +127,7 @@ export default function MetadataEditor() {
         ogType: (metadata as any).ogType || "website",
         ogUrl: (metadata as any).ogUrl || "",
         twitterCard: (metadata as any).twitterCard || "summary_large_image",
-        siteName: (metadata as any).siteName || "TSU Wallet",
+        siteName: (metadata as any).siteName || "TSU",
         fbAppId: (metadata as any).fbAppId || "966242223397117",
       };
       form.reset(metadataValues);
@@ -273,7 +273,7 @@ export default function MetadataEditor() {
           Social Media Metadata Editor
         </h1>
         <p className="text-gray-600">
-          Control how your TSU Wallet appears when shared on social media platforms like Facebook, Twitter, LinkedIn, and WhatsApp.
+          Control how your TSU appears when shared on social media platforms like Facebook, Twitter, LinkedIn, and WhatsApp.
         </p>
       </div>
 
@@ -506,7 +506,7 @@ export default function MetadataEditor() {
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="TSU Wallet"
+                            placeholder="TSU"
                             data-testid="input-sitename"
                           />
                         </FormControl>
