@@ -300,9 +300,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           user.firstName || undefined
         );
         res.json({ message: "If the email exists, a password reset link has been sent." });
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error("Error sending password reset email:", emailError);
-        res.status(500).json({ message: "Failed to send password reset email. Please contact support." });
+        const errorMessage = emailError?.message || 'Unknown error';
+        console.error("Detailed error:", {
+          message: errorMessage,
+          code: emailError?.code,
+          command: emailError?.command,
+          response: emailError?.response,
+        });
+        res.status(500).json({ 
+          message: `Failed to send password reset email: ${errorMessage}. Please check SMTP configuration in admin panel.`,
+          details: emailError?.code || errorMessage
+        });
       }
     } catch (error) {
       console.error("Error in forgot password:", error);
@@ -2048,6 +2058,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Use custom SMTP server
         const nodemailer = require('nodemailer');
         
+        console.log('Creating SMTP transporter for bulk email with config:', {
+          host: smtpConfig.host,
+          port: smtpConfig.port,
+          secure: smtpConfig.secure,
+          user: smtpConfig.username,
+        });
+
         const transporter = nodemailer.createTransport({
           host: smtpConfig.host,
           port: smtpConfig.port || 587,
@@ -2056,7 +2073,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             user: smtpConfig.username,
             pass: smtpConfig.password,
           },
-        });
+          debug: true,
+          logger: true,
+        } as any);
 
         // Send emails using custom SMTP
         for (const recipientEmail of recipients) {
@@ -2072,9 +2091,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await transporter.sendMail(mailOptions);
             successCount++;
           } catch (error: any) {
-            console.error(`Failed to send email to ${recipientEmail}:`, error);
+            console.error(`❌ Failed to send email to ${recipientEmail}:`, error);
+            console.error('Error details:', {
+              message: error.message,
+              code: error.code,
+              command: error.command,
+              response: error.response,
+            });
             failureCount++;
-            errors.push(`${recipientEmail}: ${error.message}`);
+            errors.push(`${recipientEmail}: ${error.message} (${error.code || 'no code'})`);
           }
         }
       } else if (process.env.SENDGRID_API_KEY) {
@@ -2097,9 +2122,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await sgMail.send(msg);
             successCount++;
           } catch (error: any) {
-            console.error(`Failed to send email to ${recipientEmail}:`, error);
+            console.error(`❌ Failed to send email via SendGrid to ${recipientEmail}:`, error);
+            console.error('SendGrid error details:', {
+              message: error.message,
+              code: error.code,
+              response: error.response?.body,
+            });
             failureCount++;
-            errors.push(`${recipientEmail}: ${error.message}`);
+            errors.push(`${recipientEmail}: ${error.message} (${error.code || 'no code'})`);
           }
         }
       } else {

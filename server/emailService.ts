@@ -11,6 +11,13 @@ export class EmailService {
       throw new Error('SMTP configuration not found. Please configure SMTP settings in admin panel.');
     }
 
+    console.log('Initializing SMTP transporter with config:', {
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      user: smtpConfig.username,
+    });
+
     this.transporter = nodemailer.createTransport({
       host: smtpConfig.host,
       port: smtpConfig.port,
@@ -19,10 +26,18 @@ export class EmailService {
         user: smtpConfig.username,
         pass: smtpConfig.password,
       },
-    });
+      debug: true,
+      logger: true,
+    } as any);
 
     // Verify the connection
-    await this.transporter.verify();
+    try {
+      await this.transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+    } catch (error) {
+      console.error('❌ SMTP verification failed:', error);
+      throw new Error(`SMTP verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
     
     return this.transporter;
   }
@@ -110,8 +125,15 @@ export class EmailService {
       `
     };
 
-    const result = await this.transporter!.sendMail(mailOptions);
-    return result;
+    try {
+      console.log('Attempting to send password reset email to:', toEmail);
+      const result = await this.transporter!.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send email:', error);
+      throw error;
+    }
   }
 
   async testConnection() {
