@@ -14,6 +14,8 @@ import * as bitcoinMessage from "bitcoinjs-message";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
 // Configure multer for image uploads
 const upload = multer({
@@ -2056,8 +2058,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (smtpConfig && smtpConfig.host) {
         // Use custom SMTP server
-        const nodemailer = require('nodemailer');
-        
         console.log('Creating SMTP transporter for bulk email with config:', {
           host: smtpConfig.host,
           port: smtpConfig.port,
@@ -2104,7 +2104,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else if (process.env.SENDGRID_API_KEY) {
         // Fallback to SendGrid if SMTP not configured
-        const sgMail = require('@sendgrid/mail');
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         
         const fromEmail = 'admin@tsu-wallet.com';
